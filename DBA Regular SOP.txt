@@ -1,0 +1,3008 @@
+DR archive mount:ARCHIVE RECLAIM SCRIPT LOCATION 
+
+PROD 
+
+1. Verifying the latest backup status 
+2. DR sync 
+3. Backup script 
+ /nsr/scripts/oracle/arch_INSTANCENAME_rman
+4. Connect to RMAN 
+
+Step 1
+ 
+Sqlplus / as sysdba
+
+ 
+
+select arch.thread# "thread", arch.sequence# "last sequence received", appl.sequence# "last sequence applied", (arch.sequence# - appl.sequence#) "difference"
+from(select thread# ,sequence# from v$archived_log where (thread#,first_time ) in (select thread#,max(first_time) from v$archived_log group by thread#)) arch,
+(select thread# ,sequence# from v$log_history where (thread#,first_time ) in (select thread#,max(first_time) from v$log_history group by thread#)) appl
+where arch.thread# = appl.thread# order by 1;
+
+For PROD:
+PROD : select thread#,max(sequence#) from v$archived_log where resetlogs_change#=(select resetlogs_change# from v$database) group by thread#;
+
+
+select database_role from v$database;
+
+uptime of database:
+select name,database_role ,open_mode,startup_time from v$database,v$instance;
+
+Step 2
+
+Rman target /
+
+
+Step 3
+
+
+delete force noprompt archivelog until sequence 53210;
+
+
+INC0615461
+
+To see RMAN Backup Status:
+
+col STATUS format a9
+col hrs format 999.99
+select
+SESSION_KEY, INPUT_TYPE, STATUS,to_char(START_TIME,'mm/dd/yy hh24:mi') start_time,
+to_char(END_TIME,'mm/dd/yy hh24:mi')   end_time,
+elapsed_seconds/3600               hrs
+from V$RMAN_BACKUP_JOB_DETAILS
+order by session_key;
+
+
+
+Blocking locks:
+
+1)Connect to database
+
+set pages 300 lines 300
+SELECT inst_id, DECODE(request,0,'Holder: ','Waiter: ')|| sid sess, id1, id2, lmode,request, type
+FROM GV$LOCK WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM GV$LOCK WHERE request>0)
+ORDER BY id1, request;
+
+
+select s1.username || '@' || s1.machine
+|| ' ( SID=' || s1.sid || ' )  is blocking '
+|| s2.username || '@' || s2.machine || ' ( SID=' || s2.sid || ' ) ' AS blocking_status
+from v$lock l1, v$session s1, v$lock l2, v$session s2
+where s1.sid=l1.sid and s2.sid=l2.sid
+and l1.BLOCK=1 and l2.request > 0
+and l1.id1 = l2.id1
+and l2.id2 = l2.id2 ;
+
+
+
+Get Holder ID from above query result
+
+2)@sid:Holder Id
+
+Get the Process ID from above 
+3)@unix:Process ID
+
+
+4)
+alter system kill session 'SID,Serial';
+
+
+
+For Long running request VIEW:
+apps.fnd_concurrent_request
+
+
+
+Database alert log:
+Login into server and directed to the orauser
+Execute adcri cmd
+select the correct instance num
+Check With ora number and take jobid
+
+Connect to database
+job id
+col LOG_USER for a20
+col PRIV_USER for a30
+col SCHEMA_USER for a30
+col WHAT for a20
+set lines 200
+select JOB,LOG_USER,PRIV_USER,SCHEMA_USER,WHAT,FAILURES from dba_jobs where job in (1120781);
+
+(or)
+
+show parameter back
+ls -lrt alert*
+view
+echo $ORACLE_SID
+
+scn backup
+select process, status, sequence# from v$managed_standby;
+
+Welblit Custome code off process:
+https://ftp.mozilla.org/pub/firefox/releases/47.0.2/win32/en-US/
+
+https://drive.google.com/file/d/1XLoGdwh0HDQD3s-HNszeTUNqEb3qmhjF/view?usp=sharing
+
+PROD - M4n1t@w0c2021 - http://mfs-pebs.mtw.itciss.com/
+alpha : Admin.@lpha21 - http://alpha1.mtw.itciss.com/  (SYS@dminA1pha) -- mtw-365-cap51.mtw.itciss.com
+bravo - Welcome123 - http://bravo2.mtw.itciss.com/  mtw-365-uap51.mtw.itciss.com
+test - sys4dmt3st3021 - http://test.mtw.itciss.com/    (sys4dmt3st2020) -- mtw-365-tap52.mtw.itciss.com
+dev - Devadm1n0wy21 - http://dev.mtw.itciss.com/  (devadm1n7wy1234) -- mtw-365-dap52.mtw.itciss.com  
+
+
+PROD - m4n1t0w0c1 - http://mfs-pebs.mtw.itciss.com/
+alpha : twomtwalp123 - http://alpha1.mtw.itciss.com/ 
+bravo - adminBrAvo2 - http://bravo2.mtw.itciss.com/   
+test - sys4dmt4stok - http://test.mtw.itciss.com/    
+dev - welcomedev36 - http://dev.mtw.itciss.com/ 
+
+
+RITM0016022
+SCTASK0045503
+rgesler@cornerstone-bb.com>"
+
+https://docs.google.com/document/d/1q-I0Vgpxd_Y2MyORxOsmfjP1CPiZa2qfos5K2-e5rK4/edit
+
+FNDCPASS apps/appsbravo 0 Y system/systembravo user sysadmin Ebsbravo2022
+
+https://docs.oracle.com/cd/E18727_01/doc.121/e12893/T174296T560240.htm
+
+6cXm[KBdJ[=730G
+SELECT inst_id, DECODE(request,0,'Holder: ','Waiter: ')|| sid sess, id1, id2, lmode,request, type
+FROM GV$LOCK WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM GV$LOCK WHERE request>0)
+ORDER BY id1, request;
+
+
+Tablespace:
+
+cmds:
+1.
+sql> select name,database_role,open_mode from v$database;
+select name,open_mode,database_role,startup_time from v$database,v$instance;
+select name,created from v$database;
+srvctl   status   database   -d   prod
+
+
+
+2.to check the tablespace size (used and free):
+sql> select a.tbl "Name",a.tsz "Total Size",b.fsz "Free Space", round((1-(b.fsz/a.tsz))*100) "Pct Used",round((b.fsz/a.tsz)*100) "Pct Free" from (select tablespace_name tbl,sum(bytes)/1024/1024 TSZ from dba_data_files where tablespace_name like '%&1%' group by tablespace_name) a, (select tablespace_name tblsp,sum(bytes)/1024/1024 FSZ from dba_free_space where tablespace_name like '%&1%' group by tablespace_name) b Where a.tbl=b.tblsp;
+
+
+
+
+3.To check How many datafiles there in a tablespace:
+sql> col FILE_NAME for a40;
+      set lines 200;
+      select TABLESPACE_NAME,FILE_NAME,bytes/1024/1024,maxbytes/1024/1024,STATUS,AUTOEXTENSIBLE from dba_data_files where TABLESPACE_NAME like '%&1%' order by file_name;
+
+4.To check the free size of the ASM disk tablespace:
+sql> SELECT name, total_mb, free_mb,total_mb-free_mb "used", state FROM v$asm_diskgroup WHERE name IN (SELECT substr(name,2,instr(name,'/',1)-2) FROM v$datafile);
+
+select name,total_mb/1024,free_mb/1024 from v$asm_diskgroup;
+
+
+To see whether datafile existed or not:
+col FILE_NAME for a50;
+set lines 200;
+select 
+TABLESPACE_NAME,FILE_NAME,bytes/1024/1024,maxbytes/1024/1024,STATUS,AUTOEXTENSIBLE from dba_data_files where TABLESPACE_NAME like 'APPS_TS_TX_IDX' and FILE_NAME like '%14%' order by file_name;
+
+warning:
+--------
+sql> alter database datafile 'datafilename' resize 20G;
+
+
+
+again check the size of tablespace:
+Sql> select a.tbl "Name",a.tsz "Total Size",b.fsz "Free Space", round((1-(b.fsz/a.tsz))*100) "Pct Used",round((b.fsz/a.tsz)*100) "Pct Free" from (select tablespace_name tbl,sum(bytes)/1024/1024 TSZ from dba_data_files where tablespace_name like '%&1%' group by tablespace_name) a, (select tablespace_name tblsp,sum(bytes)/1024/1024 FSZ from dba_free_space where tablespace_name like '%&1%' group by tablespace_name) b Where a.tbl=b.tblsp;
+
+
+
+Check size of UNDO Table:
+
+SELECT d.tablespace_name, round(((NVL(f.bytes,0) + (a.maxbytes - a.bytes))/1048576+ u.exp_space),2)
+  as max_free_mb, round(((a.bytes - (NVL(f.bytes,0)+ (1024*1024*u.exp_space)))*100/a.maxbytes),2)
+  used_pct FROM sys.dba_tablespaces d, (select tablespace_name, sum(bytes) bytes,
+  sum(greatest(maxbytes,bytes)) maxbytes from sys.dba_data_files group by tablespace_name) a,
+  (select tablespace_name, sum(bytes) bytes from sys.dba_free_space group by tablespace_name) f ,
+  (select tablespace_name , sum(blocks)*8/(1024) exp_space from
+  dba_undo_extents where status NOT IN ('ACTIVE','UNEXPIRED') group by tablespace_name) u
+  WHERE d.tablespace_name = a.tablespace_name(+) AND d.tablespace_name = f.tablespace_name(+)
+  AND d.tablespace_name=u.tablespace_name AND d.contents = 'UNDO' AND u.tablespace_name = (select UPPER(value)
+  from v$parameter where name = 'undo_tablespace');
+
+Undo Active/Expired/Unexpired:
+
+select     tablespace_name,   
+status,
+count(extent_id) "Extent Count",
+sum(blocks) "Total Blocks",         
+sum(blocks)*8/(1024*1024) total_space
+from     dba_undo_extents
+group by    tablespace_name, status;
+
+
+
+Check size of Temp Table:
+set pages 300 lines 300
+col TABLESPACE_NAME for a20	
+SELECT a.tablespace_name,ROUND((c.total_blocks*b.block_size)/1024/1024/1024,2)
+"Total Size [GB]",ROUND((a.used_blocks*b.block_size)/1024/1024/1024,2) "Used_size[GB]",
+ROUND(((c.total_blocks-a.used_blocks)*b.block_size)/1024/1024/1024,2) "Free_size[GB]",
+ROUND((a.max_blocks*b.block_size)/1024/1024/1024,2) "Max_Size_Ever_Used[GB]",
+ROUND((a.max_used_blocks*b.block_size)/1024/1024/1024,2) "MaxSize_ever_Used_by_Sorts[GB]" ,
+ROUND((a.used_blocks/c.total_blocks)*100,2) "Used Percentage"
+FROM V$sort_segment a,dba_tablespaces b,(SELECT tablespace_name,SUM(blocks)
+total_blocks FROM dba_temp_files GROUP by tablespace_name) c
+WHERE a.tablespace_name=b.tablespace_name AND a.tablespace_name=c.tablespace_name;
+
+
+
+
+col USERNAME for a10
+set lines 200
+col LASTCALLET for a20
+col TABLESPACE for a10
+cursor bigtemp_sids is
+select * from (
+select s.sid,
+s.status,
+s.sql_hash_value sesshash,
+u.SQLHASH sorthash,
+s.username,
+u.tablespace,
+sum(u.blocks*p.value/1024/1024) mbused ,
+sum(u.extents) noexts,
+nvl(s.module,s.program) proginfo,
+floor(last_call_et/3600)||':'||
+floor(mod(last_call_et,3600)/60)||':'||
+mod(mod(last_call_et,3600),60) lastcallet
+from v$sort_usage u,
+v$session s,
+v$parameter p
+where u.session_addr = s.saddr
+and p.name = 'db_block_size'
+group by s.sid,s.status,s.sql_hash_value,u.sqlhash,s.username,u.tablespace,
+nvl(s.module,s.program),
+floor(last_call_et/3600)||':'||
+floor(mod(last_call_et,3600)/60)||':'||
+mod(mod(last_call_et,3600),60)
+order by 7 desc,3)
+where rownum < 11;
+
+
+
+
+
+
+
+
+INACTIVE FRM WEB SESSIONS:
+select count(*) from v$session where status='INACTIVE' and last_call_et>3600*4 and EVENT='SQL*Net message from client' and PROGRAM like 'frmweb%';
+
+To clear frmweb which is older than 4 hrs
+set pages 200 
+select 'alter system kill session ' || '''' || sid || ',' || serial# || '''' || ' immediate;' from  v$session where status='INACTIVE' and last_call_et>3600*4 and EVENT='SQL*Net message from client' and PROGRAM like 'frmweb%'; 
+
+
+
+To connect to the Database:
+choose_env
+
+
+For OSWATCHER:
+tail -f osw_start.out
+
+
+
+
+
+Disk Software:
+ cd /us2201/app/oracle/admin/diag/rdbms/tebue2/TEBUE2
+   ll
+   du -sh *
+  cd trace/
+  ls -lSh|head -30
+  gzip TEBUE2_ora_20805_APPS_0910_074417.trc
+
+Search for help:  Type ":help word", then hit CTRL-D to see matching
+                    help entries for "word".
+                    Or use ":helpgrep word". :helpgrep
+
+
+Patch mount:
+select bug_number, creation_date, Language from ad_bugs where bug_number in ('19929029','11872821','21043036','18068851','17454491','22235332');
+
+
+For Data mount:
+
+1. If we have enough spae in disk, check if we can change nagios thresholds 
+2. If we dont have any space, then we send an email to  SDM and Primary dbas
+3. Once we get confirmation, we create a COF and send it to hosting
+
+
+Zipping log and out files:
+find . -name "*.req" -mtime +1 -exec gzip {} \; &
+find . -name "*.out" -mtime +1 -exec gzip {} \; &
+
+For Data:
+We see '/ud4101'(data) mount reached threshold limit ,
+Could you please let us know if we can increase the threshold or to proceed with the COF.
+
+
+
+For temp:
+We see below active SQL Developer session is consuming high temp usage.
+Please find the below session details and let us know if any action is required.
+
+DB Recovery usage:
+
+select PERCENT_SPACE_USED,PERCENT_SPACE_RECLAIMABLE,NUMBER_OF_FILES from v$recovery_area_usage;
+
+delete force noprompt archivelog all completed before 'sysdate-1';
+
+Session Waits:
+DB file sequential read,
+DB file scattered read,
+PLSQL lock timer,
+Direct path read temp.
+TCP socket timeout.
+SQL*NET message from client
+
+
+-> APPLCSF :
+
+cd <mount>/applcsf/log --> 
+find . -name "*.txt" -mtime +7 -exec rm {} \; & 
+find . -name "log*.xml" -mtime +15 -exec rm {} \; &
+find . -name "core*" -mmin +60 -exec rm -rf {} \; &
+find . -name "metricdump*" -mtime +5 -exec rm {} \; &
+
+cd <mount>/applcsf/out -->
+find . -name "*.aud.gz" -mtime +15 -exec rm {} \; &
+find . -name "CCDHPRD_j002*.trc" -mtime +15 -exec rm {} \; &
+find . -name "*.pdf" -mtime +7 -exec rm {} \; &
+find . -name "adwork*.log" -mtime +365 -exec rm  {} \; &
+
+find . -name "incdir_*" -mtime +7 -exec rm -rf {} \; &
+find . -name "*.req" -mtime +7 -exec gzip {} \; &
+find . -name "*.req" -mtime +30 -exec ls -lrt {} \; |wc -l
+ls -lSah|head -30
+
+
+
+find . -name "*.t.gz" -mtime +60 -exec rm {} \; &
+
+-->APPL_TOP & COMN_TOP :
+
+find . -name "*.xls" -mtime +5 -exec gzip {} \; &
+find . -name "*.trm" -mtime +10 -exec rm -rf   {} \; &
+
+find . -name "*.old" -mtime +730 -exec rm -rf {} \; &
+
+find . -name "EBS_domain.log*" -mtime +5 -exec rm  {} \; &
+
+To move large amount of files to another location:
+find . -name "*.aud" -mtime +7 -type f -exec mv "{}" /stage/audfiles_24march2022/ \; &
+find . -name "*.mgr" -mtime +3 -type f -exec ls -l {} \;
+
+
+  561  find . -name "*.log" -head -exec mv "{}" INC1128397 \;
+  562  find . -name "*.log" -mtime +30 -exec mv "{}" INC1128397 \;
+  563  cd INC1128397
+  564  ls
+  565  ls -lSh | head
+  566  cd ..
+  567  tar -czf INC1128397.tar.gz INC1128397 && rm -R INC1128397
+  
+  
+  
+Zip and remove source file :
+
+tar -czf audfiles_24march2022.tar.gz audfiles_24march2022 && rm -R INC1128397
+
+Tar zip 
+
+tar -czf /uu1001/refresh_files092221.tar.gz refresh_files092221 
+
+tar -czf /interface/FMW_Home_old_26feb20.tar.gz FMW_Home_old_26feb20
+
+
+
+du -sk * | sort -n
+
+du -xk / | sort -n -r | uniq | head 
+
+du -sh * | sort -hr | head -10
+
+
+For HDFS gg trail files:
+1)view params mgr
+2)edit params mgr
+MINKEEPHOURS ---> 24 (save changes)
+
+view params mgr
+
+3)refresh mgr (check the Space)
+
+4)stop mgr 
+
+5)info all
+
+6)start mgr
+
+
+
+Hi team,
+
+It is a communication problem between nagios and server. We are able to access the mount without any issue and also verified that we have enough space in below mount.
+
+Getty Credentials:
+VPN: vpn.gettyimages.com
+malleswari.nunna@gettyimages.com	
+Gettyim@ges4567
+awspuoadb1.prod-getty.cloud
+
+sridhar.sriramoju@gettyimages.com
+Haasan$ri1712
+
+hemanth.pallapothu@gettyimages.com
+Lkjhgfdsa@123456
+
+avinash.illindra@gettyimages.com
+P@ssw0rd4Getty
+
+
+naresh.battala@gettyimages.com
+poiuytr@1234
+
+To see deleted files:
+lsof|grep deleted
+lsof|grep deleted|grep frmweb
+
+Herber Credentials:
+herberlnx2
+IP: 10.143.128.35
+User:root
+Password:C0ntra17
+
+herberlnx3
+IP:10.143.128.36
+User:root
+Password:H3rberA1r
+
+
+Inogen:
+Weblogic Password: welc0me2u
+
+CURV:
+Weblogic Password: Webl0g1c123
+
+OUTM oacore 4.30 EST
+Amy's 2.30 PST 
+MTW 6am CST
+
+
+
+
+
+NODE_NAME
+------------------------------
+AUTHENTICATION
+CTFG-365-DAP12
+CTFG-365-DDB02
+
+To connect Pluggable database:
+
+SQL> show pdbs
+
+SQL> alter session set container=PMGRCI;
+
+SQL> select name from v$pdbs;
+
+alter pluggable database DEV2EBS open;
+
+
+Chobani
+
+cisco any connect:
+
+http://vpn.chobani.com
+
+user - santhosh.gopishetty
+
+pwd - Coffeebean66
+
+User name : it.convergence
+
+Pass : Dreaming19
+
+Oracle - support credentials:
+
+cms-ind-dba@itconvergence.com
+Winter@2020
+Summer@2023
+
+
+
+RITM0039069
+RITM0039070
+RITM0038959
+RITM0039058
+RITM0039060
+RITM0038990
+SCTASK0084481
+SCTASK0084482
+
+Ref# Doc ID 1595757.1
+
+1. Open Java Control Panel
+2. From General tab, goto Settings
+3. Delete Files
+4. Check 'Trace and Log Files' and 'Cached Applications and Applets', and OK
+5. Remove check from 'Keep temporary files on my computer.' and OK
+6. Apply
+
+
+
+To Check JDK details:
+
+● Java Development Kit (JDK) version 
+cd $ORACLE_HOME/jdk/bin/java -version
+java version "1.7.0_261"
+OpenJDK Runtime Environment (rhel-2.6.22.1.0.1.el6_10-x86_64 u261-b02)
+OpenJDK 64-Bit Server VM (build 24.261-b02, mixed mode)
+
+
+
+ ssh -L 8000:172.16.22.56:8000 172.16.22.56
+ 
+ 
+ To check the patch status:
+ select BUG_NUMBER,CREATION_DATE,language from ad_bugs where bug_number='33191673';
+ 
+ To check vertex update status:
+ select * From VERTEX.RATEADMN where RECORDTEXT like '%Rate Update 477%';
+ 
+Task Sheet:
+https://docs.google.com/spreadsheets/d/1Dx_jalRYxZ5hSWDmMm7VvwMyJ_ZwYSWIW9Prf_9O9mw/edit#gid=1069212616
+ 
+Oracle apps checks:
+http://www.oraappdata.com/2017/02/how-to-create-user-in-oracle-applications-r12.html#.YpWlwqhBw2w
+
+
+To get the sqlt plan with SQL_ID:
+set lines 2000
+set pagesize 2000
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_CURSOR('&sql_id'));
+
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_AWR('&sql_id'));
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_FZ('&sql_id',&plan_hash_value));
+
+To get the sql plan of sql baseline:
+SELECT * FROM   TABLE(DBMS_XPLAN.display_sql_plan_baseline(plan_name=>'SQL_PLAN_agz791au8s6jg30a4b3a6'));
+
+
+SQLXTRACT DOC_ID: 1614107.1
+INV DEBUG: How to get Debug Information for Inventory Material Transactions (Doc ID 148651.1)
+Concurrent Requests Fail With Error ORA-20100 (Doc ID 2723960.1)
+
+To see Discoverer version:
+strings -a dis51ws | grep "Discoverer Version:"
+
+
+Data install command :
+
+java oracle.apps.per.DataInstall <apps> <pw> thin <host:port: sid >
+java oracle.apps.per.DataInstall apps appstest thin gblg-365-tdb01.gblg.itciss.com:1551:TEST
+
+To apply hrglobal patch :
+
+$PER_TOP/patch/115/driver
+
+adop phase=apply patchtop=/ua2001n/app/fs2/EBSapps/appl/per/12.0.0/patch/115 patches=driver:hrglobal.drv options=nocopyportion,nogenerateportion,forceapply apply_mode=downtime abandon=yes restart=no
+
+
+
+To re-configure EBS:
+Using Load Balancers with Oracle E-Business Suite Release 12.2 (Doc ID 1375686.1)
+
+
+To check the file version:
+adident Header filename
+
+
+
+:%s/WORD-To-Find-HERE/Replace-Word-Here/g
+
+
+
+
+Cause: cleanup_node failed due to ORA-01427:
+
+sqlplus apps/apps
+
+sql>exec fnd_conc_clone.setup_clean;
+
+commit;
+
+sql>@cmclean.sql
+
+3. Run autoconfig in db tier.
+4. Run autoconfig in the apps tier and start the services.
+
+
+
+
+
+To update Database Tier to Latest Code:
+Create appsutil.zip and copy to DB Node and run autoconfiig    
+Run below in apps node to create appsutil.zip
+perl $AD_TOP/bin/admkappsutil.pl 
+Then take backup of appsutil directory  and copy file it to DB server on $ORACLE_HOME location.
+Unzip –o appsutil.zip and run autoconfig. 
+
+
+To Check the permissions of user:
+select * from USER_ROLE_PRIVS where USERNAME=USER;
+select * from USER_TAB_PRIVS where Grantee = USER;
+select * from USER_SYS_PRIVS where USERNAME = USER;
+select * from USER_SYS_PRIVS where USERNAME = USER;
+SELECT * FROM DBA_TAB_PRIVS WHERE GRANTEE = 'CM_USER';
+SELECT * FROM DBA_ROLE_PRIVS WHERE GRANTEE = 'USERNAME';
+SELECT * FROM DBA_SYS_PRIVS WHERE GRANTEE = 'USERNAME';
+
+Concurrent Processing User Profile Settings:
+https://docs.oracle.com/cd/A60725_05/html/comnls/us/fnd/cn_prof.htm
+
+Financial Statement Generator:
+https://docs.oracle.com/cd/A60725_05/html/comnls/us/gl/aboutfsg.htm
+
+
+
+
+To Change Look And Feel and Colors Of Oracle Applications 11i and R12:
+
+There are two system profile options that can be used to change look and feel.
+ 
+Java Look and Feel
+==================
+Java Look and Feel can have two values: GENERIC or ORACLE.
+If set to GENERIC, then set Java Color Scheme to blank.
+Which will leave look and feel to generic.
+The Generic look and feel adheres to the native interface and color scheme of the current operating system.
+If set to ORACLE (or if the value is left blank), then the profile option 'Java Color Scheme' can be used to personalize the colors of your screen.
+Java Color Scheme
+==================
+If 'Java Look and Feel' is set to ORACLE (or if the value is left blank), then 'Java Color Scheme' can be set to the following values:
+Blaf        (in R12: Swan)
+Blue
+Khaki
+Olive
+Purple
+Red
+Teal
+Titanium
+
+Do the following: 
+Login to Oracle Applications as the System Administator responsibility.
+Navigate to Profile > System.
+Ensure that the Site display is checked.
+Query up 'Java Color Scheme' for the profile.
+Select the appropriate color under the Site column.
+Save the selection.
+Sign off and back on (or change responsibility) for your new color scheme to take effect.
+
+
+
+E-Business Suite Concurrent Processing - How To Trace a Concurrent Request And Generate TKPROF File (Doc ID 453527.1
+
+
+):
+
+
+
+To change the password for APPS user:
+FNDCPASS apps/<existing apps passwd>  0 Y system/<system password> SYSTEM APPLSYS <new apps passwd>
+
+
+
+To Recompile Jsps -->R12.2  cd $FND_TOP/patch/115/bin/
+   ./ojspCompile.pl --compile --flush -p 2
+   
+   
+   RECOMPILE  JSPs
+------------------------
+1) Stop services.
+2) BACKUP and then delete the files under
+
+$OA_HTML/cabo/images/cache
+$OA_HTML/cabo/styles/cache
+
+Example:
+cd $OA_HTML/cabo/images
+cp -r cache cache_bkup_07Aug21
+cd $OA_HTML/cabo/images/cache
+rm -r *
+3) Recompile Jsps
+cd $FND_TOP/patch/115/bin/
+     ./ojspCompile.pl --compile --flush -p 2
+4) Start services
+5. Clear Cache (Doc ID 742107.1 ) - Functional administrator clear 
+Navigation: Functional Administrator => Core Services => Catching Framework => Global Configuration
+
+Clear All Cache and click on apply.
+cd $FND_TOP/patch/115/bin/
+   
+   
+For .PLS files loctaion:
+
+$WMS_TOP/patch/115/sql
+
+
+
+$ adadmin
+REBUILD THE JAR/ZIP FILES
+----------------------------------
+1. Run Adadmin
+2. Select Generate Applications Files menu
+3. Select Generate product JAR files (use FORCE)
+
+RELOAD THE JAR/ZIP FILES INTO THE DATABASE
+------------------------------------------------------------
+1. Run Adadmin
+2. Select Compile/Reload Applications Database Entities menu
+3. Select Reload JAR files to database
+
+RECOMPILE THE LOADED JAVA CLASSES
+----------------------------------------------------
+1. Run Adadmin
+2. Select Compile/Reload Applications Database Entities menu
+3. Select Compile APPS schema
+
+
+
+Cost Manager bounce:
+
+Inventory > Setup > Transactions > Interface Managers > AC1 AUTO CRANE COMPANY
+
+To get the files of each top for audit:
+SCTASK0089893
+CS0179982
+
+*find $APPL_TOP -ls|grep -v " 20" | sort -M -k8,8 -k9,9n > APPL_TOP.log*
+
+*find $COMMON_TOP -ls|grep -v " 20" | sort -M -k8,8 -k9,9n > COMMON_TOP.log*
+
+*find $ORACLE_HOME -ls|grep -v " 20" | sort -M -k8,8 -k9,9n > DB_OH_TOP.log*
+
+*find $XXUGNX_TOP -ls|grep -v " 20" | sort -M -k8,8 -k9,9n > XXUGNX_TOP.log*
+
+
+To check patch log directory:
+[PROD|applprod@virt-chi-pap01|log]$ cd pwd
+/ua1004/app/fs_ne/EBSapps/log/adop/5/apply_20220820_034424/PROD_virt-chi-pap01/34164667/log
+[PROD|applprod@virt-chi-pap01|log]$ cddf -Th /tn\mp
+Filesystem    Type    Size  Used Avail Use% Mounted on
+/dev/mapper/VolGroup00-tmpVol00
+              ext3    9.7G  3.2G  6.1G  35% /tmp
+[PROD|applprod@virt-chi-pap01|log]$ mkdir /tmp/34164667_log
+[PROD|applprod@virt-chi-pap01|log]$ cp -rp * /tmp/34164667_log
+
+[PROD|applprod@virt-chi-pap01|34164667_log]$ cd ..
+[PROD|applprod@virt-chi-pap01|tmp]$ cdzip -r 34164667_log/.zip 34164667_log/
+  adding: 34164667_log/ (stored 0%)
+  adding: 34164667_log/adwork012.log (deflated 60%)
+  adding: 34164667_log/adwork002.log (deflated 71%)
+  adding: 34164667_log/adwork013.log (deflated 60%)
+  adding: 34164667_log/adwork008.log (deflated 60%)
+  adding: 34164667_log/adwork016.log (deflated 60%)
+  adding: 34164667_log/adwork001.log (deflated 72%)
+  adding: 34164667_log/adwork010.log (deflated 60%)
+  adding: 34164667_log/adwork004.log (deflated 61%)
+  adding: 34164667_log/adwork006.log (deflated 60%)
+  adding: 34164667_log/u34164667.log (deflated 86%)
+  adding: 34164667_log/adwork005.log (deflated 60%)
+  adding: 34164667_log/adwork007.log (deflated 60%)
+  adding: 34164667_log/adwork014.log (deflated 60%)
+  adding: 34164667_log/u34164667.lgi (deflated 59%)
+  adding: 34164667_log/adwork011.log (deflated 60%)
+  adding: 34164667_log/adwork009.log (deflated 60%)
+  adding: 34164667_log/46824_preenv.html (deflated 73%)
+  adding: 34164667_log/adwork015.log (deflated 60%)
+  adding: 34164667_log/US_umxmnu_ldt.log (deflated 85%)
+  adding: 34164667_log/US_fndseccfgfuncadm_ldt.log (deflated 86%)
+  adding: 34164667_log/jarlist.bak (deflated 49%)
+  adding: 34164667_log/46824_preenv.lst (deflated 63%)
+  adding: 34164667_log/adwork003.log (deflated 60%)
+  adding: 34164667_log/jarlist.txt (deflated 2%)
+[PROD|applprod@virt-chi-pap01|tmp]$ ls -ltr 34164667_log.zip
+-rw-r--r-- 1 applprod dba 34658 Aug 23 23:52 34164667_log.zip
+[PROD|applprod@virt-chi-pap01|tmp]$ du -sh 34164667_log.zip
+36K34164667_log.zip
+[PROD|applprod@virt-chi-pap01|tmp]$
+
+
+For profile option values:
+
+https://basharoracle.wordpress.com/2016/05/10/query-profile-option-values-at-all-levels/
+
+
+
+To kill MWA processes:
+
+./mwactl.sh -login sysadmin/W3lb1lt.0707 stop_force 10210
+
+
+
+Sript to grant the user with responsibilities of another user:
+
+DECLARE 
+
+    cursor add_resp is
+ SELECT  DISTINCT 
+         APPL.APPLICATION_SHORT_NAME
+       , RESP.RESPONSIBILITY_KEY       
+       , SEC.SECURITY_GROUP_KEY
+ FROM    FND_RESPONSIBILITY_VL RESP
+       , FND_APPLICATION_VL APPL
+       , FND_SECURITY_GROUPS_VL SEC
+       , FND_USER_RESP_GROUPS_DIRECT RESPG
+    , fnd_user fu
+ WHERE   RESP.APPLICATION_ID = APPL.APPLICATION_ID
+ AND     SEC.SECURITY_GROUP_ID = RESPG.SECURITY_GROUP_ID
+ AND     RESPG.RESPONSIBILITY_APPLICATION_ID = RESP.APPLICATION_ID
+ AND     RESP.RESPONSIBILITY_ID = RESPG.RESPONSIBILITY_ID
+ and  FU.USER_ID = RESPG.USER_ID 
+ AND  fu.user_name = 'CPADHY'; -- Change the username with the one you want to copy from
+
+ lc_user_name varchar2(100) := 'NJOSE';
+ -- Change the username with the one you want to assign the responsibilies to
+ 
+BEGIN 
+
+ FOR i in add_resp loop
+
+  fnd_user_pkg.addresp 
+  (  
+   username        => lc_user_name, 
+   resp_app        => i.APPLICATION_SHORT_NAME
+   ,resp_key       => i.RESPONSIBILITY_KEY
+   ,security_group => i.SECURITY_GROUP_KEY
+   ,description    => NULL
+   ,start_date     => SYSDATE
+   ,end_date       => NULL 
+  );
+  
+ end loop;  
+
+ COMMIT; 
+
+EXCEPTION 
+ WHEN OTHERS THEN 
+    ROLLBACK; 
+    DBMS_OUTPUT.PUT_LINE('Error Encountered: '||SQLERRM); 
+END; 
+/
+
+SHOW ERR;
+
+
+To see the error:
+select TEXT from dba_errors where name like 'WF_ROLE_HIERARCHY';
+
+
+
+
+
+dba_directories
+================
+col DIRECTORY_NAME for a35
+col DIRECTORY_PATH for a115
+set lines 300 pages 100
+select DIRECTORY_NAME,DIRECTORY_PATH from dba_directories;
+
+DB links
+=======
+set lines 200
+set pages 20000
+col DB_LINK for a50
+col USERNAME for a20
+col HOST for a50
+select * from dba_db_links;
+
+
+utl
+====
+select name,value from v$parameter where name ='utl_file_dir';
+
+select value from v$parameter2 where name='utl_file_dir';
+
+select value from APPS.v$parameter where name='utl_file_dir';
+
+
+
+cd $ORACLE_HOME/appsutil/bin
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=$CONTEXT_FILE -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=setUtlFileDir
+
+
+
+
+
+Threads Backup :
+
+jstack -l 5969 >> oacore_server3Dec-4-19-06-43.log
+
+
+
+
+ls -alt $AU_TOP/resource >>/tmp/resource_ls.txt
+env | grep FORMS >>/tmp/FORMSenv.txt
+ps -C frmweb | wc -l >>/tmp/frmweb.txt
+zip -r /tmp/`uname -n`_`date +%m%d%y.%H%M`_forms.zip /tmp/FORMSenv.txt /tmp/resource_ls.txt /tmp/frmweb.txt /etc/hosts $FORMS_WEB_CONFIG_FILE $FORMS_RTI_DIR $CONTEXT_FILE $ORACLE_HOME/forms/server/default.env $FORMS_TRACE_DIR /etc/hosts
+cd /tmp
+ls -ltr|tail
+mkdir ps
+cp /tmp/resource_ls.txt .
+cd ps
+cp /tmp/resource_ls.txt .
+ls -ltr
+cp /tmp/FORMSenv.txt .
+cp /tmp/frmweb.txt .
+cp /tmp/extn-chi-pap22.extn.itciss.com_072822.1550_forms.zip .
+ls -ltr
+cd ..
+tar -zcvf /tmp/ps_$(hostname).tar.gz /tmp/ps
+
+
+
+
+admin.conf ---- /smgr5i/applmgr/fs1/FMW_Home/webtier/instances/EBS_web_OHS1/config/OHS/EBS_web
+ssl.conf ---/smgr5i/applmgr/fs1/FMW_Home/webtier/instances/EBS_web_OHS1/config/OHS/EBS_web
+opmn.xml ----- /smgr5i/applmgr/fs1/FMW_Home/webtier/instances/EBS_web_OHS1/config/OPMN/opmn
+
+
+
+
+
+
+
+
+
+
+
+Executing script in InstantiateFile:
+/ua2001/fs1/FMW_Home/webtier/perl/bin/perl -I /ua2001/fs1/FMW_Home/webtier/perl/lib/5.10.0 -I /ua2001/fs1/FMW_Home/webtier/perl/lib/site_perl/5.10.0 -I /ua2001/fs1/EBSapps/appl/au/12.0.0/perl -I /ua2001/fs1/FMW_Home/webtier/ohs/mod_perl/lib/site_perl/5.10.0/x86_64-linux-thread-multi /ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/admin/install/txkGenADOPWrapper.pl
+script returned:
+****************************************************
+
+Refer log file /ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/logs/appl/rgf/TXK/txkGenADOPWrapper_Sun_Jul_31_13_26_42_2022/txkGenADOPWrapper_Sun_Jul_31_13_26_42_2022.log for details
+
+Script Name    : txkGenADOPWrapper.pl
+Script Version : 120.0.12020000.6
+ERROR DESCRIPTION:
+(*******FATAL ERROR*******
+PROGRAM : (/ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/admin/install/txkGenADOPWrapper.pl)
+TIME    : Sun Jul 31 13:26:43 2022
+FUNCTION: TXK::SQLPLUS::_doExecute [ Level 3 ]
+MESSAGES:
+SQLPLUS error: buffer=
+
+SQL*Plus: Release 10.1.0.5.0 - Production on Sun Jul 31 13:26:43 2022
+
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+
+SQL> SQL> Connected.
+SQL> SELECT ad_zd_adop.get_node_type('ugnx-chi-tap01') FROM DUAL
+       *
+ERROR at line 1:
+ORA-01422: exact fetch returns more than requested number of rows
+ORA-06512: at "APPS.AD_ZD_ADOP", line 3049
+
+
+Disconnected from Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+                                                                                             
+																							 STACK TRACE
+ at /ua2001/fs1/EBSapps/appl/au/12.0.0/perl/TXK/Error.pm line 168
+        TXK::Error::abort('TXK::Error', 'HASH(0x25bfc28)') called at /ua2001/fs1/EBSapps/appl/au/12.0.0/perl/TXK/Common.pm line 299
+        TXK::Common::doError('TXK::SQLPLUS=HASH(0x3584620)', 'SQLPLUS error: buffer=\x{a}\x{a}SQL*Plus: Release 10.1.0.5.0 - Produc...', undef) called at /ua2001/fs1/EBSapps/appl/au/12.0.0/perl/TXK/Common.pm line 314
+        TXK::Common::setError('TXK::SQLPLUS=HASH(0x3584620)', 'SQLPLUS error: buffer=\x{a}\x{a}SQL*Plus: Release 10.1.0.5.0 - Produc...') called at /ua2001/fs1/EBSapps/appl/au/12.0.0/perl/TXK/SQLPLUS.pm line 832
+        TXK::SQLPLUS::_doExecute('TXK::SQLPLUS=HASH(0x3584620)', 0) called at /ua2001/fs1/EBSapps/appl/au/12.0.0/perl/TXK/SQLPLUS.pm line 234
+        TXK::SQLPLUS::execute('TXK::SQLPLUS=HASH(0x3584620)', 'HASH(0x2dc4cd0)') called at /ua2001/fs1/EBSapps/appl/au/12.0.0/perl/TXK/TechstackDB.pm line 621
+        TXK::TechstackDB::_getSQLValue('TXK::TechstackDB=HASH(0x2cd9a20)', 'SELECT ad_zd_adop.get_node_type(\'ugnx-chi-tap01\') FROM DUAL') called at /ua2001/fs1/EBSapps/appl/au/12.0.0/perl/TXK/TechstackDB.pm line 573
+        TXK::TechstackDB::getSQLValue('TXK::TechstackDB=HASH(0x2cd9a20)', 'SELECT ad_zd_adop.get_node_type(\'ugnx-chi-tap01\') FROM DUAL') called at /ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/admin/install/txkGenADOPWrapper.pl line 506
+        main::getNodeType() called at /ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/admin/install/txkGenADOPWrapper.pl line 202
+        eval {...} called at /ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/admin/install/txkGenADOPWrapper.pl line 143
+)
+ERRORCODE = 1 ERRORCODE_END
+.end std out.
+
+
+
+
+SQL> select * from adop_valid_nodes;
+
+NODE_NAME
+--------------------------------------------------------------------------------
+CONTEXT_NAME
+--------------------------------------------------
+ZD_EDITION_NAME                ZD_SYNC
+------------------------------ ------------------------------
+ugnx-chi-tap01
+EBST_ugnx-chi-tap01
+SET2                           INSERTED
+
+
+SQL>
+select * from ad_nodes_config_status;SQL>
+
+NODENAME
+--------------------------------------------------------------------------------
+W O C
+- - -
+UGNX-CHI-TAP01
+Y N N
+
+
+SQL>
+
+
+
+To fetch the log details:
+(
+# pick up files which have been modified in the last 1 day only
+HowManyDaysOld=1
+echo "Picking up files which have been modified in the last ${HowManyDaysOld} days"
+set -x
+find $LOG_HOME -type f -mtime -${HowManyDaysOld} > m.tmp
+find $FMW_HOME/webtier/instances/*/diagnostics/logs -type f -mtime -${HowManyDaysOld} >> m.tmp
+find $FMW_HOME/wlserver_10.3/common/nodemanager/nmHome*/*.log -type f -mtime -${HowManyDaysOld} >> m.tmp
+## Get log files for only the WLS servers needed. Valid server names are one or more of:
+## AdminServer forms-c4ws_server forms_server oacore_server oaea_server oafm_server
+for SERVERNAME in AdminServer oacore_server forms_server oafm_server
+do
+find $EBS_DOMAIN_HOME/servers/${SERVERNAME}*/logs -type f -mtime -${HowManyDaysOld} >> m.tmp
+find $EBS_DOMAIN_HOME/servers/${SERVERNAME}*/adr/diag/ofm/EBS_domain_*/${SERVERNAME}*/incident -type f -mtime -${HowManyDaysOld} >> m.tmp
+done
+zip -r mzAppsLogFiles_`hostname`_`date '+%m%d%y'`.zip -@ < m.tmp
+rm m.tmp
+) 2>&1 | tee mzLogZip.out
+
+
+To check the listener services:
+select SERVICE_ID,NAME,CREATION_DATE,CON_NAME from V$ACTIVE_SERVICES;
+select name from v$active_services;
+
+To bring up the listener services:
+exec dbms_service.start_service('EBST_ebs_patch');
+exec dbms_service.start_service('ebs_DEBCU1');
+exec dbms_service.start_service('DEBCU1_ebs_patch');
+
+To remove the listener services:
+BEGIN DBMS_SERVICE.stop_service(service_name => '&a');
+END;
+/
+
+BEGIN DBMS_SERVICE.delete_service(service_name => '&a');
+END;
+/
+
+
+
+
+
+
+Step 1. Put Jobs On Hold Prior to 2 hours of activity starts
+             Monitor , if any long running request and inform Customer.
+              Silence Nagios Alerts 
+Step 2. Stop Application Services
+Step 3. Backup of Invalids 
+Step 4. Proceed with the patching
+Step 5. Start  Application services.
+Step 6. Perform sanity checks.
+Step 7. Release jobs from hold.
+
+http:// :8012/OA_HTML/AppsLogin
+
+TO Connect OUTM frontend access process:
+========================================
+
+Putty:
+--Open Putty.Exe
+--In session mention  DR Bastion Node IP (for non-prod),  Prod Bastion Node IP (for Prod) and connect.
+--Go to Change settings
+--Go to Tunnels
+--Put port 530 and select Dynamic (590)
+--In Destination mention localhost:8000, select local
+--open the session
+
+
+ssh -L 8000:172.16.18.252:8000 172.16.18.252 (This is app node IP)
+
+ssh -L 8000:172.16.18.130:8000 172.16.18.130
+
+ssh -L 8000:172.16.22.56:8000 172.16.22.56
+
+
+Tunneling for CURV weblogic console:
+--------------------------------------
+ssh -L 7001:10.30.3.80:7001 10.30.3.80 - DEV
+
+
+-->IE
+-->Connections
+-->LAN Settings
+-->Proxy server
+Select Use a proxy server for your LAN
+--Advanced
+Socks: localhost  port 530
+
+Codesign related doc: DOC ID -1591073.1
+====================
+
+To create excel file with script:
+=================================
+
+SQL> set markup html on
+SQL&gt; spool PO_Receipt_Qty_06JAN23.xls
+<br>
+SQL&gt; @PO_Receipt_Qty_06JAN23.sql
+<br>
+
+=====================================================================
+Output in excel format :
+
+set pagesize 30000 
+set echo off
+set colsep ','
+set heading on
+SET LINESIZE 999 VERIFY OFF FEEDBACK OFF
+SET MARKUP HTML ON ENTMAP ON SPOOL ON PREFORMAT OFF
+set pages 1000
+SPOOL output.xls
+
+@1.sql
+
+SPOOL OFF
+SET MARKUP HTML OFF ENTMAP OFF SPOOL OFF PREFORMAT ON
+SET LINESIZE 80 VERIFY ON FEEDBACK ON
+
+
+
+
+output to excel
+===============
+set pagesize 30000
+set echo off
+set colsep ','
+set heading on
+SET LINESIZE 999 VERIFY OFF FEEDBACK OFF
+SET MARKUP HTML ON ENTMAP ON SPOOL ON PREFORMAT OFF
+set pages 1000
+SPOOL ZX_RATES_B_PROD.xls
+select LOB_TYPE, LOB_CODE, FILE_NAME, CREATION_DATE
+from XDO_LOBS
+where LOB_CODE = 'KAP_CLD_INV_TRNS_RPT';
+SPOOL OFF
+SET MARKUP HTML OFF ENTMAP OFF SPOOL OFF PREFORMAT ON
+SET LINESIZE 80 VERIFY ON FEEDBACK ON
+==================================================================
+
+DB Scripts:
+https://sites.google.com/view/oraclescripts/scripts
+
+
+To add Java code signing certificates:
+
+DOC ID: 1591073.1
+
+
+
+Updating Apps Password from Backend in Oracle Apps R12.2:
+=========================================================
+
+In Oracle Apps R12.2 whenever we are changing apps password we need to update the new value in EBSDatasource in Weblogic.
+
+We can either update the same by going into weblogic console and updating it or we can update it through server using below method.
+
+
+Steps:
+
+1. Start AdminServer 
+
+$ADMIN_SCRIPTS_HOME/adadminsrvctl.sh start 
+
+Note: Do not start any other application tier services.
+
+2. Change the APPS password in WLS Data Source by running the the following script:
+
+perl $FND_TOP/patch/115/bin/txkManageDBConnectionPool.pl
+
+When prompted, select 'updateDSPassword' to update the new APPS password in the WLS Datasource.
+
+To make connection to Cloud and Non Cloud DB with Oracle SQL Developer:
+https://www.oracle.com/webfolder/technetwork/tutorials/obe/cloud/ggcs/Connect_to_Cloud_and_Non_Cloud_DB_with_Oracle_SQL_Developer/Connect_to_Cloud_and_Non_Cloud_DB_with_Oracle_SQL_Developer.html
+
+
+For Autoconfig errors:
+======================
+
+WARNING: [CVM Error Report]
+The following report lists errors encountered during CVM Phase
+      <filename>  <return code where appropriate>
+  /us5101/app/orameb1/products/19.3.0/dbhome_1/appsutil/bin/txkCfgUtlfileDir.sh  1
+
+ No. of scripts failed in CVM phase: 1
+
+
+
+AutoConfig is exiting with status 1
+
+AutoConfig execution completed on Sat Mar  4 15:56:21 2023
+
+Time taken for AutoConfig execution to complete : 21 mins  4 secs
+
+
+
+
+AutoConfig is exiting with status 1
+
+AutoConfig execution completed on Sat Mar  4 15:56:21 2023
+
+Time taken for AutoConfig execution to complete : 21 mins  4 secs
+
+
+https://mohamedazar.com/2022/04/21/txkcfgutlfiledir-sh-directory-does-not-exist/
+
+https://dbasoumya.blogspot.com/2021/07/autoconfig-in-dbtier-failing-in-19c-for.html
+
+
+=======================================================================================
+Steps done to import and sign Java certificates:
+================================================
+cd $OA_JRE_TOP/lib/security/
+
+=>take backup of cacerts
+cp -p cacerts cacerts_bkp
+
+=>copy root certificate
+cp -p $$HOME/java_certs/Digicert_G4_Root_CA.crt .
+
+=>change permision of cacerts
+$ chmod +w cacerts
+=> import root certificate to cacerts (default password for cacerts is changeit)
+
+keytool -import -alias god_root -file Digicert_G4_Root_CA.crt -trustcacerts -v -keystore cacerts
+
+After getting password please proceed with below steps
+====================================
+cd $APPL_TOP/admin)
+
+=> import intermediate certificates
+keytool -import -file Digicert_G4_Intermediate.crt -trustcacerts -alias god_inter -keystore adkeystore.dat
+
+
+=> Import your Java Code Signing Certificate
+
+keytool -import -file PomeroyTechnologiesLLC_2024.crt -trustcacerts -alias prd_pomapp01 -keystore adkeystore.dat
+
+Regenerate JAR files
+===================================
+Login to application environment
+=>Shutdown your appliation
+
+cd $ADMIN_SCRIPTS_HOME
+./adstpall.sh apps/apps_pwd
+
+=>Regenerate the jar files through adadmin (you need apps and system passowrd )
+adadmin
+
+Choose Generate Applications Files menu
+
+From this menu choose Generate product jar files
+
+Enter yes when prompted with: Do you wish to force regeneration of all jar files? [No] ? yes
+
+
+Verify jar files are singed using the below using JAR files under $JAVA_TOP/oracle/apps/fnd/jar/ ()
+=======================================
+jarsigner -verify -verbose -certs $JAVA_TOP/oracle/apps/fnd/jar/fndfsec.jar
+
+Restart the Application Tier
+========================================
+cd $ADMIN_SCRIPTS_HOME
+./adstrtal.sh apps/apps_pwd
+==================================================================================================================
+
+
+To set vncserver:
+=================
+
+unset PERL5LIB
+
+To check current cpu in EBS:
+============================
+
+SQL> select max(CODELEVEL) "CPU" from AD_TRACKABLE_ENTITIES where ABBREVIATION in ('ebscpu');
+
+To compile jsp files:
+======================
+$ cd $FND_TOP/patch/115/bin/
+
+./ojspCompile.pl --compile --flush -p 2
+
+
+http://dbafix.blogspot.com/2017/07/r122-start-and-stop-procedure-of.html
+
+https://docs.oracle.com/cd/B14099_19/portal.1012/b14037/cg_archit.htm#:~:text=The%20middle%20tier%2C%20or%20application,installations%2C%20distributed%20across%20multiple%20hosts.
+
+
+
+Workflow Java Mailer The Folder Does Not Exist For The Nominated Mail Account (Doc ID 858743.1)
+
+
+To remove oacore:
+=================
+[applteb1@ugnx-chi-tap01 scripts]$ perl $AD_TOP/patch/115/bin/adProvisionEBS.pl ebs-delete-managedserver -contextfile=$CONTEXT_FILE -managedsrvname=oacore_server7 -servicetype=oacore -logfile=$HOME/delMS_oacore.log
+Enter the APPS Schema password:
+Enter the WebLogic AdminServer password:
+ERROR: An error has occurred. Refer to the log file /home/applteb1/delMS_oacore.log for details.
+
+[applteb1@ugnx-chi-tap01 scripts]$ vi /home/applteb1/delMS_oacore.log
+[applteb1@ugnx-chi-tap01 scripts]$ perl $FND_TOP/patch/115/bin/txkSetAppsConf.pl -contextfile=$CONTEXT_FILE -configoption=removeMS -oacore=ugnx-chi-tap01.ugnx.itciss.com:7204
+Enter apps schema password :
+
+*** LOG FILE: /ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/logs/appl/rgf/TXK/txkSetAppsConf_04161409.log ***
+[applteb1@ugnx-chi-tap01 scripts]$ vi /ua2002/fs1/inst/apps/EBST_ugnx-chi-tap01/logs/appl/rgf/TXK/txkSetAppsConf_04161409.log
+[applteb1@ugnx-chi-tap01 scripts]$
+
+
+To Schema refresh:
+==================
+
+*********************12.1.2*********
+
+
+[DHYCT1 oradhy1@ctfg-365-ddb21 SCTASK0095686]$ cat expdp_HYPHFM_Before_drop29mar2023.par
+userid='sys/sys as sysdba'
+directory=EXPDP_HFM
+dumpfile=expdp_HYPHFM_BEFORE_29MAR2023_%u.dmp
+logfile=expdp_HYPHFM_BEFORE_29MAR2023.log
+schemas=HYPHFM
+parallel=4
+
+*****
+CREATE DIRECTORY dpump_dir1 AS '%%’.
+
+CREATE OR REPLACE DIRECTORY "DATA_PUMP_DIR" as ' /ua1001/UPGRADE/datapump';
+*******check the tables from the schema**********
+ SELECT table_name  from all_tables where owner = '';
+
+SELECT table_name, owner from all_tables where owner like ('%HYPBIPLUS%');
+ 
+nohup expdp \"/ as sysdba\" parfile=new_schmea_bkp.par
+
+******check the schema usage*************
+select OWNER,sum(bytes)/1024/1024/1000 “SIZE_IN_GB” from dba_segments where OWNER='&1' group by owner order by owner;
+
+SELECT sum(bytes)/1024/1024 as "Size in MB"
+from dba_segments
+WHERE owner = UPPER('&schema_name'); 
+
+select USERNAME,ACCOUNT_STATUS from dba_users where USERNAME in ('HYPHSS','HYPBIPLUS','HYPCALC','HYPHFMSYS','HYPEAS','HYPESTUDIO','HYPDRM','HYPPLANSYS','HYPQCPLAN','HYPFDMEE');
+**check the directory is present or not****
+Select OWNER, DIRECTORY_NAME, DIRECTORY_PATH from dba_directories where DIRECTORY_NAME ='HYPDRM_dir';
+expdp HYPDRM/hyP3bDrm@QCEPMPROD schemas=HYPDRM directory=HYPDRM_DIR dumpfile=HYPDRM.dmp logfile=expdpHYPDRM.log
+impdp HYPDRM/hypQaDrm@QCEPMQA schemas=HYPDRM directory=HYPDRM_dir dumpfile=HYPDRM.dmp logfile=impdpHYPDRM_c.log
+
+Getty:
+====
+==========================
+
+CREATE OR REPLACE DIRECTORY EXPORT_IMPORT AS '/opt/staging/backup/EXPORT_IMPORT';
+
+expdp \'/ as sysdba\' schemas=CMPRT_INTEGRATIONUSER_CAMEL directory=EXPORT_IMPORT dumpfile=CMPRT_INTEGRATIONUSER_CAMEL_19Feb23.dmp logfile=CMPRT_INTEGRATIONUSER_CAMEL_19Feb23.log
+
+
+
+After DB restore:
+--------
+drop user CMPRT_INTEGRATIONUSER_CAMEL cascade;
+DROP USER CMPRT_INTEGRATIONUSER_VITRIA CASCADE; 
+
+Import after Dropping users:
+-----
+impdp  \'/ as sysdba\' schemas=CMPRT_INTEGRATIONUSER_CAMEL directory=EXPORT_IMPORT dumpfile=CMPRT_INTEGRATIONUSER_CAMEL_21JAN23.dmp logfile=CMPRT_INTEGRATIONUSER_CAMEL_22imp_JAN23.log
+
+
+To set databse in begin backup:
+==============================
+
+alter database begin backup;
+
+select * from v$backup;
+
+alter database end backup;
+
+select * from v$backup;
+
+
+Procees to export and import objects:
+=====================================
+
+https://hevodata.com/learn/export-data-from-oracle-using-expdp/#i15
+
+
+=======Grid home===========
+dbcli describe-component
+dbcli update-server -v 19.19.0.0.0 --precheck
+dbcli describe-job -i 8ec57d92-9887-479f-a5bb-6e9e72d2e643
+
+
+
+dbcli update-server -v 19.21.0.0.0 --precheck
+
+
+========DB Home=======
+dbcli list-dbhomes
+dbcli update-dbhome -i e1045bff-3cad-45b9-af2b-e6a74c2c4cbf -v 19.21.0.0.0 --precheck
+dbcli describe-job -i acca2260-e708-45c4-883d-a5deaaee174c
+e1045bff-3cad-45b9-af2b-e6a74c2c4cbf
+
+[gpagadala@vlcurvbastion01p RITM0055258]$  -rp * gpagadala@10.30.3.80:/interface/DEBCU1/RITM0055258/
+
+To generate tkprof files from trace files:
+
+tkprof <filename.trc> <output_filename> explain=apps/<password> sort='(prsela,exeela,fchela)'
+
+tkprof <RAW trace> <output> explain=apps_uname/apps_pwd sys=no
+export ORACLE_PDB_SID=TEBCU1
+
+To provide Read Only access to user at DB level:
+------------------------------------------------
+
+CREATE USER mschuster IDENTIFIED BY Password;
+GRANT CONNECT, RESOURCE to mschuster;
+GRANT CREATE SESSION to mschuster;
+GRANT READNONLY to mschuster;
+
+CHG0062934- IXL Learning: New read only DB user - RITM0057510
+
+
+Change Profile Option:
+----------------------
+select PROFILE_OPTION_VALUE from fnd_profile_option_values where PROFILE_OPTION_VALUE like '%&Value%';
+
+update fnd_profile_option_values set PROFILE_OPTION_VALUE=replace(PROFILE_OPTION_VALUE, '&fromto','&setto') where profile_option_value like '%&fromto%';
+
+
+
+Below is the error.
+
+FRM-92120 Registry File Registry.dat Is Missing When Accessing Forms
+
+Fix for the issue- check the file Registry.dat in RUN FS if not there copy it from the PATCH FS :
+[applqeb1@ugnx-365-pap01 qrcode]$ echo $OA_JAVA
+/ua5001/fs2/EBSapps/comn/java/classes
+[applqeb1@ugnx-365-pap01 qrcode]$ cd /ua5001/fs2/EBSapps/comn/java/classes
+[applqeb1@ugnx-365-pap01 classes]$ ls -ltr
+total 262880
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx_bkp_02apr22
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx_22july19
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx_bkp_02MAR2023
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx_bhp3dec2021
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx_12Jan2024
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx_bkp
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx.19-Nov-2016
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 xxugnx_6dec2017
+drwxr-xr-x 3 applqeb1 dba     4096 May 12  2022 policies
+-rw-r--r-- 1 applqeb1 dba   946501 May 14  2022 customall.jar_bkp08072020
+-rw-r--r-- 1 applqeb1 dba  1122818 May 14  2022 customall.jar_161020
+-rw-r--r-- 1 applqeb1 dba  1285223 May 14  2022 customall.jar_bkp3dec2021
+-rw-r--r-- 1 applqeb1 dba  1124551 May 14  2022 customall.jar_BKP27MAR2021
+-rw-r--r-- 1 applqeb1 dba  2019188 May 14  2022 customall.jar_bkp_02apr22
+-rw-r--r-- 1 applqeb1 dba   418648 May 14  2022 customall.jar_020319
+-rwxr-xr-x 1 applqeb1 dba    40086 May 14  2022 xxugnx.zip
+-rw-r--r-- 1 applqeb1 dba     4787 May 14  2022 IprocExt.jpx
+drwxr-xr-x 3 applqeb1 dba     4096 Aug 27  2022 xxugnx_bkp_27aug22
+-rw-r--r-- 1 applqeb1 dba  2757283 Aug 27  2022 customall.jar_bkp_27aug22
+drwxrwxrwx 3 applqeb1 dba     4096 Sep 30  2022 com
+-rw-r--r-- 1 applqeb1 dba  3683261 Oct  1  2022 customall.jar_bkp01OCT2022
+drwxr-xr-x 3 applqeb1 dba     4096 Oct  1  2022 xxugnx_bk01OCT2022
+drwxr-xr-x 3 applqeb1 dba     4096 Jan  6  2023 xxugnx_07JAN2023
+-rw-r--r-- 1 applqeb1 dba  4769150 Jan  6  2023 customall.jar_bk07jan2023
+-rw-r--r-- 1 applqeb1 dba  5854519 Jan  6  2023 customall.jar_02MAR2023
+drwxr-xr-x 3 applqeb1 dba     4096 Apr 21  2023 xxugnx_22APR23
+-rw-r--r-- 1 applqeb1 dba 10226492 May 18  2023 customall.jar_08Jun2023
+drwxr-xr-x 2 applqeb1 dba     4096 Aug 18  2023 jars_bkp
+-rw-r--r-- 1 applqeb1 dba 45256356 Sep 30  2023 customall.jar_21oct23
+-rw-r--r-- 1 applqeb1 dba 45310641 Jan 12 06:38 customall.jar_12Jan2024
+-rw-r--r-- 1 applqeb1 dba 48038908 Apr 19 09:53 customall.jar_backup_19th_april_2024
+-rw-r--r-- 1 applqeb1 dba 48059372 May  4 05:59 customall.bak
+drwxr-xr-x 2 applqeb1 dba     4096 May  4 06:09 META-INF
+drwxr-xr-x 6 applqeb1 dba     4096 May  4 18:24 oracle
+-rw-r--r-- 1 applqeb1 dba 48151499 May  4 18:53 customall.jar
+[applqeb1@ugnx-365-pap01 classes]$ cd oracle
+[applqeb1@ugnx-365-pap01 oracle]$ ls -ltr
+total 16
+drwxr-xr-x   3 applqeb1 dba 4096 May 12  2022 forms
+drwxr-xr-x 159 applqeb1 dba 4096 Feb 10 06:55 apps_10FEB2024
+drwxr-xr-x 159 applqeb1 dba 4096 May  3 15:45 apps
+drwxr-xr-x 159 applqeb1 dba 4096 May  4 18:24 apps_05MAY2024
+[applqeb1@ugnx-365-pap01 oracle]$ cd forms
+[applqeb1@ugnx-365-pap01 forms]$ ls -ltr
+total 4
+drwxr-xr-x 2 applqeb1 dba 4096 May  6 02:17 registry
+[applqeb1@ugnx-365-pap01 forms]$ cd registry
+[applqeb1@ugnx-365-pap01 registry]$ pwd
+/ua5001/fs2/EBSapps/comn/java/classes/oracle/forms/registry
+[applqeb1@ugnx-365-pap01 registry]$ ls -ltr
+total 8
+-rw-r--r-- 1 applqeb1 dba 4117 May  6 02:17 Registry.dat
+[applqeb1@ugnx-365-pap01 registry]$
+
+
+
+To see MV refreshes:
+--------------------
+SELECT J.JOB, J.PRIV_USER,R.ROWNER,R.RNAME,J.BROKEN FROM DBA_REFRESH R, DBA_JOBS J WHERE R.JOB = J.JOB ORDER BY 1;
+
+
+
+To clear violation error after patching:
+----------------------------------------
+select ctime,sqlstmt,name,flags,opcode,replay# from pdb_sync$ where sqlstmt like 'alter user ITCNIMBUS account unlock%';
+
+col name for a10
+col time for a18
+col cause for a15
+col message for a75
+set linesize 255
+alter session set nls_timestamp_format='dd-mon-yy hh24:mi:ss';
+
+select time,name,type,cause,status,message from pdb_plug_in_violations where status <>'RESOLVED';
+
+
+delete from PDB_SYNC$ where sqlstmt like ('alter user ITCNIMBUS%identified%');
+
+
+Screen Commands:
+----------------
+
+ctrl shift ad-to close screen
+screen -S screenname - to open new screen 
+screen -Dr screenname - to open existing screen 
+screen -ls - to list screens
+
+
+To enable & disable EBS user from backend:
+------------------------------------------
+https://oracleebsapps.blogspot.com/2016/10/quickly-enable-or-disable-users-through.html
+
+Disable an user:
+
+BEGIN 
+FND_USER_PKG.DisableUser(username => 'CSCHAIK');
+commit;
+END;
+
+Enable an user:
+
+BEGIN 
+FND_USER_PKG.EnableUser(username => 'CSCHAIK');
+commit;
+END;
+
+
+
+
+Running Sql Advisor for SID:
+----------------------------
+Suppose the sql id is – 87s8z2zzpsg88
+1. Create Tuning Task
+DECLARE
+l_sql_tune_task_id VARCHAR2(100);
+BEGIN
+l_sql_tune_task_id := DBMS_SQLTUNE.create_tuning_task (
+sql_id => '87s8z2zzpsg88',
+scope => DBMS_SQLTUNE.scope_comprehensive,
+time_limit => 500,
+task_name => '87s8z2zzpsg88_tuning_task11',
+description => 'Tuning task1 for statement 87s8z2zzpsg88');
+DBMS_OUTPUT.put_line('l_sql_tune_task_id: ' || l_sql_tune_task_id);
+END;
+/
+
+2. Execute Tuning task:
+EXEC DBMS_SQLTUNE.execute_tuning_task(task_name => '87s8z2zzpsg88_tuning_task11');
+
+3. Get the Tuning advisor report.
+
+set long 65536
+set longchunksize 65536
+set linesize 100
+select dbms_sqltune.report_tuning_task('87s8z2zzpsg88_tuning_task11') from dual;
+
+
+Log files R12.2:
+-----------------
+Start/Stop Logfiles	$INST_TOP/logs/appl/admin/log
+Log files for OPMN and OHS processes	$IAS_ORACLE_HOME/ instances//diagnostics/logs
+Weblogic Nodemanager	$FMW_HOME/wlserver_10.3/common/nodemanager/nmHome1/nodemanager.log
+Apache Logs	$IAS_ORACLE_HOME/instances//diagnostics/logs/OHS/EBS_web_/*log
+OPMN Logs	$IAS_ORACLE_HOME/instances//diagnostics/logs/OPMN/opmn/
+Weblogic Logs	$IAS_ORACLE_HOME/../wlserver_10.3/common/nodemanager
+$EBS_DOMAIN_HOME/servers/oa/logs/
+$EBS_DOMAIN_HOME/servers/forms/logs/
+$EBS_DOMAIN_HOME/servers/AdminServer/logs/*
+$EBS_DOMAIN_HOME/sysman/log/*
+
+
+REST API services:
+------------------
+https://docs.oracle.com/cd/E26401_01/doc.122/e20925/T511175T513044.htm#isgig_restant
+
+
+/uu1001/ConnectivityAgent/jdk/jdk-11.0.13/bin/java  -jar connectivityagent.jar
+ctrl+z   then   >>  bg
+oic_USER=OIC.Administrator
+
+oic_PASSWORD=1OICpmry$2022!
+InstallerProfile.cfg
+User Web Thread
+https://oic-prod-idrzrk3o8r0p-ia.integration.ocp.oraclecloud.com/ic/home
+
+To validate sys password:
+sqlplus sys/Outm$Deb0u1227_2024 as sysdba
+
+To validate wallet credenitials:
+SELECT * FROM v$encryption_wallet; - For directory
+mkstore -wrl <wallet_directory> -list
+
+To check WF services cacerts path:
+cd $FND_TOP/sql
+@afsvcpup.sql
+
+To validate wallet cert:
+-------------------------
+orapki wallet add -wallet . -trusted_cert -cert /tmp/RITM0070135/devapi/dev-api-ultragenyx-com.pem -pwd Welcome1
+orapki wallet add -wallet . -trusted_cert -cert /tmp/RITM0070135/devapi1/dev-api-ultragenyx-com_int.pem -pwd Welcome1
+
+orapki wallet remove -wallet /us4101/app/oradeb1/products/19.3.0/dbhome_1/wallet -alias 'CN=dev-api.ultragenyx.com' -trusted_cert -pwd "Welcome1" 
+
+orapki wallet remove -wallet /us4101/app/oradeb1/products/19.3.0/dbhome_1/wallet -alias 'CN=WE1' -trusted_cert -pwd "Welcome1"
+
+orapki wallet remove -wallet wallet_location -alias 'CN=*. h2hdba.blogspot.com ' -trusted_cert -pwd "Welcome1" 
+
+
+
+To check ACL permissions:
+
+SELECT * FROM DBA_NETWORK_ACLS;
+ 
+SELECT * FROM DBA_NETWORK_ACL_PRIVILEGES;
+
+SELECT PRINCIPAL, PRIVILEGE, IS_GRANT, INVERT FROM DBA_NETWORK_ACL_PRIVILEGES WHERE PRINCIPAL in ('WSB_ORCL_APEX','XXPDS_ACCNT');
+
+
+SQL> desc DBA_NETWORK_ACL_PRIVILEGES
+ Name                                                                                                              Null?    Type
+ ----------------------------------------------------------------------------------------------------------------- -------- ----------------------------------------------------------------------------
+ ACL                                                                                                                        VARCHAR2(4000)
+ ACLID                                                                                                                      RAW(8)
+ PRINCIPAL                                                                                                                  VARCHAR2(128)
+ PRIVILEGE                                                                                                                  VARCHAR2(128)
+ IS_GRANT                                                                                                                   VARCHAR2(5)
+ INVERT                                                                                                                     VARCHAR2(5)
+ START_DATE                                                                                                                 TIMESTAMP(6)
+ END_DATE                                                                                                                   TIMESTAMP(6)
+ ACL_OWNER                                                                                                                  VARCHAR2(128)
+
+SQL>
+
+
+
+To check Ftop usgae with oratop script:
+
+export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/suptools/oratop:$PATH
+cd oratop/
+./oratop / as sysdba
+
+
+
+
+Sessions in a DB :
+=====================
+
+Set echo off
+set pagesize 200
+set lines 180
+set verify off
+set heading on
+set feedback onvlmgrcebsdb01n 
+col SESS format a12
+col status format a10
+col program format a15
+col terminal format a12
+col "Machine Name" format a15
+col "Machine Name" format a15
+col "DB User" format a14
+col "Logon Time" format a14
+col "OS User" format a10
+col event format a20
+
+select inst_id,rpad(s.username,14,' ') as "DB User",
+   to_char(logon_time,'hh24:mi Mon/dd') as "Logon Time",
+   initcap(status) as "Status",s.sid||','||s.serial# SESS,
+   rpad(upper(substr(s.program,instr(s.program,'\',-1)+1)),15,' ') as "Program",
+   rpad(lower(osuser),10,' ') as "OS User", rpad(s.terminal,12,' ') "Terminal",
+   rpad(initcap(machine),15,' ') as "Machine Name" ,substr(s.event,1,18) event,round(LAST_CALL_ET/60) MINS,sql_id
+   from gv$session s
+   where upper(s.username) like upper('%&Username%')
+   order by LAST_CALL_ET
+/
+
+To recreate soft link:
+======================
+
+[applteb1@ugnx-chi-tap01 bin]$ pwd
+/ua2001/fs2/EBSapps/appl/xxugnx/12.0.0/bin
+[applteb1@ugnx-chi-tap01 bin]$ ls -ltr UGNX_DW_SO_INBOUND_SFTP
+lrwxrwxrwx 1 applteb1 dba 32 Oct 22 10:13 UGNX_DW_SO_INBOUND_SFTP -> ../../../fnd/12.0.0/bin/fndcpesr
+[applteb1@ugnx-chi-tap01 bin]$ ls -ltr ../../../fnd/12.0.0/bin/fndcpesr
+-rwxrwxrwx 1 applteb1 dba 259664 May 17 00:58 ../../../fnd/12.0.0/bin/fndcpesr
+[applteb1@ugnx-chi-tap01 bin]$ ls -ltr /ua2001/fs1/EBSapps/appl/xxugnx/12.0.0/bin/UGNX_DW_SO_INBOUND_SFTP
+lrwxrwxrwx 1 applteb1 dba 42 Nov  5 01:44 /ua2001/fs1/EBSapps/appl/xxugnx/12.0.0/bin/UGNX_DW_SO_INBOUND_SFTP -> /ua2001/fs1/EBSapps/appl/xxugnx/12.0.0/bin
+[applteb1@ugnx-chi-tap01 bin]$
+[applteb1@ugnx-chi-tap01 bin]$ cd /ua2001/fs1/EBSapps/appl/xxugnx/12.0.0/bin/
+[applteb1@ugnx-chi-tap01 bin]$ ls -ltr UGNX_DW_SO_INBOUND_SFTP
+lrwxrwxrwx 1 applteb1 dba 42 Nov  5 01:44 UGNX_DW_SO_INBOUND_SFTP -> /ua2001/fs1/EBSapps/appl/xxugnx/12.0.0/bin
+[applteb1@ugnx-chi-tap01 bin]$
+[applteb1@ugnx-chi-tap01 bin]$
+[applteb1@ugnx-chi-tap01 bin]$ ln -sf ../../../fnd/12.0.0/bin/fndcpesr UGNX_DW_SO_INBOUND_SFTP
+[applteb1@ugnx-chi-tap01 bin]$
+[applteb1@ugnx-chi-tap01 bin]$ ls -ltr UGNX_DW_SO_INBOUND_SFTP
+lrwxrwxrwx 1 applteb1 dba 42 Nov  5 01:44 UGNX_DW_SO_INBOUND_SFTP -> /ua2001/fs1/EBSapps/appl/xxugnx/12.0.0/bin
+[applteb1@ugnx-chi-tap01 bin]$ unlink UGNX_DW_SO_INBOUND_SFTP
+[applteb1@ugnx-chi-tap01 bin]$ ls -ltr UGNX_DW_SO_INBOUND_SFTP
+ls: cannot access UGNX_DW_SO_INBOUND_SFTP: No such file or directory
+[applteb1@ugnx-chi-tap01 bin]$ ln -sf ../../../fnd/12.0.0/bin/fndcpesr UGNX_DW_SO_INBOUND_SFTP
+[applteb1@ugnx-chi-tap01 bin]$ ls -ltr UGNX_DW_SO_INBOUND_SFTP
+lrwxrwxrwx 1 applteb1 dba 32 Nov  5 10:09 UGNX_DW_SO_INBOUND_SFTP -> ../../../fnd/12.0.0/bin/fndcpesr
+[applteb1@ugnx-chi-tap01 bin]$ ls -l ../../../fnd/12.0.0/bin/fndcpesr
+-rwxr-xr-x 1 applteb1 dba 259664 May 17 00:58 ../../../fnd/12.0.0/bin/fndcpesr
+[applteb1@ugnx-chi-tap01 bin]$
+
+
+19c Database with Oracle E-Business Suite R12 Known Issues & Solutions (Doc ID 2662860.1)
+
+
+
+To check database files:
+select substr(name,1,instr(name,'/',-1)) from v$datafile
+union
+select substr(name,1,instr(name,'/',-1)) from v$tempfile
+union
+select substr(member,1,instr(member,'/',-1)) from v$logfile
+unionF
+select substr(name,1,instr(name,'/',-1)) from v$controlfile;
+
+
+
+To clear the cache from oacore services:
+Need move below folders
+Cache
+tmp
+data
+
+[DEV|appldeb1@virt-365-dap12|~]$ cd $EBS_DOMAIN_HOME
+[DEV|appldeb1@virt-365-dap12|EBS_domain]$ cd servers/
+[DEV|appldeb1@virt-365-dap12|servers]$ ls -ltr
+total 28
+drwxr----- 10 appldeb1 dba 4096 May 30 03:37 AdminServer
+drwxr-xr-x  3 appldeb1 dba 4096 May 30 03:44 forms-c4ws_server1
+drwxr-xr-x  3 appldeb1 dba 4096 May 30 03:44 oaea_server1
+drwxr-xr-x  9 appldeb1 dba 4096 May 30 10:45 forms_server1
+drwxr-xr-x  9 appldeb1 dba 4096 May 30 10:45 oafm_server1
+drwxr-----  3 appldeb1 dba 4096 May 30 10:48 domain_bak
+-rw-r-----  1 appldeb1 dba   14 May 30 14:43 AdminServerTag
+drwxr-xr-x 12 appldeb1 dba 4096 May 30 14:47 oacore_server1
+[DEV|appldeb1@virt-365-dap12|servers]$ cd oacore_server1
+[DEV|appldeb1@virt-365-dap12|oacore_server1]$ ls -ltr
+total 40
+drwxr-xr-x 3 appldeb1 dba 4096 May 30 10:45 cache_old
+drwxr-xr-x 5 appldeb1 dba 4096 May 30 10:45 data_bkp
+drwxr-xr-x 3 appldeb1 dba 4096 May 30 10:45 sysman
+drwxr-xr-x 5 appldeb1 dba 4096 May 30 14:36 tmp_old
+drwxr-xr-x 2 appldeb1 dba 4096 May 30 14:46 security
+drwxr-xr-x 5 appldeb1 dba 4096 May 30 14:47 logs
+drwxr-xr-x 3 appldeb1 dba 4096 May 30 14:47 cache
+drwxr-xr-x 5 appldeb1 dba 4096 May 30 14:47 data
+drwxr-xr-x 5 appldeb1 dba 4096 May 30 14:47 adr
+drwxr-xr-x 5 appldeb1 dba 4096 May 30 14:47 tmp
+[DEV|appldeb1@virt-365-dap12|oacore_server1]$ date
+Fri May 30 15:02:25 EDT 2025
+[DEV|appldeb1@virt-365-dap12|oacore_server1]$ pwd
+/ua4001/app/DEV/fs2/FMW_Home/user_projects/domains/EBS_domain/servers/oacore_server1
+[DEV|appldeb1@virt-365-dap12|oacore_server1]$
+
+[DEV|appldeb1@virt-365-dap12|oacore_server1]$ ps -ef | grep oacore_server
+appldeb1 1238370 1228107  0 14:47 pts/6    00:00:00 /bin/sh ./admanagedsrvctl.sh start oacore_server1
+appldeb1 1238405 1236135  0 14:47 pts/9    00:00:00 grep --color=auto oacore_server
+[DEV|appldeb1@virt-365-dap12|oacore_server1]$ kill -9 1238370
+
+
+
+
+config into InstallerProfile.cfg
+oic_URL=https://oic-prod-idrzrk3o8r0p-ia.integration.ocp.oraclecloud.com:443
+Juan Canales1:11 AM
+oic_USER=T0lDQ3JlZGVudGlhbHM=IN/KllGGxnwcPhtRqWi4cSx1hRZ5BEqk1uCKpp4672Q=
+oic_PASSWORD=T0lDQ3JlZGVudGlhbHM=zw891mjm9OVbHxOoskA98zLsdJ+GFYCxoKhfRgznts8=
+
+
+
+http://newtoappsdba.blogspot.com/2017/06/cause-cleanupnode-failed-due-to-ora.html
+
+https://sites.google.com/view/oracle-apps-dba/ebs/r12/log-file-location
+
+
+To re-start weblogic services:
+-------------------------------
+
+mv _WLS_ADMINSERVER000000.DAT _WLS_ADMINSERVER000000.DAT_BKP
+[applmgr@vlmgrcebsap02n ldapfiles]$ ls -ltr EmbeddedLDAP.lok*
+-rw-r--r-- 1 applmgr dba 0 Jun 15 22:44 EmbeddedLDAP.lok_bkp
+[applmgr@vlmgrcebsap02n ldapfiles]$ pwd
+/tmgrci/applmgr/fs2/FMW_Home/user_projects/domains/EBS_domain/servers/AdminServer/data/ldap/ldapfiles
+[applmgr@vlmgrcebsap02n ldapfiles]$
+Today
+[applmgr@vlmgrcebsap02n diagnostics]$ pwd
+/tmgrci/applmgr/fs2/FMW_Home/user_projects/domains/EBS_domain/servers/AdminServer/data/store/diagnostics
+[applmgr@vlmgrcebsap02n diagnostics]$ ls -ltr
+total 2560
+-rw-r----- 1 applmgr dba 1052672 Jun 9 23:47 WLS_DIAGNOSTICS000000.DAT_bkp
+-rw-r--r-- 1 applmgr dba 1052672 Jun 15 23:02 WLS_DIAGNOSTICS000000.DAT
+[applmgr@vlmgrcebsap02n diagnostics]$
+
+Steps to run Tuning Advisor for the completed request with AWR report:
+----------------------------------------------------------------------
+Take the short name of the request and find the SQL ID from the AWR report with it.
+
+variable stmt_task VARCHAR2(64);
+SELECT task_name, status FROM dba_advisor_log WHERE task_name = 'SQL_TUNNING_TASK_75hm840uzbkw8';
+exec :stmt_task := DBMS_SQLTUNE.CREATE_TUNING_TASK (begin_snap => 444, end_snap => 448, sql_id => '75hm840uzbkw8' , scope => 'COMPREHENSIVE', time_limit => 12000, task_name => 'SQL_TUNNING_TASK_75hm840uzbkw8' );
+exec dbms_sqltune.execute_tuning_task (TASK_NAME => 'SQL_TUNNING_TASK_75hm840uzbkw8');
+nohup sqlplus "/ as sysdba" @sql_tune_75hm840uzbkw8.sql > sql_tune_75hm840uzbkw8.out 2>&1 &
+SELECT task_name, status FROM dba_advisor_log WHERE task_name = 'SQL_TUNNING_TASK_75hm840uzbkw8';
+SET LONG 10000;
+SET PAGESIZE 1000
+SET LINESIZE 200 
+SELECT DBMS_SQLTUNE.report_tuning_task('SQL_TUNNING_TASK_75hm840uzbkw8') AS recommendations FROM dual;
+
+
+
+Pluggable database opened with RESTRICTED SESSION due to Sync PDB failed with ORA-65177 during 'alter user':
+------------------------------------------------------------------------------------------------------------
+https://www.dbaplus.ca/2020/10/pluggable-database-opened-with.html
+
+
+
+To remove inactive patches:
+
+"opatch util ListOrderedInactivePatches
+* shows the list of inactive patches
+opatch util DeleteInactivePatches
+* cleans up oneoffs and .patch_storage directories
+
+cd $ORACLE_HOME
+ls -ltrha
+/us9101/app/oracle/product/19.3/OPatch/opatch util ListOrderedInactivePatches
+
+/us9101/app/oracle/product/19.3/OPatch/opatch util ListOrderedInactivePatchesDeleteInactivePatches
+
+
+To make context file sync in the both file systems:
+---------------------------------------------------
+java -cp $CLASSPATH oracle.apps.ad.autoconfig.oam.CtxSynchronizer action=upload contextfile=/dmgrci/inst/fs1/inst/apps/DMGRCI_vlmgrcebsap01n/appl/admin/DMGRCI_vlmgrcebsap01n.xml
+ 
+ 
+ 
+ 
+ 
+to check execution plans for given sql id :
+
+set lines 200 pages 200
+col BEGIN_INTERVAL_TIME for a30
+
+select ss.snap_id, ss.instance_number node, begin_interval_time, sql_id, plan_hash_value,
+nvl(executions_delta,0) execs,
+(elapsed_time_delta/decode(nvl(executions_delta,0),0,1,executions_delta))/1000000 avg_etime,
+(buffer_gets_delta/decode(nvl(buffer_gets_delta,0),0,1,executions_delta)) avg_lio,
+s.ROWS_PROCESSED_TOTAL "Total Rows Processed"
+from DBA_HIST_SQLSTAT S, DBA_HIST_SNAPSHOT SS
+where sql_id = '&sql_id'
+and ss.snap_id = S.snap_id
+and ss.instance_number = S.instance_number
+and executions_delta > 0 order by 1, 2, 3;
+
+To flush shared pool :
+
+select ADDRESS, HASH_VALUE from V$SQLAREA where SQL_Id='a2v94mm9yyvc0';
+exec DBMS_SHARED_POOL.PURGE ('0000000D56239F00,868863150','C');
+
+set lines 2000
+set pagesize 2000
+
+to check execution plan for running request :
+
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_CURSOR('&sql_id'));
+
+to check execution plan for past ran request :
+
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_AWR('&sql_id'));
+Today
+
+to check active sessions in database :
+
+set linesize 750 pages 9999
+column box format a30
+column spid format a10
+column username format a30 
+column program format a30
+column os_user format a20
+col LOGON_TIME for a20  
+
+
+select b.inst_id,b.sid,b.serial#,a.spid, substr(b.machine,1,30) box,to_char (b.logon_time, 'dd-mon-yyyy hh24:mi:ss') logon_time,b.event,
+ substr(b.username,1,30) username,
+ substr(b.osuser,1,20) os_user,
+ substr(b.program,1,30) program,status,b.last_call_et AS last_call_et_secs,b.sql_id ,b.client_identifier
+ from gv$session b,gv$process a 
+ where b.paddr = a.addr 
+ and a.inst_id = b.inst_id 
+ and type='USER' and status='ACTIVE';
+ 
+ coe_xfr_sql_profile.sql:
+ 
+ SPO coe_xfr_sql_profile.log;
+SET DEF ON TERM OFF ECHO ON FEED OFF VER OFF HEA ON LIN 2000 PAGES 100 LONG 8000000 LONGC 800000 TRIMS ON TI OFF TIMI OFF SERVEROUT ON SIZE 1000000 NUMF "" SQLP SQL>;
+SET SERVEROUT ON SIZE UNL;
+REM
+REM $Header: 215187.1 coe_xfr_sql_profile.sql  11.4.5.5  2013/03/01 carlos.sierra $
+REM
+REM Copyright (c) 2000-2013, Oracle Corporation. All rights reserved.
+REM
+REM AUTHOR
+REM    carlos.sierra@oracle.com 
+REM
+REM SCRIPT
+REM   coe_xfr_sql_profile.sql
+REM
+REM DESCRIPTION
+REM   This script generates another that contains the commands to
+REM   create a manual custom SQL Profile out of a known plan from
+REM   memory or AWR. The manual custom profile can be implemented
+REM   into the same SOURCE system where the plan was retrieved,
+REM   or into another similar TARGET system that has same schema
+REM   objects referenced by the SQL that generated the known plan.
+REM
+REM PRE-REQUISITES
+REM   1. Oracle Tuning Pack license.
+REM
+REM PARAMETERS
+REM   1. SQL_ID (required)
+REM   2. Plan Hash Value for which a manual custom SQL Profile is
+REM      needed (required). A list of known plans is presented.
+REM      You may choose from list provided or enter a valid phv
+REM      from a version of the SQL modified with Hints.
+REM
+REM EXECUTION
+REM   1. Connect into SQL*Plus as user with access to data dictionary.
+REM      Do not use SYS.
+REM   2. Execute script coe_xfr_sql_profile.sql passing SQL_ID and
+REM      plan hash value (parameters can be passed inline or until
+REM      requested).
+REM
+REM EXAMPLE
+REM   # sqlplus system
+REM   SQL> START coe_xfr_sql_profile.sql [SQL_ID] [PLAN_HASH_VALUE];
+REM   SQL> START coe_xfr_sql_profile.sql gnjy0mn4y9pbm  
+2055843663
+;
+REM   SQL> START coe_xfr_sql_profile.sql gnjy0mn4y9pbm;
+REM   SQL> START coe_xfr_sql_profile.sql;
+REM
+REM NOTES
+REM   1. For possible errors see coe_xfr_sql_profile.log
+REM   2. If SQLT is installed in SOURCE, you can use instead:
+REM      sqlt/utl/sqltprofile.sql
+REM   3. Be aware that using DBMS_SQLTUNE requires a license for
+REM      Oracle Tuning Pack.
+REM   4. Use a DBA user but not SYS.
+REM   5. If you get "ORA-06532: Subscript outside of limit, ORA-06512: at line 1"
+REM      Then you may consider this change (only in a test and disposable system):
+REM      create or replace TYPE sys.sqlprof_attr AS VARRAY(5000) of VARCHAR2(500);
+REM
+SET TERM ON ECHO OFF;
+PRO
+PRO Parameter 1:
+PRO SQL_ID (required)
+PRO
+DEF sql_id = '&1';
+PRO
+WITH
+p AS (
+SELECT plan_hash_value
+  FROM gv$sql_plan
+WHERE sql_id = TRIM('&&sql_id.')
+   AND other_xml IS NOT NULL
+UNION
+SELECT plan_hash_value
+  FROM dba_hist_sql_plan
+WHERE sql_id = TRIM('&&sql_id.')
+   AND other_xml IS NOT NULL ),
+m AS (
+SELECT plan_hash_value,
+       SUM(elapsed_time)/SUM(executions) avg_et_secs
+  FROM gv$sql
+WHERE sql_id = TRIM('&&sql_id.')
+   AND executions > 0
+GROUP BY
+       plan_hash_value ),
+a AS (
+SELECT plan_hash_value,
+       SUM(elapsed_time_total)/SUM(executions_total) avg_et_secs
+  FROM dba_hist_sqlstat
+WHERE sql_id = TRIM('&&sql_id.')
+   AND executions_total > 0
+GROUP BY
+       plan_hash_value )
+SELECT p.plan_hash_value,
+       ROUND(NVL(m.avg_et_secs, a.avg_et_secs)/1e6, 3) avg_et_secs
+  FROM p, m, a
+WHERE p.plan_hash_value = m.plan_hash_value(+)
+   AND p.plan_hash_value = a.plan_hash_value(+)
+ORDER BY
+       avg_et_secs NULLS LAST;
+PRO
+PRO Parameter 2:
+PRO PLAN_HASH_VALUE (required)
+PRO
+DEF plan_hash_value = '&2';
+PRO
+PRO Values passed to coe_xfr_sql_profile:
+PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PRO SQL_ID         : "&&sql_id."
+PRO PLAN_HASH_VALUE: "&&plan_hash_value."
+PRO
+SET TERM OFF ECHO ON;
+WHENEVER SQLERROR EXIT SQL.SQLCODE;
+ 
+-- trim parameters
+COL sql_id NEW_V sql_id FOR A30;
+COL plan_hash_value NEW_V plan_hash_value FOR A30;
+SELECT TRIM('&&sql_id.') sql_id, TRIM('&&plan_hash_value.') plan_hash_value FROM DUAL;
+ 
+VAR sql_text CLOB;
+VAR sql_text2 CLOB;
+VAR other_xml CLOB;
+EXEC :sql_text := NULL;
+EXEC :sql_text2 := NULL;
+EXEC :other_xml := NULL;
+ 
+-- get sql_text from memory
+DECLARE
+  l_sql_text VARCHAR2(32767);
+BEGIN -- 10g see bug 5017909
+  FOR i IN (SELECT DISTINCT piece, sql_text
+              FROM gv$sqltext_with_newlines
+             WHERE sql_id = TRIM('&&sql_id.')
+             ORDER BY 1, 2)
+  LOOP
+    IF :sql_text IS NULL THEN
+      DBMS_LOB.CREATETEMPORARY(:sql_text, TRUE);
+      DBMS_LOB.OPEN(:sql_text, DBMS_LOB.LOB_READWRITE);
+    END IF;
+    -- removes NUL characters
+    l_sql_text := REPLACE(i.sql_text, CHR(00), ' ');
+    -- adds a NUL character at the end of each line
+    DBMS_LOB.WRITEAPPEND(:sql_text, LENGTH(l_sql_text) + 1, l_sql_text||CHR(00));
+  END LOOP;
+  -- if found in memory then sql_text is not null
+  IF :sql_text IS NOT NULL THEN
+    DBMS_LOB.CLOSE(:sql_text);
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting sql_text from memory: '||SQLERRM);
+    :sql_text := NULL;
+END;
+/
+ 
+SELECT :sql_text FROM DUAL;
+ 
+-- get sql_text from awr
+DECLARE
+  l_sql_text VARCHAR2(32767);
+  l_clob_size NUMBER;
+  l_offset NUMBER;
+BEGIN
+  IF :sql_text IS NULL OR NVL(DBMS_LOB.GETLENGTH(:sql_text), 0) = 0 THEN
+    SELECT sql_text
+      INTO :sql_text2
+      FROM dba_hist_sqltext
+     WHERE sql_id = TRIM('&&sql_id.')
+       AND sql_text IS NOT NULL
+       AND ROWNUM = 1;
+  END IF;
+  -- if found in awr then sql_text2 is not null
+  IF :sql_text2 IS NOT NULL THEN
+    l_clob_size := NVL(DBMS_LOB.GETLENGTH(:sql_text2), 0);
+    l_offset := 1;
+    DBMS_LOB.CREATETEMPORARY(:sql_text, TRUE);
+    DBMS_LOB.OPEN(:sql_text, DBMS_LOB.LOB_READWRITE);
+    -- store in clob as 64 character pieces plus a NUL character at the end of each piece
+    WHILE l_offset < l_clob_size
+    LOOP
+      IF l_clob_size - l_offset > 64 THEN
+        l_sql_text := REPLACE(DBMS_LOB.SUBSTR(:sql_text2, 64, l_offset), CHR(00), ' ');
+      ELSE -- last piece
+        l_sql_text := REPLACE(DBMS_LOB.SUBSTR(:sql_text2, l_clob_size - l_offset + 1, l_offset), CHR(00), ' ');
+      END IF;
+      DBMS_LOB.WRITEAPPEND(:sql_text, LENGTH(l_sql_text) + 1, l_sql_text||CHR(00));
+      l_offset := l_offset + 64;
+    END LOOP;
+    DBMS_LOB.CLOSE(:sql_text);
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting sql_text from awr: '||SQLERRM);
+    :sql_text := NULL;
+END;
+/
+ 
+SELECT :sql_text2 FROM DUAL;
+SELECT :sql_text FROM DUAL;
+ 
+-- validate sql_text
+SET TERM ON;
+BEGIN
+  IF :sql_text IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20100, 'SQL_TEXT for SQL_ID &&sql_id. was not found in memory (gv$sqltext_with_newlines) or AWR (dba_hist_sqltext).');
+  END IF;
+END;
+/
+SET TERM OFF;
+ 
+-- get other_xml from memory
+BEGIN
+  FOR i IN (SELECT other_xml
+              FROM gv$sql_plan
+             WHERE sql_id = TRIM('&&sql_id.')
+               AND plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+               AND other_xml IS NOT NULL
+             ORDER BY
+                   child_number, id)
+  LOOP
+    :other_xml := i.other_xml;
+    EXIT; -- 1st
+  END LOOP;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from memory: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+-- get other_xml from awr
+BEGIN
+  IF :other_xml IS NULL OR NVL(DBMS_LOB.GETLENGTH(:other_xml), 0) = 0 THEN
+    FOR i IN (SELECT other_xml
+                FROM dba_hist_sql_plan
+               WHERE sql_id = TRIM('&&sql_id.')
+                 AND plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+                 AND other_xml IS NOT NULL
+               ORDER BY
+                     id)
+    LOOP
+      :other_xml := i.other_xml;
+      EXIT; -- 1st
+    END LOOP;
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from awr: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+-- get other_xml from memory from modified SQL
+BEGIN
+  IF :other_xml IS NULL OR NVL(DBMS_LOB.GETLENGTH(:other_xml), 0) = 0 THEN
+    FOR i IN (SELECT other_xml
+                FROM gv$sql_plan
+               WHERE plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+                 AND other_xml IS NOT NULL
+               ORDER BY
+                     child_number, id)
+    LOOP
+      :other_xml := i.other_xml;
+      EXIT; -- 1st
+    END LOOP;
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from memory: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+-- get other_xml from awr from modified SQL
+BEGIN
+  IF :other_xml IS NULL OR NVL(DBMS_LOB.GETLENGTH(:other_xml), 0) = 0 THEN
+    FOR i IN (SELECT other_xml
+                FROM dba_hist_sql_plan
+               WHERE plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+                 AND other_xml IS NOT NULL
+               ORDER BY
+                     id)
+    LOOP
+      :other_xml := i.other_xml;
+      EXIT; -- 1st
+    END LOOP;
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from awr: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+SELECT :other_xml FROM DUAL;
+ 
+-- validate other_xml
+SET TERM ON;
+BEGIN
+  IF :other_xml IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20101, 'PLAN for SQL_ID &&sql_id. and PHV &&plan_hash_value. was not found in memory (gv$sql_plan) or AWR (dba_hist_sql_plan).');
+  END IF;
+END;
+/
+SET TERM OFF;
+ 
+-- generates script that creates sql profile in target system:
+SET ECHO OFF;
+PRO coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql.
+SET FEED OFF LIN 666 TRIMS ON TI OFF TIMI OFF SERVEROUT ON SIZE 1000000 FOR WOR;
+SET SERVEROUT ON SIZE UNL FOR WOR;
+SPO OFF;
+SPO coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql;
+DECLARE
+  l_pos NUMBER;
+  l_clob_size NUMBER;
+  l_offset NUMBER;
+  l_sql_text VARCHAR2(32767);
+  l_len NUMBER;
+  l_hint VARCHAR2(32767);
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('SPO coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..log;');
+  DBMS_OUTPUT.PUT_LINE('SET ECHO ON TERM ON LIN 2000 TRIMS ON NUMF 99999999999999999999;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM $Header: 215187.1 coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql  11.4.4.4  '||TO_CHAR(SYSDATE, 'YYYY/MM/DD')||' carlos.sierra $');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM Copyright (c) 2000-2012, Oracle Corporation. All rights reserved.');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM AUTHOR');
+  DBMS_OUTPUT.PUT_LINE('REM    carlos.sierra@oracle.com ');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM SCRIPT');
+  DBMS_OUTPUT.PUT_LINE('REM   coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM DESCRIPTION');
+  DBMS_OUTPUT.PUT_LINE('REM   This script is generated by coe_xfr_sql_profile.sql');
+  DBMS_OUTPUT.PUT_LINE('REM   It contains the SQL*Plus commands to create a custom');
+  DBMS_OUTPUT.PUT_LINE('REM   SQL Profile for SQL_ID &&sql_id. based on plan hash');
+  DBMS_OUTPUT.PUT_LINE('REM   value &&plan_hash_value..');
+  DBMS_OUTPUT.PUT_LINE('REM   The custom SQL Profile to be created by this script');
+  DBMS_OUTPUT.PUT_LINE('REM   will affect plans for SQL commands with signature');
+  DBMS_OUTPUT.PUT_LINE('REM   matching the one for SQL Text below.');
+  DBMS_OUTPUT.PUT_LINE('REM   Review SQL Text and adjust accordingly.');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM PARAMETERS');
+  DBMS_OUTPUT.PUT_LINE('REM   None.');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM EXAMPLE');
+  DBMS_OUTPUT.PUT_LINE('REM   SQL> START coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM NOTES');
+  DBMS_OUTPUT.PUT_LINE('REM   1. Should be run as SYSTEM or SYSDBA.');
+  DBMS_OUTPUT.PUT_LINE('REM   2. User must have CREATE ANY SQL PROFILE privilege.');
+  DBMS_OUTPUT.PUT_LINE('REM   3. SOURCE and TARGET systems can be the same or similar.');
+  DBMS_OUTPUT.PUT_LINE('REM   4. To drop this custom SQL Profile after it has been created:');
+  DBMS_OUTPUT.PUT_LINE('REM      EXEC DBMS_SQLTUNE.DROP_SQL_PROFILE(''coe_&&sql_id._&&plan_hash_value.'');');
+  DBMS_OUTPUT.PUT_LINE('REM   5. Be aware that using DBMS_SQLTUNE requires a license');
+  DBMS_OUTPUT.PUT_LINE('REM      for the Oracle Tuning Pack.');
+  DBMS_OUTPUT.PUT_LINE('REM   6. If you modified a SQL putting Hints in order to produce a desired');
+  DBMS_OUTPUT.PUT_LINE('REM      Plan, you can remove the artifical Hints from SQL Text pieces below.');
+  DBMS_OUTPUT.PUT_LINE('REM      By doing so you can create a custom SQL Profile for the original');
+  DBMS_OUTPUT.PUT_LINE('REM      SQL but with the Plan captured from the modified SQL (with Hints).');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('WHENEVER SQLERROR EXIT SQL.SQLCODE;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('VAR signature NUMBER;');
+  DBMS_OUTPUT.PUT_LINE('VAR signaturef NUMBER;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('DECLARE');
+  DBMS_OUTPUT.PUT_LINE('sql_txt CLOB;');
+  DBMS_OUTPUT.PUT_LINE('h       SYS.SQLPROF_ATTR;');
+  DBMS_OUTPUT.PUT_LINE('PROCEDURE wa (p_line IN VARCHAR2) IS');
+  DBMS_OUTPUT.PUT_LINE('BEGIN');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.WRITEAPPEND(sql_txt, LENGTH(p_line), p_line);');
+  DBMS_OUTPUT.PUT_LINE('END wa;');
+  DBMS_OUTPUT.PUT_LINE('BEGIN');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.CREATETEMPORARY(sql_txt, TRUE);');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.OPEN(sql_txt, DBMS_LOB.LOB_READWRITE);');
+  DBMS_OUTPUT.PUT_LINE('-- SQL Text pieces below do not have to be of same length.');
+  DBMS_OUTPUT.PUT_LINE('-- So if you edit SQL Text (i.e. removing temporary Hints),');
+  DBMS_OUTPUT.PUT_LINE('-- there is no need to edit or re-align unmodified pieces.');
+  l_clob_size := NVL(DBMS_LOB.GETLENGTH(:sql_text), 0);
+  l_offset := 1;
+  WHILE l_offset < l_clob_size
+  LOOP
+    l_pos := DBMS_LOB.INSTR(:sql_text, CHR(00), l_offset);
+    IF l_pos > 0 THEN
+      l_len := l_pos - l_offset;
+    ELSE -- last piece
+      l_len := l_clob_size - l_pos + 1;
+    END IF;
+    l_sql_text := DBMS_LOB.SUBSTR(:sql_text, l_len, l_offset);
+    /* cannot do such 3 replacement since a line could end with a comment using "--"
+    l_sql_text := REPLACE(l_sql_text, CHR(10), ' '); -- replace LF with SP
+    l_sql_text := REPLACE(l_sql_text, CHR(13), ' '); -- replace CR with SP
+    l_sql_text := REPLACE(l_sql_text, CHR(09), ' '); -- replace TAB with SP
+    */
+    l_offset := l_offset + l_len + 1;
+    IF l_len > 0 THEN
+      IF INSTR(l_sql_text, '''[') + INSTR(l_sql_text, ']''') = 0 THEN
+        l_sql_text := '['||l_sql_text||']';
+      ELSIF INSTR(l_sql_text, '''{') + INSTR(l_sql_text, '}''') = 0 THEN
+        l_sql_text := '{'||l_sql_text||'}';
+      ELSIF INSTR(l_sql_text, '''<') + INSTR(l_sql_text, '>''') = 0 THEN
+        l_sql_text := '<'||l_sql_text||'>';
+      ELSIF INSTR(l_sql_text, '''(') + INSTR(l_sql_text, ')''') = 0 THEN
+        l_sql_text := '('||l_sql_text||')';
+      ELSIF INSTR(l_sql_text, '''"') + INSTR(l_sql_text, '"''') = 0 THEN
+        l_sql_text := '"'||l_sql_text||'"';
+      ELSIF INSTR(l_sql_text, '''|') + INSTR(l_sql_text, '|''') = 0 THEN
+        l_sql_text := '|'||l_sql_text||'|';
+      ELSIF INSTR(l_sql_text, '''~') + INSTR(l_sql_text, '~''') = 0 THEN
+        l_sql_text := '~'||l_sql_text||'~';
+      ELSIF INSTR(l_sql_text, '''^') + INSTR(l_sql_text, '^''') = 0 THEN
+        l_sql_text := '^'||l_sql_text||'^';
+      ELSIF INSTR(l_sql_text, '''@') + INSTR(l_sql_text, '@''') = 0 THEN
+        l_sql_text := '@'||l_sql_text||'@';
+      ELSIF INSTR(l_sql_text, '''#') + INSTR(l_sql_text, '#''') = 0 THEN
+        l_sql_text := '#'||l_sql_text||'#';
+      ELSIF INSTR(l_sql_text, '''%') + INSTR(l_sql_text, '%''') = 0 THEN
+        l_sql_text := '%'||l_sql_text||'%';
+      ELSIF INSTR(l_sql_text, '''$') + INSTR(l_sql_text, '$''') = 0 THEN
+        l_sql_text := '$'||l_sql_text||'$';
+      ELSE
+        l_sql_text := CHR(96)||l_sql_text||CHR(96);
+      END IF;
+      DBMS_OUTPUT.PUT_LINE('wa(q'''||l_sql_text||''');');
+    END IF;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.CLOSE(sql_txt);');
+  DBMS_OUTPUT.PUT_LINE('h := SYS.SQLPROF_ATTR(');
+  DBMS_OUTPUT.PUT_LINE('q''[BEGIN_OUTLINE_DATA]'',');
+  FOR i IN (SELECT /*+ opt_param('parallel_execution_enabled', 'false') */
+                   SUBSTR(EXTRACTVALUE(VALUE(d), '/hint'), 1, 4000) hint
+              FROM TABLE(XMLSEQUENCE(EXTRACT(XMLTYPE(:other_xml), '/*/outline_data/hint'))) d)
+  LOOP
+    l_hint := i.hint;
+    WHILE NVL(LENGTH(l_hint), 0) > 0
+    LOOP
+      IF LENGTH(l_hint) <= 500 THEN
+        DBMS_OUTPUT.PUT_LINE('q''['||l_hint||']'',');
+        l_hint := NULL;
+      ELSE
+        l_pos := INSTR(SUBSTR(l_hint, 1, 500), ' ', -1);
+        DBMS_OUTPUT.PUT_LINE('q''['||SUBSTR(l_hint, 1, l_pos)||']'',');
+        l_hint := '   '||SUBSTR(l_hint, l_pos);
+      END IF;
+    END LOOP;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('q''[END_OUTLINE_DATA]'');');
+  DBMS_OUTPUT.PUT_LINE(':signature := DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE(sql_txt);');
+  DBMS_OUTPUT.PUT_LINE(':signaturef := DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE(sql_txt, TRUE);');
+  DBMS_OUTPUT.PUT_LINE('DBMS_SQLTUNE.IMPORT_SQL_PROFILE (');
+  DBMS_OUTPUT.PUT_LINE('sql_text    => sql_txt,');
+  DBMS_OUTPUT.PUT_LINE('profile     => h,');
+  DBMS_OUTPUT.PUT_LINE('name        => ''coe_&&sql_id._&&plan_hash_value.'',');
+  DBMS_OUTPUT.PUT_LINE('description => ''coe &&sql_id. &&plan_hash_value. ''||:signature||'' ''||:signaturef||'''',');
+  DBMS_OUTPUT.PUT_LINE('category    => ''DEFAULT'',');
+  DBMS_OUTPUT.PUT_LINE('validate    => TRUE,');
+  DBMS_OUTPUT.PUT_LINE('replace     => TRUE,');
+  DBMS_OUTPUT.PUT_LINE('force_match => FALSE /* TRUE:FORCE (match even when different literals in SQL). FALSE:EXACT (similar to CURSOR_SHARING) */ );');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.FREETEMPORARY(sql_txt);');
+  DBMS_OUTPUT.PUT_LINE('END;');
+  DBMS_OUTPUT.PUT_LINE('/');
+  DBMS_OUTPUT.PUT_LINE('WHENEVER SQLERROR CONTINUE');
+  DBMS_OUTPUT.PUT_LINE('SET ECHO OFF;');
+  DBMS_OUTPUT.PUT_LINE('PRINT signature');
+  DBMS_OUTPUT.PUT_LINE('PRINT signaturef');
+  DBMS_OUTPUT.PUT_LINE('PRO');
+  DBMS_OUTPUT.PUT_LINE('PRO ... manual custom SQL Profile has been created');
+  DBMS_OUTPUT.PUT_LINE('PRO');
+  DBMS_OUTPUT.PUT_LINE('SET TERM ON ECHO OFF LIN 80 TRIMS OFF NUMF "";');
+  DBMS_OUTPUT.PUT_LINE('SPO OFF;');
+  DBMS_OUTPUT.PUT_LINE('PRO');
+  DBMS_OUTPUT.PUT_LINE('PRO COE_XFR_SQL_PROFILE_&&sql_id._&&plan_hash_value. completed');
+END;
+/
+SPO OFF;
+SET DEF ON TERM ON ECHO OFF FEED 6 VER ON HEA ON LIN 80 PAGES 14 LONG 80 LONGC 80 TRIMS OFF TI OFF TIMI OFF SERVEROUT OFF NUMF "" SQLP SQL>;
+SET SERVEROUT OFF;
+PRO
+PRO Execute coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql
+PRO on TARGET system in order to create a custom SQL Profile
+PRO with plan &&plan_hash_value linked to adjusted sql_text.
+PRO
+UNDEFINE 1 2 sql_id plan_hash_value
+CL COL
+PRO
+PRO COE_XFR_SQL_PROFILE completed.
+Today
+12:02
+to check execution plans for given sql id :
+
+set lines 200 pages 200
+col BEGIN_INTERVAL_TIME for a30
+
+select ss.snap_id, ss.instance_number node, begin_interval_time, sql_id, plan_hash_value,
+nvl(executions_delta,0) execs,
+(elapsed_time_delta/decode(nvl(executions_delta,0),0,1,executions_delta))/1000000 avg_etime,
+(buffer_gets_delta/decode(nvl(buffer_gets_delta,0),0,1,executions_delta)) avg_lio,
+s.ROWS_PROCESSED_TOTAL "Total Rows Processed"
+from DBA_HIST_SQLSTAT S, DBA_HIST_SNAPSHOT SS
+where sql_id = '&sql_id'
+and ss.snap_id = S.snap_id
+and ss.instance_number = S.instance_number
+and executions_delta > 0 order by 1, 2, 3;
+
+To flush shared pool :
+
+select ADDRESS, HASH_VALUE from V$SQLAREA where SQL_Id='a2v94mm9yyvc0';
+exec DBMS_SHARED_POOL.PURGE ('0000000D56239F00,868863150','C');
+
+set lines 2000
+set pagesize 2000
+
+to check execution plan for running request :
+
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_CURSOR('&sql_id'));
+
+to check execution plan for past ran request :
+
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_AWR('&sql_id'));
+Today
+
+to check active sessions in database :
+
+set linesize 750 pages 9999
+column box format a30
+column spid format a10
+column username format a30 
+column program format a30
+column os_user format a20
+col LOGON_TIME for a20  
+
+
+select b.inst_id,b.sid,b.serial#,a.spid, substr(b.machine,1,30) box,to_char (b.logon_time, 'dd-mon-yyyy hh24:mi:ss') logon_time,b.event,
+ substr(b.username,1,30) username,
+ substr(b.osuser,1,20) os_user,
+ substr(b.program,1,30) program,status,b.last_call_et AS last_call_et_secs,b.sql_id ,b.client_identifier
+ from gv$session b,gv$process a 
+ where b.paddr = a.addr 
+ and a.inst_id = b.inst_id 
+ and type='USER' and status='ACTIVE';
+ 
+ coe_xfr_sql_profile.sql:
+ 
+ SPO coe_xfr_sql_profile.log;
+SET DEF ON TERM OFF ECHO ON FEED OFF VER OFF HEA ON LIN 2000 PAGES 100 LONG 8000000 LONGC 800000 TRIMS ON TI OFF TIMI OFF SERVEROUT ON SIZE 1000000 NUMF "" SQLP SQL>;
+SET SERVEROUT ON SIZE UNL;
+REM
+REM $Header: 215187.1 coe_xfr_sql_profile.sql  11.4.5.5  2013/03/01 carlos.sierra $
+REM
+REM Copyright (c) 2000-2013, Oracle Corporation. All rights reserved.
+REM
+REM AUTHOR
+REM    carlos.sierra@oracle.com 
+REM
+REM SCRIPT
+REM   coe_xfr_sql_profile.sql
+REM
+REM DESCRIPTION
+REM   This script generates another that contains the commands to
+REM   create a manual custom SQL Profile out of a known plan from
+REM   memory or AWR. The manual custom profile can be implemented
+REM   into the same SOURCE system where the plan was retrieved,
+REM   or into another similar TARGET system that has same schema
+REM   objects referenced by the SQL that generated the known plan.
+REM
+REM PRE-REQUISITES
+REM   1. Oracle Tuning Pack license.
+REM
+REM PARAMETERS
+REM   1. SQL_ID (required)
+REM   2. Plan Hash Value for which a manual custom SQL Profile is
+REM      needed (required). A list of known plans is presented.
+REM      You may choose from list provided or enter a valid phv
+REM      from a version of the SQL modified with Hints.
+REM
+REM EXECUTION
+REM   1. Connect into SQL*Plus as user with access to data dictionary.
+REM      Do not use SYS.
+REM   2. Execute script coe_xfr_sql_profile.sql passing SQL_ID and
+REM      plan hash value (parameters can be passed inline or until
+REM      requested).
+REM
+REM EXAMPLE
+REM   # sqlplus system
+REM   SQL> START coe_xfr_sql_profile.sql [SQL_ID] [PLAN_HASH_VALUE];
+REM   SQL> START coe_xfr_sql_profile.sql gnjy0mn4y9pbm  
+2055843663
+;
+REM   SQL> START coe_xfr_sql_profile.sql gnjy0mn4y9pbm;
+REM   SQL> START coe_xfr_sql_profile.sql;
+REM
+REM NOTES
+REM   1. For possible errors see coe_xfr_sql_profile.log
+REM   2. If SQLT is installed in SOURCE, you can use instead:
+REM      sqlt/utl/sqltprofile.sql
+REM   3. Be aware that using DBMS_SQLTUNE requires a license for
+REM      Oracle Tuning Pack.
+REM   4. Use a DBA user but not SYS.
+REM   5. If you get "ORA-06532: Subscript outside of limit, ORA-06512: at line 1"
+REM      Then you may consider this change (only in a test and disposable system):
+REM      create or replace TYPE sys.sqlprof_attr AS VARRAY(5000) of VARCHAR2(500);
+REM
+SET TERM ON ECHO OFF;
+PRO
+PRO Parameter 1:
+PRO SQL_ID (required)
+PRO
+DEF sql_id = '&1';
+PRO
+WITH
+p AS (
+SELECT plan_hash_value
+  FROM gv$sql_plan
+WHERE sql_id = TRIM('&&sql_id.')
+   AND other_xml IS NOT NULL
+UNION
+SELECT plan_hash_value
+  FROM dba_hist_sql_plan
+WHERE sql_id = TRIM('&&sql_id.')
+   AND other_xml IS NOT NULL ),
+m AS (
+SELECT plan_hash_value,
+       SUM(elapsed_time)/SUM(executions) avg_et_secs
+  FROM gv$sql
+WHERE sql_id = TRIM('&&sql_id.')
+   AND executions > 0
+GROUP BY
+       plan_hash_value ),
+a AS (
+SELECT plan_hash_value,
+       SUM(elapsed_time_total)/SUM(executions_total) avg_et_secs
+  FROM dba_hist_sqlstat
+WHERE sql_id = TRIM('&&sql_id.')
+   AND executions_total > 0
+GROUP BY
+       plan_hash_value )
+SELECT p.plan_hash_value,
+       ROUND(NVL(m.avg_et_secs, a.avg_et_secs)/1e6, 3) avg_et_secs
+  FROM p, m, a
+WHERE p.plan_hash_value = m.plan_hash_value(+)
+   AND p.plan_hash_value = a.plan_hash_value(+)
+ORDER BY
+       avg_et_secs NULLS LAST;
+PRO
+PRO Parameter 2:
+PRO PLAN_HASH_VALUE (required)
+PRO
+DEF plan_hash_value = '&2';
+PRO
+PRO Values passed to coe_xfr_sql_profile:
+PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PRO SQL_ID         : "&&sql_id."
+PRO PLAN_HASH_VALUE: "&&plan_hash_value."
+PRO
+SET TERM OFF ECHO ON;
+WHENEVER SQLERROR EXIT SQL.SQLCODE;
+ 
+-- trim parameters
+COL sql_id NEW_V sql_id FOR A30;
+COL plan_hash_value NEW_V plan_hash_value FOR A30;
+SELECT TRIM('&&sql_id.') sql_id, TRIM('&&plan_hash_value.') plan_hash_value FROM DUAL;
+ 
+VAR sql_text CLOB;
+VAR sql_text2 CLOB;
+VAR other_xml CLOB;
+EXEC :sql_text := NULL;
+EXEC :sql_text2 := NULL;
+EXEC :other_xml := NULL;
+ 
+-- get sql_text from memory
+DECLARE
+  l_sql_text VARCHAR2(32767);
+BEGIN -- 10g see bug 5017909
+  FOR i IN (SELECT DISTINCT piece, sql_text
+              FROM gv$sqltext_with_newlines
+             WHERE sql_id = TRIM('&&sql_id.')
+             ORDER BY 1, 2)
+  LOOP
+    IF :sql_text IS NULL THEN
+      DBMS_LOB.CREATETEMPORARY(:sql_text, TRUE);
+      DBMS_LOB.OPEN(:sql_text, DBMS_LOB.LOB_READWRITE);
+    END IF;
+    -- removes NUL characters
+    l_sql_text := REPLACE(i.sql_text, CHR(00), ' ');
+    -- adds a NUL character at the end of each line
+    DBMS_LOB.WRITEAPPEND(:sql_text, LENGTH(l_sql_text) + 1, l_sql_text||CHR(00));
+  END LOOP;
+  -- if found in memory then sql_text is not null
+  IF :sql_text IS NOT NULL THEN
+    DBMS_LOB.CLOSE(:sql_text);
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting sql_text from memory: '||SQLERRM);
+    :sql_text := NULL;
+END;
+/
+ 
+SELECT :sql_text FROM DUAL;
+ 
+-- get sql_text from awr
+DECLARE
+  l_sql_text VARCHAR2(32767);
+  l_clob_size NUMBER;
+  l_offset NUMBER;
+BEGIN
+  IF :sql_text IS NULL OR NVL(DBMS_LOB.GETLENGTH(:sql_text), 0) = 0 THEN
+    SELECT sql_text
+      INTO :sql_text2
+      FROM dba_hist_sqltext
+     WHERE sql_id = TRIM('&&sql_id.')
+       AND sql_text IS NOT NULL
+       AND ROWNUM = 1;
+  END IF;
+  -- if found in awr then sql_text2 is not null
+  IF :sql_text2 IS NOT NULL THEN
+    l_clob_size := NVL(DBMS_LOB.GETLENGTH(:sql_text2), 0);
+    l_offset := 1;
+    DBMS_LOB.CREATETEMPORARY(:sql_text, TRUE);
+    DBMS_LOB.OPEN(:sql_text, DBMS_LOB.LOB_READWRITE);
+    -- store in clob as 64 character pieces plus a NUL character at the end of each piece
+    WHILE l_offset < l_clob_size
+    LOOP
+      IF l_clob_size - l_offset > 64 THEN
+        l_sql_text := REPLACE(DBMS_LOB.SUBSTR(:sql_text2, 64, l_offset), CHR(00), ' ');
+      ELSE -- last piece
+        l_sql_text := REPLACE(DBMS_LOB.SUBSTR(:sql_text2, l_clob_size - l_offset + 1, l_offset), CHR(00), ' ');
+      END IF;
+      DBMS_LOB.WRITEAPPEND(:sql_text, LENGTH(l_sql_text) + 1, l_sql_text||CHR(00));
+      l_offset := l_offset + 64;
+    END LOOP;
+    DBMS_LOB.CLOSE(:sql_text);
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting sql_text from awr: '||SQLERRM);
+    :sql_text := NULL;
+END;
+/
+ 
+SELECT :sql_text2 FROM DUAL;
+SELECT :sql_text FROM DUAL;
+ 
+-- validate sql_text
+SET TERM ON;
+BEGIN
+  IF :sql_text IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20100, 'SQL_TEXT for SQL_ID &&sql_id. was not found in memory (gv$sqltext_with_newlines) or AWR (dba_hist_sqltext).');
+  END IF;
+END;
+/
+SET TERM OFF;
+ 
+-- get other_xml from memory
+BEGIN
+  FOR i IN (SELECT other_xml
+              FROM gv$sql_plan
+             WHERE sql_id = TRIM('&&sql_id.')
+               AND plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+               AND other_xml IS NOT NULL
+             ORDER BY
+                   child_number, id)
+  LOOP
+    :other_xml := i.other_xml;
+    EXIT; -- 1st
+  END LOOP;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from memory: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+-- get other_xml from awr
+BEGIN
+  IF :other_xml IS NULL OR NVL(DBMS_LOB.GETLENGTH(:other_xml), 0) = 0 THEN
+    FOR i IN (SELECT other_xml
+                FROM dba_hist_sql_plan
+               WHERE sql_id = TRIM('&&sql_id.')
+                 AND plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+                 AND other_xml IS NOT NULL
+               ORDER BY
+                     id)
+    LOOP
+      :other_xml := i.other_xml;
+      EXIT; -- 1st
+    END LOOP;
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from awr: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+-- get other_xml from memory from modified SQL
+BEGIN
+  IF :other_xml IS NULL OR NVL(DBMS_LOB.GETLENGTH(:other_xml), 0) = 0 THEN
+    FOR i IN (SELECT other_xml
+                FROM gv$sql_plan
+               WHERE plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+                 AND other_xml IS NOT NULL
+               ORDER BY
+                     child_number, id)
+    LOOP
+      :other_xml := i.other_xml;
+      EXIT; -- 1st
+    END LOOP;
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from memory: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+-- get other_xml from awr from modified SQL
+BEGIN
+  IF :other_xml IS NULL OR NVL(DBMS_LOB.GETLENGTH(:other_xml), 0) = 0 THEN
+    FOR i IN (SELECT other_xml
+                FROM dba_hist_sql_plan
+               WHERE plan_hash_value = TO_NUMBER(TRIM('&&plan_hash_value.'))
+                 AND other_xml IS NOT NULL
+               ORDER BY
+                     id)
+    LOOP
+      :other_xml := i.other_xml;
+      EXIT; -- 1st
+    END LOOP;
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('getting other_xml from awr: '||SQLERRM);
+    :other_xml := NULL;
+END;
+/
+ 
+SELECT :other_xml FROM DUAL;
+ 
+-- validate other_xml
+SET TERM ON;
+BEGIN
+  IF :other_xml IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20101, 'PLAN for SQL_ID &&sql_id. and PHV &&plan_hash_value. was not found in memory (gv$sql_plan) or AWR (dba_hist_sql_plan).');
+  END IF;
+END;
+/
+SET TERM OFF;
+ 
+-- generates script that creates sql profile in target system:
+SET ECHO OFF;
+PRO coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql.
+SET FEED OFF LIN 666 TRIMS ON TI OFF TIMI OFF SERVEROUT ON SIZE 1000000 FOR WOR;
+SET SERVEROUT ON SIZE UNL FOR WOR;
+SPO OFF;
+SPO coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql;
+DECLARE
+  l_pos NUMBER;
+  l_clob_size NUMBER;
+  l_offset NUMBER;
+  l_sql_text VARCHAR2(32767);
+  l_len NUMBER;
+  l_hint VARCHAR2(32767);
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('SPO coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..log;');
+  DBMS_OUTPUT.PUT_LINE('SET ECHO ON TERM ON LIN 2000 TRIMS ON NUMF 99999999999999999999;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM $Header: 215187.1 coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql  11.4.4.4  '||TO_CHAR(SYSDATE, 'YYYY/MM/DD')||' carlos.sierra $');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM Copyright (c) 2000-2012, Oracle Corporation. All rights reserved.');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM AUTHOR');
+  DBMS_OUTPUT.PUT_LINE('REM    carlos.sierra@oracle.com ');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM SCRIPT');
+  DBMS_OUTPUT.PUT_LINE('REM   coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM DESCRIPTION');
+  DBMS_OUTPUT.PUT_LINE('REM   This script is generated by coe_xfr_sql_profile.sql');
+  DBMS_OUTPUT.PUT_LINE('REM   It contains the SQL*Plus commands to create a custom');
+  DBMS_OUTPUT.PUT_LINE('REM   SQL Profile for SQL_ID &&sql_id. based on plan hash');
+  DBMS_OUTPUT.PUT_LINE('REM   value &&plan_hash_value..');
+  DBMS_OUTPUT.PUT_LINE('REM   The custom SQL Profile to be created by this script');
+  DBMS_OUTPUT.PUT_LINE('REM   will affect plans for SQL commands with signature');
+  DBMS_OUTPUT.PUT_LINE('REM   matching the one for SQL Text below.');
+  DBMS_OUTPUT.PUT_LINE('REM   Review SQL Text and adjust accordingly.');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM PARAMETERS');
+  DBMS_OUTPUT.PUT_LINE('REM   None.');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM EXAMPLE');
+  DBMS_OUTPUT.PUT_LINE('REM   SQL> START coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('REM NOTES');
+  DBMS_OUTPUT.PUT_LINE('REM   1. Should be run as SYSTEM or SYSDBA.');
+  DBMS_OUTPUT.PUT_LINE('REM   2. User must have CREATE ANY SQL PROFILE privilege.');
+  DBMS_OUTPUT.PUT_LINE('REM   3. SOURCE and TARGET systems can be the same or similar.');
+  DBMS_OUTPUT.PUT_LINE('REM   4. To drop this custom SQL Profile after it has been created:');
+  DBMS_OUTPUT.PUT_LINE('REM      EXEC DBMS_SQLTUNE.DROP_SQL_PROFILE(''coe_&&sql_id._&&plan_hash_value.'');');
+  DBMS_OUTPUT.PUT_LINE('REM   5. Be aware that using DBMS_SQLTUNE requires a license');
+  DBMS_OUTPUT.PUT_LINE('REM      for the Oracle Tuning Pack.');
+  DBMS_OUTPUT.PUT_LINE('REM   6. If you modified a SQL putting Hints in order to produce a desired');
+  DBMS_OUTPUT.PUT_LINE('REM      Plan, you can remove the artifical Hints from SQL Text pieces below.');
+  DBMS_OUTPUT.PUT_LINE('REM      By doing so you can create a custom SQL Profile for the original');
+  DBMS_OUTPUT.PUT_LINE('REM      SQL but with the Plan captured from the modified SQL (with Hints).');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('WHENEVER SQLERROR EXIT SQL.SQLCODE;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('VAR signature NUMBER;');
+  DBMS_OUTPUT.PUT_LINE('VAR signaturef NUMBER;');
+  DBMS_OUTPUT.PUT_LINE('REM');
+  DBMS_OUTPUT.PUT_LINE('DECLARE');
+  DBMS_OUTPUT.PUT_LINE('sql_txt CLOB;');
+  DBMS_OUTPUT.PUT_LINE('h       SYS.SQLPROF_ATTR;');
+  DBMS_OUTPUT.PUT_LINE('PROCEDURE wa (p_line IN VARCHAR2) IS');
+  DBMS_OUTPUT.PUT_LINE('BEGIN');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.WRITEAPPEND(sql_txt, LENGTH(p_line), p_line);');
+  DBMS_OUTPUT.PUT_LINE('END wa;');
+  DBMS_OUTPUT.PUT_LINE('BEGIN');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.CREATETEMPORARY(sql_txt, TRUE);');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.OPEN(sql_txt, DBMS_LOB.LOB_READWRITE);');
+  DBMS_OUTPUT.PUT_LINE('-- SQL Text pieces below do not have to be of same length.');
+  DBMS_OUTPUT.PUT_LINE('-- So if you edit SQL Text (i.e. removing temporary Hints),');
+  DBMS_OUTPUT.PUT_LINE('-- there is no need to edit or re-align unmodified pieces.');
+  l_clob_size := NVL(DBMS_LOB.GETLENGTH(:sql_text), 0);
+  l_offset := 1;
+  WHILE l_offset < l_clob_size
+  LOOP
+    l_pos := DBMS_LOB.INSTR(:sql_text, CHR(00), l_offset);
+    IF l_pos > 0 THEN
+      l_len := l_pos - l_offset;
+    ELSE -- last piece
+      l_len := l_clob_size - l_pos + 1;
+    END IF;
+    l_sql_text := DBMS_LOB.SUBSTR(:sql_text, l_len, l_offset);
+    /* cannot do such 3 replacement since a line could end with a comment using "--"
+    l_sql_text := REPLACE(l_sql_text, CHR(10), ' '); -- replace LF with SP
+    l_sql_text := REPLACE(l_sql_text, CHR(13), ' '); -- replace CR with SP
+    l_sql_text := REPLACE(l_sql_text, CHR(09), ' '); -- replace TAB with SP
+    */
+    l_offset := l_offset + l_len + 1;
+    IF l_len > 0 THEN
+      IF INSTR(l_sql_text, '''[') + INSTR(l_sql_text, ']''') = 0 THEN
+        l_sql_text := '['||l_sql_text||']';
+      ELSIF INSTR(l_sql_text, '''{') + INSTR(l_sql_text, '}''') = 0 THEN
+        l_sql_text := '{'||l_sql_text||'}';
+      ELSIF INSTR(l_sql_text, '''<') + INSTR(l_sql_text, '>''') = 0 THEN
+        l_sql_text := '<'||l_sql_text||'>';
+      ELSIF INSTR(l_sql_text, '''(') + INSTR(l_sql_text, ')''') = 0 THEN
+        l_sql_text := '('||l_sql_text||')';
+      ELSIF INSTR(l_sql_text, '''"') + INSTR(l_sql_text, '"''') = 0 THEN
+        l_sql_text := '"'||l_sql_text||'"';
+      ELSIF INSTR(l_sql_text, '''|') + INSTR(l_sql_text, '|''') = 0 THEN
+        l_sql_text := '|'||l_sql_text||'|';
+      ELSIF INSTR(l_sql_text, '''~') + INSTR(l_sql_text, '~''') = 0 THEN
+        l_sql_text := '~'||l_sql_text||'~';
+      ELSIF INSTR(l_sql_text, '''^') + INSTR(l_sql_text, '^''') = 0 THEN
+        l_sql_text := '^'||l_sql_text||'^';
+      ELSIF INSTR(l_sql_text, '''@') + INSTR(l_sql_text, '@''') = 0 THEN
+        l_sql_text := '@'||l_sql_text||'@';
+      ELSIF INSTR(l_sql_text, '''#') + INSTR(l_sql_text, '#''') = 0 THEN
+        l_sql_text := '#'||l_sql_text||'#';
+      ELSIF INSTR(l_sql_text, '''%') + INSTR(l_sql_text, '%''') = 0 THEN
+        l_sql_text := '%'||l_sql_text||'%';
+      ELSIF INSTR(l_sql_text, '''$') + INSTR(l_sql_text, '$''') = 0 THEN
+        l_sql_text := '$'||l_sql_text||'$';
+      ELSE
+        l_sql_text := CHR(96)||l_sql_text||CHR(96);
+      END IF;
+      DBMS_OUTPUT.PUT_LINE('wa(q'''||l_sql_text||''');');
+    END IF;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.CLOSE(sql_txt);');
+  DBMS_OUTPUT.PUT_LINE('h := SYS.SQLPROF_ATTR(');
+  DBMS_OUTPUT.PUT_LINE('q''[BEGIN_OUTLINE_DATA]'',');
+  FOR i IN (SELECT /*+ opt_param('parallel_execution_enabled', 'false') */
+                   SUBSTR(EXTRACTVALUE(VALUE(d), '/hint'), 1, 4000) hint
+              FROM TABLE(XMLSEQUENCE(EXTRACT(XMLTYPE(:other_xml), '/*/outline_data/hint'))) d)
+  LOOP
+    l_hint := i.hint;
+    WHILE NVL(LENGTH(l_hint), 0) > 0
+    LOOP
+      IF LENGTH(l_hint) <= 500 THEN
+        DBMS_OUTPUT.PUT_LINE('q''['||l_hint||']'',');
+        l_hint := NULL;
+      ELSE
+        l_pos := INSTR(SUBSTR(l_hint, 1, 500), ' ', -1);
+        DBMS_OUTPUT.PUT_LINE('q''['||SUBSTR(l_hint, 1, l_pos)||']'',');
+        l_hint := '   '||SUBSTR(l_hint, l_pos);
+      END IF;
+    END LOOP;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('q''[END_OUTLINE_DATA]'');');
+  DBMS_OUTPUT.PUT_LINE(':signature := DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE(sql_txt);');
+  DBMS_OUTPUT.PUT_LINE(':signaturef := DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE(sql_txt, TRUE);');
+  DBMS_OUTPUT.PUT_LINE('DBMS_SQLTUNE.IMPORT_SQL_PROFILE (');
+  DBMS_OUTPUT.PUT_LINE('sql_text    => sql_txt,');
+  DBMS_OUTPUT.PUT_LINE('profile     => h,');
+  DBMS_OUTPUT.PUT_LINE('name        => ''coe_&&sql_id._&&plan_hash_value.'',');
+  DBMS_OUTPUT.PUT_LINE('description => ''coe &&sql_id. &&plan_hash_value. ''||:signature||'' ''||:signaturef||'''',');
+  DBMS_OUTPUT.PUT_LINE('category    => ''DEFAULT'',');
+  DBMS_OUTPUT.PUT_LINE('validate    => TRUE,');
+  DBMS_OUTPUT.PUT_LINE('replace     => TRUE,');
+  DBMS_OUTPUT.PUT_LINE('force_match => FALSE /* TRUE:FORCE (match even when different literals in SQL). FALSE:EXACT (similar to CURSOR_SHARING) */ );');
+  DBMS_OUTPUT.PUT_LINE('DBMS_LOB.FREETEMPORARY(sql_txt);');
+  DBMS_OUTPUT.PUT_LINE('END;');
+  DBMS_OUTPUT.PUT_LINE('/');
+  DBMS_OUTPUT.PUT_LINE('WHENEVER SQLERROR CONTINUE');
+  DBMS_OUTPUT.PUT_LINE('SET ECHO OFF;');
+  DBMS_OUTPUT.PUT_LINE('PRINT signature');
+  DBMS_OUTPUT.PUT_LINE('PRINT signaturef');
+  DBMS_OUTPUT.PUT_LINE('PRO');
+  DBMS_OUTPUT.PUT_LINE('PRO ... manual custom SQL Profile has been created');
+  DBMS_OUTPUT.PUT_LINE('PRO');
+  DBMS_OUTPUT.PUT_LINE('SET TERM ON ECHO OFF LIN 80 TRIMS OFF NUMF "";');
+  DBMS_OUTPUT.PUT_LINE('SPO OFF;');
+  DBMS_OUTPUT.PUT_LINE('PRO');
+  DBMS_OUTPUT.PUT_LINE('PRO COE_XFR_SQL_PROFILE_&&sql_id._&&plan_hash_value. completed');
+END;
+/
+SPO OFF;
+SET DEF ON TERM ON ECHO OFF FEED 6 VER ON HEA ON LIN 80 PAGES 14 LONG 80 LONGC 80 TRIMS OFF TI OFF TIMI OFF SERVEROUT OFF NUMF "" SQLP SQL>;
+SET SERVEROUT OFF;
+PRO
+PRO Execute coe_xfr_sql_profile_&&sql_id._&&plan_hash_value..sql
+PRO on TARGET system in order to create a custom SQL Profile
+PRO with plan &&plan_hash_value linked to adjusted sql_text.
+PRO
+UNDEFINE 1 2 sql_id plan_hash_value
+CL COL
+PRO
+PRO COE_XFR_SQL_PROFILE completed.
