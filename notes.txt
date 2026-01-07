@@ -1,0 +1,2750 @@
+system password : Butterfly@143
+ppk password : Butterfly@143
+
+UGNX dashboard :
+
+https://itconvergence.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3De18020e0dbd8d454dbf216494896194e%26sysparm_tab%3D2a6b5b872fe3d8d00f7c13acf699b637%26sysparm_cancelable%3Dtrue%26sysparm_editable%3Dundefined%26sysparm_active_panel%3Dfalse
+
+https://meet.google.com/qmr-qwrm-dqc - Mng hand off meeting - 6 am
+https://meet.google.com/qbo-tnkg-vvo - Daily internal meeting at 2:30
+https://meet.google.com/stb-omfa-jqs   (Weekly DBA Team meeting - 2:00 pm on Fri)
+meet.google.com/rzq-bshv-wgx - Every Thursday 8:30 to 9:30
+mail.google.com
+https://docs.google.com/document/d/1Sf2_caiY-U9EedSIeKc80nDAxpMfREw9/edit - clone doc
+https://docs.google.com/spreadsheets/d/1xhI0kwhnRfaVQ7Auhe7coya3LtA46eixwSFatgmSK54/edit#gid=552118186 - all customers 
+https://sites.google.com/itconvergence.com/customerportal/home/ - customer docs
+https://docs.google.com/spreadsheets/d/1GIhHlAsYZoimJ8xsXRTJgR2N4G3I6RsJ/edit#gid=1624965520 - dba team details
+pr4ir3ie5
+-------------------------------------------------------------------------------------------------------------------
+Important queries :
+
+https://sites.google.com/view/oracledbascriptsn/scripts#h.uhkdlrmyo718
+
+Steps to apply patches in R12.1:
+================================
+http://anjaniappsdba.blogspot.com/2015/10/how-to-apply-adpatch-step-by-step.html
+
+https://oraclesolutions.pk/adrelink-fails-with-error-tech_st10-1-2libstubslibc-so-6-collect2-ld-returned-1-exit-status/
+
+/u01/apps/sprvrbi/apps/tech_st/10.1.2
+===================================================================================
+col OWNER for a10
+col OBJECT_NAME for a30
+col OBJECT_TYPE for a20
+set linesize 150
+select OWNER,OBJECT_NAME,OBJECT_TYPE,STATUS,CREATED,LAST_DDL_TIME from dba_objects where OBJECT_NAME like '%INVALID%';
+Pre INVALIDs 
+=========
+select name,user from v$database;
+select count(*) from dba_objects where status='INVALID';
+create table apps.invalids_CS1556064  as (select object_name,owner from dba_objects where
+status='INVALID');
+!id;pwd;date;hostname -f;echo $TWO_TASK
+
+welcome1
+Post INVALIDs 
+============
+col owner format a10
+col object_name format a40
+col object_type format a20
+col status format a10
+set linesize 150
+
+select owner, object_name, object_type, status from dba_objects where status='INVALID' and object_name not in (select object_name from invalids_CS1556064);
+select name,user from v$database;
+select count(*) from dba_objects where status='INVALID';
+!id;pwd;date;hostname -f;echo $TWO_TASK
+
+weblogic123
+K4QU2abcd4nTo18mN
+drop table apps.dba_objects_B4 ;
+
+	FNDLOAD apps/KRaXx3s_fq6590ofHs O Y UPLOAD $FND_TOP/patch/115/import/afcpprog.lct XXUGNX_DELETE_ORPHAN_TRANS.ldt
+
+welcome2
+to check the status of object:
+
+col OWNER for a10
+col OBJECT_NAME for a30
+col OBJECT_TYPE for a20
+set linesize 150
+select OWNER,OBJECT_NAME,OBJECT_TYPE,STATUS,CREATED,LAST_DDL_TIME from dba_objects where OBJECT_NAME like '%WW_PDS_SHOP_LOG_REPRINT%';
+
+To take package backup :
+
+Package body backup:
+
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool  XXUGNX_BATCH_LOT_ASSN_PKG_13Aug2025.pkb
+select text from dba_source where name='XXUGNX_BATCH_LOT_ASSN_PKG' and type='PACKAGE BODY' and OWNER='APPS';
+spool off
+
+Package spec backup:
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool xxugnx_wf_pkg_09Jan2025.pks 
+select text from dba_source where name='xxugnx_wf_pkg' and type='PACKAGE' and OWNER='APPS';
+spool off
+
+to take function backup:
+
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool  XXUGNX_PROGRAM_FUTURE1_29Jul2025.fnc
+SELECT DBMS_METADATA.GET_DDL('FUNCTION', 'XXUGNX_PROGRAM_FUTURE1', 'APPS') FROM DUAL;
+spool off
+
+to take procedure backup:
+
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool  XXWSB_COPY_CLOSED_SO_LINES_31Jul2025.txt
+SELECT TEXT
+FROM USER_SOURCE
+WHERE NAME = 'XXWSB_COPY_CLOSED_SO_LINES'
+  AND TYPE = 'PROCEDURE'
+ORDER BY LINE;
+SELECT DBMS_METADATA.GET_DDL('PROCEDURE', 'XXWSB_COPY_CLOSED_SO_LINES', 'APPS') FROM DUAL;
+spool off;
+
+
+-------------------------------------------------------------------------------------------------------------------------
+pfairi flexprod : prod db do not connect with sys and apps users
+--------------------------------------------------------------------------------------------------------------
+weekend activities:
+https://docs.google.com/spreadsheets/d/1xDF_IrCddX3WgbpWtLQZc2ktOuUCTxO8sR6LJCuK_aI/edit#gid=233683828
+
+shift schedule:
+https://docs.google.com/spreadsheets/d/1GIhHlAsYZoimJ8xsXRTJgR2N4G3I6RsJ/edit#gid=1221452839
+
+Client vpn details:
+
+https://docs.google.com/spreadsheets/d/14UILkZbfk-QWDP40TmA1E2LbTqCzCzj1_r_P7uymW1Y/edit#gid=1781239741
+
+Server Inventory:
+
+https://docs.google.com/spreadsheets/d/14UILkZbfk-QWDP40TmA1E2LbTqCzCzj1_r_P7uymW1Y/edit#gid=962582408
+
+Shift Assignments:
+
+https://docs.google.com/spreadsheets/d/1Dx_jalRYxZ5hSWDmMm7VvwMyJ_ZwYSWIW9Prf_9O9mw/edit#gid=1069212616
+
+Riverbed: 
+ 
+https://docs.google.com/spreadsheets/d/1EjIdrfz8V2_2akK3c4btnK4Ov0htWdChq_W7yfrYoFc/edit#gid=0
+========================================================================================================================
+Username : svelur
+Password : Pussycat@123
+-==============================================================================================================
+SD shift roster :
+https://docs.google.com/spreadsheets/d/1TSHkG098ApCmFCfENfSnPwSbKeTypdB5Crljaafvp7E/edit?usp=sharing
+=================================================================================================================
+Hosting Shift roster :
+https://docs.google.com/spreadsheets/d/1MhWMg94uPwpW69VYZNIm6_7LvFeu_SPOgi7HggZoNLk/edit#gid=34804486&range=A1:E1
+=====================================================================================================================
+Exterran Runbook :
+https://docs.google.com/spreadsheets/d/1CVrNE9aOqtpfuAJJNN4R-jq1n81XLKXRt3w__mbHZnY/edit#gid=541305721
+===============================================================================================================
+PPA:
+https://drive.google.com/drive/folders/1YgVt6Zrwf5AQ_o_UP6-ToO-tISJyRnkL
+============================================================================================================
+Oracle support Credentials:
+
+Username : cms-ind-dba@itconvergence.com
+password : Summer@2023
+=============================================================================================================
+Tower -A Server Inventory:  
+https://docs.google.com/spreadsheets/d/1mhgMf5UubxboX-GrrkGDWAmq_BQvPgMo/edit#gid=1620028045
+
+Tower -B Server Inventory:  
+https://docs.google.com/spreadsheets/d/1dR7Fz_Cn7kAPt25OZGyjussEsQAksGXg6mrnpBCcXIQ/edit#gid=1037505270
+===========================================================================================================
+ps -ef | grep tns
+sudo su -
+ctrl R sqlplus
+history | grep sqlplus
+=========================================================================================================
+steps to change weblogic console password :
+
+https://hkappsblog.wordpress.com/2017/04/07/changing-weblogic-admin-server-password-in-r12-2/
+=============================================================================================================
+Ramsey bounce reference change number:
+CHG0051655
+===============================================================================================================
+Global logic, Well built : standard change
+Cantor : normal change
+===============================================================================================================
+global logic/Cantor - Pankaj
+curvature/ ultragenyx - Mohan
+Welbilt/Mcgrath/wwws - Umar
+Extern - Satya 
+=================================================================================================================
+Command to schedule concurrent request:
+
+update fnd_concurrent_requests
+   set phase_code='P', status_code='I'
+  where request_id in 
+  (127794094);
+  
+===============================================================================================================
+Riverbed oci server :
+
+10.143.217.131	ociubastionprd01.oci.riverbed.com
+
+10.143.27.131  ociubastion01dr.oci.riverbed.com
+
+copy ip in putty and give ssh hostname
+
+tempory password is Welcome01
+=================================================================================================================
+
+self service portal :
+
+URL https://apps.paybooks.in/mylogin.aspx You can bookmark this url for quick access.
+
+
+Your username: 25663 
+Your temporary password: Io8jojhps#
+Password : Pussycat@123
+Domain: ITCONV 
+
+================================================================================================================
+pr4ir3ie5
+recompile :pr4ir3ie5
+pr4ir3ie5
+xxugnx_3b5m
+exec utl_recomp.recomp_parallel(10);
+pr4ir3ie5
+ALTER MATERIALIZED VIEW OZF_EARNING_SUMMARY_MV COMPILE; 
+
+ALTER SYNONYM APPSRO.AD_UTIL_PARAMS COMPILE;
+
+XXUGNX_MFG_PROD_LABEL_PKG
+=================================================================================================================
+For MGRC servers password is Welcome@123
+=================================================================================================================
+Access for Venkatraman Velur, Subhadra (svelur) has been granted to RS Account - RW - Contractor Account Creation!
+
+For more details, refer to:
+https://jira.trstone.com/browse/AR-72429 
+Access Request:	AR-72429
+Request Status:	Access Granted (by Miranda, Emilie)
+Requested Item:	RS Account - RW - Contractor Account Creation
+Summary:	Creation of New DBA account (Subhadra Venkatraman Velur)
+Requested For:	Venkatraman Velur, Subhadra (svelur)
+Manager:	Lam, James
+Description:	Hi James , Please kindly grant access to this new resource who is part of DBA team.   Thanks Nymisha  
+
+==========================================================================================================================
+To build weblogic url :
+
+grep -i s_wls_admin $CONTEXT_FILE
+
+ugnx-chi-tap01
+ugnx-chi-tap01
+ugnx.itciss.com
+7011
+welcome1
+ugx1ATitc
+DeVeLoP_FeB23
+EBSS : http://gblg-365-dap02.gblg.itciss.com:7031/console
+http://extn-365-dap27.extn.itciss.com:7006/console
+http://ice-chi-pap02.ice.itciss.com:7002/console
+EBSD : http://ugnx-365-dap01.ugnx.itciss.com:7003/console
+EBST : http://ugnx-365-pap01.ugnx.itciss.com:7003/console    We3l0gict35t
+EBSQ : http://tria-365-dap01.tria.itciss.com:7001/console
+		http://vlcurvebsap05n.curvoci.com:7001/console W3bl0g1c3		welcome1
+ugnx service now :
+
+https://itconvergence.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3De18020e0dbd8d454dbf216494896194e%26sysparm_tab%3D2a6b5b872fe3d8d00f7c13acf699b637%26sysparm_cancelable%3Dtrue%26sysparm_editable%3Dundefined%26sysparm_active_panel%3Dfalse
+
+http://vloutmebsap01n.ebsda.outmphxebsvcn01.oraclevcn.com:7001/console
+
+EBSD : http://ugnx-365-dap01.ugnx.itciss.com:7005/console
+EBST : http://ugnx-chi-tap01.ugnx.itciss.com:7021/console
+EBSQ : http://ugnx-365-dap02.ugnx.itciss.com:7013/console
+
+http://vlmgrcebsap02n.oci.mgrc.com:7002/console
+
+
+Ultragenyx :
+
+Weblogic
+welcome1
+================================================================================================================================
+Mc Grath:
+
+Provide access to bastion server 10.143.100.142	vlmgrcbastion01.oci.mgrc.com in Mc Grath and ssh to the attched list of servers and also provide sudo access.
+Password : Cherry@143
+===================================================================================================================================
+Adding path in utl file in 19c :
+
+https://docs.rackspace.com/blog/using-supplemental-utl_file_dir-in-EBS-Release-12-with-19c-database/
+[EBSTCDB orateb1@ugnx-chi-tdb01 ~]$ cd $ORACLE_HOME
+[EBSTCDB orateb1@ugnx-chi-tdb01 dbhome_1]$ . EBST_ugnx-chi-tdb01.env
+vi /us2101/app/orateb1/products/19.3.0/dbhome_1/dbs/EBST_utlfiledir.txt
+add /interface/EBST/interface/LABELPRINT/outbound
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=$CONTEXT_FILE -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=setUtlFileDir
+
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=$CONTEXT_FILE -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=syncUtlFileDir
+===================================================================================================================================================
+scp -r p33461428_R12.BPA.C_R12_GENERIC.zip svelur@vlmgrcebsap01p:/stage/patches
+
+scp -rp :/stage/CS1458349/HAF/ATGFRMHA_12-Dec-2024_232351.zip .
+
+scp -r svelur@vlcurvebsdb01p.curvoci.com:/home/oracle/awrrpt_1_37466_37470.html .
+scp -rp * nbattala@10.114.8.210:/tmp
+================================================================================================================================================
+Insurance :
+
+Nova Benefits portal
+
+https://5ij79.r.ag.d.sendibm3.com/mk/cl/f/-di4-KsaedOZPQPiRjU4r0QpbsqbsjvUwYVeeB2Q5ZP7cwU0YI-NVVt0UHHgmGF5yArm2kgQqUsstVBaS9tmSjDjnWXPh-EwLtT5IiF9iCMgkm6HzqAW8WgYVZXoGABqlQUagvFiN1qCXZhawrRwEIajhlf9r6FNqLM_c935AFJXlJVPXhDviAEE3efTc3BBnI2XFeQifwJ5vKNh0iZFvo3cZ2R6cbX6cXkz
+	
+username : svelur@itconvergence.com
+Password : Tomjerry@1234
+================================================================================================================================================
+
+Exterran Console:
+
+Username : VSubhad01
+Password : %_wgDYgfk9p8U%B
+=====================================================================================================================================================
+MCGRATH :
+
+MGRC VPN Info : Use "lv-vpn.mgrc.com" from cisco VPN Client.
+User name : subhadra.venkatramanvelur@mgrc.com
+password : CO975@VENbrms1821
+
+Server :
+Username : svelur
+Password : Cherry@143
+
+xterm is used in mcgrath for vnc screen issue
+===============================================================================================================================================
+ADT:
+
+Guide to configure VPN F5 (BIG IP EDGE CLIENT)
+https://drive.google.com/file/d/17OpY3DbbfgfpP_q1536SeTyrtv-5Bx0d
+
+Remote desktop
+
+username : svelur@itconvergence.com
+password : pWLhXc5lcW3D
+
+URL : https://my.jci.com/
+
+ADT PROD : z@3ZTUycp*8W%&^g2dtS
+Logon ID: jvenka1SA2
+
+Global ID: jvenka1
+Password: zH_98@eP
+
+
+https://my.jci.com/
+====================================================================================================
+Commands to check DB restore status in Mc Grath :
+
+SELECT OPERATION, STATUS, MBYTES_PROCESSED/1024 GB_PROCESSED , START_TIME, END_TIME from V$RMAN_STATUS where STATUS='RUNNING';
+
+
+SELECT SID, SERIAL#, CONTEXT, SOFAR, TOTALWORK,
+ROUND (SOFAR/TOTALWORK*100, 2) "% COMPLETE"
+FROM V$SESSION_LONGOPS
+WHERE OPNAME LIKE 'RMAN%' AND OPNAME NOT LIKE '%aggregate%'
+AND TOTALWORK! = 0 AND SOFAR <> TOTALWORK;
+===================================================================================================
+To check application version :
+
+select release_name from fnd_product_groups;
+
+===================================================================================================
+To check languages installed in server :
+
+SELECT Language_code, NLS_language, Installed_flag
+  FROM fnd_languages
+ WHERE installed_flag IN ('I', 'B');
+ 
+===================================================================================================
+Command to download patch from oracle support :
+
+wget --no-check-certificate --http-user=cms-ind-dba@itconvergence.com --password=Summer@2023 "https://updates.oracle.com/Orion/Services/download/p33461428_R12.BPA.C_R12_GENERIC.zip?aru=24464083&patch_file=p33461428_R12.BPA.C_R12_GENERIC.zip&patch_password=enxtTOej" -O p33461428_R12.BPA.C_R12_GENERIC.zip
+
+========================================================================================================================================
+command to apply patch in downtime mode :
+
+adop phase=apply patches=13857555 apply_mode=downtime
+
+for language patches :
+
+adop phase=apply apply_mode=downtime workers=32 patches=31947760_ESA:u31947760.drv,31947760_F:u31947760.drv,31947760_PTB:u31947760.drv merge=yes wait_on_failed_job=yes prompt=yes  patchtop=/ua5001/app/fs_ne/EBSapps/patch
+
+to apply patch in a single node :
+
+adop phase=apply patches=34818732 allnodes=NO action=nodb
+
+to check the status of patch in ad_bugs table :
+
+select BUG_NUMBER,CREATION_DATE,language from ad_bugs where bug_number in ('37923872','37902429','38056373');
+
+ select ad_patch.is_patch_applied('R12',-1,23706874) from dual;
+
+mkhatri@pinterest.com
+========================================================================================================================================
+
+Command to check blocking sessions:
+
+select
+   blocking_session,
+   sid,
+   serial#,
+   wait_class,
+   seconds_in_wait
+from
+   v$session
+where
+   blocking_session is not NULL
+order by
+   blocking_session;
+   
+=========================================================================================================
+to check whether DB is hang:
+
+oradebug hanganalyze 3
+
+============================================================================================================
+Command to change vnc password:
+
+vncpasswd 
+oracle
+unlock@vnc2020-exterran
+=====================================================================================================
+Apps password change :
+
+silence nagios
+-put jobs on hold two hours prior and communicate to customer for running jobs
+-shut down application  
+-take backup of tables (FND_USER ,FND_ORACLE_USERID )
+-change apps password using FNDCPASS
+- run autoconfig using new apps password
+-start admin server
+=update new password in Datasource 
+-start all services 
+-Perform sanity and release jobs 	
+
+========================================================================================================
+
+to check database version :
+
+select * from v$version;
+===========================================================================================================
+to check application version :
+
+select release_name from fnd_product_groups;
+
+==========================================================================================================
+oradebug hanganalyze 3
+===========================================================================================================
+To find session details:
+
+col sid format 9999
+col pid format 9999
+col serial# format 99999
+col process format a8 heading "unixPID"
+col spid format a8 heading "unixPID"
+col username format a9
+col addr format a11
+col program format a20 trunc
+col logon_time format a18
+col osuser format a8 heading unixUsr
+col p_user format a9 heading unixUsr
+col terminal format a7 heading unixtrm
+col command format 99 heading Cd
+col machine format a7
+col action format a7
+col module format a10
+set pagesize 24
+prompt "Enter the Oracle Session ID (SID) user in question"
+select p.PID,
+p.SERIAL#,
+p.USERNAME p_user,
+p.SPID,
+to_char(s.logon_time,'DD-MON-YY HH24:MI:SS') Logon_Time,
+s.program,
+s.command,
+s.sid,
+s.serial#,
+s.username,
+s.process,
+s.machine,
+s.action,
+s.module,
+s.osuser,
+s.terminal
+from v$process p,
+v$session s
+where s.sid = &sid
+and p.addr = s.paddr
+order by s.logon_time
+/
+======================================================================================================
+SQL command to get explain plan for given sql id :
+
+set lines 2000
+set pagesize 2000
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY_CURSOR('&sql_id'));
+
+===========================================================================================================
+comand to check the status of ASM :
+
+srvctl status asm -detail
+
+=============================================================================================================
+command to start dba services:
+
+BEGIN
+  DBMS_SERVICE.start_service(
+    service_name => '&my_new_service'
+  );
+END;
+/
+================================================================================================================
+To Enable MRP process:
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE DISCONNECT FROM SESSION;
+
+To Cancel MRP process:
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE CANCEL;
+===============================================================================================================
+1.Source the environment file 
+                     $ source <CONTEXT_NAME>.env
+          2.Obtain the existing value for the UTL_FILE_DIR using the following commands:
+
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=/us3101/app/oracle/products/19.3.0/dbhome_1/appsutil/EBSQ_ugnx-365-pdb02.xml -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=getUtlFileDir
+12:15
+    This will create a text file <DB_NAME>_utilfiledir.txt under the $ORACLE_HOME/dbs directory with references    to the target oracle home.
+
+          3.Review the  <DB_NAME>_utilfiledir.txt and edit the values ,if required .
+          4.Execute the following command to store the updated values for UTL_FILE_DIR in the database.
+
+                         cd $ORACLE_HOME/appsutil/bin
+perl txkCfgUtlfileDir.pl -contextfile=/us3101/app/oracle/products/19.3.0/dbhome_1/appsutil/EBSQ_ugnx-365-pdb02.xml \ -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log \  -mode=setUtlFileDir
+=============================================================================================================================
+command to check asm details:
+
+srvctl status asm -node mtw-365-tdb53 -detail
+=============================================================================================================================
+to check standby status.
+
+SQL> select process,pid,status,thread#,sequence# from v$managed_standby;
+
+SQL> select to_char(sysdate,'DD.MM.RR HH24:MI:SS') time, a.thread#, (select max(sequence#) from v$archived_log where archived='YES' and thread#=a.thread#) archived,    max(a.sequence#) applied, (select max(sequence#) from v$archived_log where archived='YES' and thread#=a.thread#)-max(a.sequence#) gap from v$archived_log a where a.applied='YES' group by a.thread#;
+
+to stop mrp process :
+
+alter database recover managed standby database cancel;
+
+alter database recover managed standby database disconnect from session;
+============================================================================================================================
+to stop/start/delete database service:
+
+exec dbms_service.stop_service('test2');
+
+exec dbms_service.delete_service('smgr3i');
+
+===========================================================================================================================
+how to update apps/sysadmin password in weblogic console:
+
+https://doyensys.com/blogs/how-to-change-apps-sysadmin-password-in-r12-2/#:~:text=Click%20Lock%20%26%20Edit%20in%20Change,Services%2C%20then%20select%20Data%20Sources.&text=On%20the%20%E2%80%9CSettings%20for%20EBSDataSource,in%20the%20%E2%80%9CPassword%E2%80%9D%20field.
+==========================================================================================================================
+To refresh directories in rosetta:
+
+cd /mnt/nfs_misc/svn/Oracle
+svn up
+==========================================================================================================================
+Command to check discoverer version :
+
+strings -a dis51ws | grep "Discoverer Version:"
+=============================================================================================================================
+to check standby status:
+
+SQL> select process,pid,status,thread#,sequence# from v$managed_standby;
+
+SQL> select to_char(sysdate,'DD.MM.RR HH24:MI:SS') time, a.thread#, (select max(sequence#) from v$archived_log where archived='YES' and thread#=a.thread#) archived,    max(a.sequence#) applied, (select max(sequence#) from v$archived_log where archived='YES' and thread#=a.thread#)-max(a.sequence#) gap from v$archived_log a where a.applied='YES' group by a.thread#;
+
+to stop mrp:
+
+alter database recover managed standby database cancel;
+
+to start mrp:
+
+alter database recover managed standby database disconnect from session;
+
+============================================================================================================================
+data install command :
+
+java oracle.apps.per.DataInstall <apps> <pw> thin <host:port: sid >
+java oracle.apps.per.DataInstall apps appstest thin gblg-365-tdb01.gblg.itciss.com:1551:TEST
+
+to apply hrglobal patch :
+
+$PER_TOP/patch/115/driver
+
+adop phase=apply patchtop=/ua2001n/app/fs2/EBSapps/appl/per/12.0.0/patch/115 patches=driver:hrglobal.drv options=nocopyportion,nogenerateportion,forceapply apply_mode=downtime abandon=yes restart=no
+
+===============================================================================================================================
+
+rsync command  latest:
+
+nohup /usr/bin/rsync -avlrtp -e 'ssh -p 873' --stats --rsync-path=/usr/bin/rsync --rsh=ssh applpeb1@ugnx-365-pap02:/ua1001/fs2/EBSapps/ /ua2001/fs1/EBSapps/  > /tmp/clone_RSYNC_11JUN2022.log 2>&1 &
+
+nohup /usr/bin/rsync -avlrtp -e 'ssh -p 873' --stats --rsync-path=/usr/bin/rsync --rsh=ssh /ua1003/apps/PRD/fs1/EBSapps/ applteb2@tria-365-tap03:/ua4001/apps/TEST2/fs1/EBSapps > /tmp/prod_to_test_rsync.log &
+
+to compare with prod :
+
+by using 873 port
+/usr/bin/rsync -avlrtp -e 'ssh -p 873' --stats --rsync-path=/usr/bin/rsync --rsh=ssh --exclude='bne.log*' applpeb1@amr-chi-pap01:/us1001/appsr12/apps/tech_st/ /us7001/appsr12/apps/tech_st/
+==========================================================================================================================================================================================================================
+
+sql query to find disk groups:
+
+select name, TOTAL_MB/1024, FREE_MB/1024,round(TOTAL_MB -FREE_MB) USED_MB , trunc(((TOTAL_MB -FREE_MB)/TOTAL_MB)*100) USED_PCT from V$ASM_DISKGROUP;
+
+==========================================================================================================================================================
+command to find db_links:
+
+set lines 200
+set pages 20000
+col DB_LINK for a50
+col USERNAME for a20
+col HOST for a50
+select * from dba_db_links where DB_LINK='%BNY%';
+
+command used to find ASM disks for COF:
+
+col diskgroup for a20
+col diskname for a25
+col path for a45
+select a.name DiskGroup,b.name DiskName, b.total_mb, b.free_mb,b.path, b.header_status  from v$asm_disk b, v$asm_diskgroup a where a.group_number (+) =b.group_number order by b.group_number,b.name;
+select substr(name,1,instr(name,'/',-1)) from v$datafile
+union
+select substr(name,1,instr(name,'/',-1)) from v$tempfile
+union
+select substr(member,1,instr(member,'/',-1)) from v$logfile
+union
+select substr(name,1,instr(name,'/',-1)) from v$controlfile;
+union
+select substr(DISPLAY_VALUE,10,instr(DISPLAY_VALUE,'/',-1)) from v$parameter where NAME='log_archive_dest_1';
+===========================================================================================================================================================
+command to find backups :
+set lines 200 pages 999
+col OUTPUT_BYTES_DISPLAY for a20;
+col INPUT_TYPE for a20;
+col TIME_TAKEN_DISPLAY for a20;
+col START_TIME for a30;
+col END_TIME for a20;
+col status for a30;
+select session_key,
+       input_type,
+       status,
+       to_char(start_time,'yyyy-mm-dd hh24:mi') start_time,
+       to_char(end_time,'yyyy-mm-dd hh24:mi')   end_time,
+       output_bytes_display,
+       time_taken_display
+from v$rman_backup_job_details
+order by session_key asc;
+=====================================================================================================================================================
+command to find restore point:
+
+select name from v$restore_point;
+======================================================================================================================================================
+12.2 patching cycle :
+
+12.1.3 patching steps:
+
+http://anjaniappsdba.blogspot.com/2015/10/how-to-apply-adpatch-step-by-step.html
+https://oraclesolutions.pk/adrelink-fails-with-error-tech_st10-1-2libstubslibc-so-6-collect2-ld-returned-1-exit-status/
+
+{ echo devapps ; echo systemdev ; echo Oracle123 ; } | adop phase=fs_clone
+adop phase=prepare
+INVALIDs backup
+adgrants
+source patch fs
+adop phase=apply patches=35266460 
+{ echo devapps ; echo systemdev ; echo Oracle123 ; } | adop phase=finalize
+Shutdown application
+Shutdown DB
+Start DB
+Start Admin server in run filesystem
+adadminsrvctl.sh start 
+{ echo devapps ; echo systemdev ; echo Oracle123 ; } | adop phase=cutover mtrestart=no
+{ echo devapps ; echo systemdev ; echo Oracle123 ; } | adop phase=cleanup
+Stop the application services and database for database patching
+Apply Database Patches
+Stop database services & listeners
+export PATH=$ORACLE_HOME/OPatch:$PATH
+
+To apply DB patches:
+cd /interface/psu_cpu/Apr_2022/EBS_Patches/Database/*****
+opatch apply
+
+To install DB patches:
+cd $ORACLE_HOME/OPatch
+./datapatch -verbose
+
+$EBS_DOMAIN_HOME/config
+allow
+
+Start DB and Application and do sanity
+Eg:
+adop phase=apply patches=35967254  options=forceapply abandon=yes restart=no workers=32
+====================================================================================================================================================
+Known issue unable to connect to EBSM:
+
+Go to below location and update weblogic password in boot.properties file
+/ua3001/fs2/FMW_Home/user_projects/domains/EBS_domain/servers/oacore_server1/security
+Bounce weblogic oacore from backend
+./managedserverctl.sh start oacore
+=====================================================================================================================================
+To write a file in a path:
+
+exec FND_FILE.PUT_LINE(FND_FILE.LOG, 'THIS IS A TEST');
+
+set serveroutput on 
+DECLARE 
+  file_location VARCHAR2(256) := '<first entry on utl_file_dir>'; 
+  file_name VARCHAR2(256) := 'utlfile1.lst'; 
+  file_text VARCHAR2(256) := 'THIS IS A TEST'; 
+  file_id UTL_FILE.file_type; 
+BEGIN 
+  file_id := UTL_FILE.fopen(file_Location, file_name, 'W'); 
+  UTL_FILE.put_line(file_id, file_text); 
+  UTL_FILE.fclose(file_id); 
+EXCEPTION 
+  WHEN UTL_FILE.INVALID_PATH 
+  THEN dbms_output.put_line('INVALID path ' || SQLERRM); 
+    WHEN OTHERS 
+  THEN dbms_output.put_line('Others '|| SQLCODE || ' ' || SQLERRM); 
+END; 
+/
+======================================================================================================================================
+tkprof command :
+
+tkprof CEBSTST_ora_55023_RMANC_0729_155640.trc CEBSTST_ora_55023_RMANC_0729_155640.txt explain=apps/ww5bd3va99s sys=no sort=exeela
+
+tkprof  cuat_ora_12575.trc cuat_ora_12575.txt explain=apps/pinapps745awsuat sort='(prsela,exeela,fchela)'
+=====================================================================================================================================================
+to add space in temp tablespace:
+
+SQL> alter database tempfile '+DEV1DATA/DEV1EBS/TEMPFILE/temp1.575.1109831363' resize 5G;
+
+SQL> SELECT tablespace_name, file_name, bytes/1024/1024,maxbytes/1024/1024 FROM dba_temp_files WHERE tablespace_name = 'APPS_TS_TX_DATA';
+====================================================================================================================
+issue with front end url gblg:
+
+$FMW_HOME/webtier/instances/EBS_web_OHS1/config/OHS/EBS_web
+Subhadra Venkatraman Velur, 2:28 PM
+apps.conf and mod_wl_ohs.conf files lo prod entries delete chesa
+Today
+2:28
+then apache restart
+=====================================================================================================================
+snap clone steps :
+
+prebackups
+stop app db list
+disk dismount
+prd: begin backup
+control file backup
+ALTER DATABASE BACKUP CONTROLFILE TO TRACE as '/home/oraprod/ctrl_PGBLGI_12Jul22after.sql';
+end backup
+rsync
+clone directory in common top
+renamedg
+mount diskgroup
+startup nomount
+create control file
+recover database using backup controlfile until cancel;
+prompt redologs
+alter database open resetlogs
+disable archive log
+==================================================================================================================
+Weblogic URL issue :
+
+Change deby to allow in below file and bounce admin server
+cd $EBS_DOMAIN_HOME/config/config.xml
+=================================================================================================================
+EBST Clone known issues :
+
+1. apps.conf and mod_wl_ohs.conf has production entries. Removed the production entries.
+2. OAEADatasource Datasource apps user password comes with production password, updated the Test instance apps password in OAEADatasource ==> connection pool settings.
+3. Reconfigured the sso once again.
+
+============================================================================================================
+Last Pass :
+
+Username : svelur@itconvergence.com
+Password : Tomjerry@143
+ 
+===============================================================================================================
+WWSB TEST Clone :
+
+script to replace log and out log files :
+
+update fnd_concurrent_requests set logfile_name=replace
+(logfile_name,'/uu1001/PEBWW1/conc/log','/uu2001/TEBWW1/conc/log');
+ 
+update fnd_concurrent_requests set outfile_name=replace
+(outfile_name,'/uu1001/PEBWW1/conc/out','/uu2001/TEBWW1/conc/out');
+
+script t replace prod values with non-prod :
+
+update fnd_profile_option_values set PROFILE_OPTION_VALUE=replace(PROFILE_OPTION_VALUE, '&fromto','&setto') where profile_option_value like '%&fromto%';
+
+to check mwa port availability and kill the old sessions:
+
+ps -ef | grep -i dpid
+
+11i $ADMIN_SCRIPTS_HOME location is $COMMON_TOP/admin/scripts
+================================================================================================================================
+steps to apply weblogic patch:
+
+shutdown application services
+export WLS_HOME=$FMW_HOME/wlserver_10.3
+echo $WLS_HOME
+cd $FMW_HOME/utils/bsu
+
+Command to roll back weblogic patch:
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=CW7X -verbose -remove
+
+cp p35476084_1036_Linux-x86-64.zip $FMW_HOME/utils/bsu/cache_dir/
+cd $FMW_HOME/utils/bsu/cache_dir/
+unzip -o p13845626_10360220419_Generic.zip 
+echo $FILE_EDITION
+export WLS_HOME=$FMW_HOME/wlserver_10.3
+echo $WLS_HOME
+cd $FMW_HOME/utils/bsu
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=KMHV -verbose -install
+Start application services
+to check the status of applied weblogic patches :
+./bsu.sh -view -status=applied -prod_dir=$FMW_HOME/wlserver_10.3
+
+
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=KYRS -verbose -remove
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=IHJW -verbose -remove
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=NA7A -verbose -remove
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=YVDZ -verbose -remove
+
+=================================================================================================
+To apply 10.1.2 HOME patch:
+
+export PATH=$ORACLE_HOME/OPatch:$PATH
+cd $ORACLE_HOME
+echo $ORACLE_HOME
+opatch apply
+===========================================================================================================
+To check patch is applied or not:
+
+opatch lsinventory -detail | grep 26825525
+=======================================================================================================
+To check weblogic version :
+
+cd $FMW_HOME
+from registry.xml
+Subhadra Venkatraman Velur, 7:45 PM
+or
+cd $EBS_DOMAIN_HOME/servers/AdminServer/logs/AdminServer.log
+search for Weblogic Server
+===============================================================================================================
+
+Command to check products installed :
+
+select ABBREVIATION,NAME,CODELEVEL,BASELINE from apps.ad_trackable_entities where lower(ABBREVIATION)='&product';
+
+select CODELEVEL from ad_trackable_entities where ABBREVIATION in ('txk','ad');
+
+select * from ad_trackable_entities;
+col ABBREVIATION for a10
+set lines 1000
+col NAME for a50
+col CODELEVEL for a20
+SELECT ABBREVIATION,NAME,codelevel FROM AD_TRACKABLE_ENTITIES WHERE abbreviation in ('AR');
+
+===============================================================================================================
+SQL command to check temp tablespace :
+
+SELECT A.tablespace_name tablespace, D.gb_total,
+    SUM (A.used_blocks * D.block_size) / 1024 / 1024 /1024 gb_used,
+    D.gb_total - SUM (A.used_blocks * D.block_size) / 1024 / 1024 /1024  gb_free
+   FROM v$sort_segment A,
+    (
+   SELECT B.name, C.block_size, SUM (C.bytes) / 1024 / 1024 /1024 gb_total
+    FROM v$tablespace B, v$tempfile C
+     WHERE B.ts#= C.ts#
+      GROUP BY B.name, C.block_size) D
+    WHERE A.tablespace_name = D.name
+    GROUP by A.tablespace_name, D.gb_total;
+===========================================================================================================
+
+vncserver issue:
+
+unset PERL5LIB
+===============================================================================================================
+To submit active users request from backend:
+
+CONCSUB apps/rp7_fino SYSADMIN 'System Administrator' SYSADMIN WAIT=N CONCURRENT FND FNDSCURS
+=================================================================================================================
+To check the request status:
+
+select a.user_concurrent_program_name , a.CONCURRENT_PROGRAM_ID , REQUEST_ID
+,REQUEST_TYPE,PHASE_CODE  , STATUS_CODE , ACTUAL_START_DATE ,COMPLETION_TEXT
+from fnd_concurrent_programs_tl a, fnd_concurrent_requests b
+where a.concurrent_program_id=b.concurrent_program_id
+and program_application_id=0
+and REQUEST_ID =&requestid;
+=================================================================================================================
+To check concurrent managers status from backend :
+
+SELECT DECODE (
+CONCURRENT_QUEUE_NAME,
+‘FNDICM’, ‘Internal Manager’,
+‘FNDCRM’, ‘Conflict Resolution Manager’,
+‘AMSDMIN’, ‘Marketing Data Mining Manager’,
+‘C_AQCT_SVC’, ‘C AQCART Service’,
+‘FFTM’, ‘FastFormula Transaction Manager’,
+‘FNDCPOPP’, ‘Output Post Processor’,
+‘FNDSCH’, ‘Scheduler/Prereleaser Manager’,
+‘FNDSM_AQHERP’, ‘Service Manager: AQHERP’,
+‘FTE_TXN_MANAGER’, ‘Transportation Manager’,
+‘IEU_SH_CS’, ‘Session History Cleanup’,
+‘IEU_WL_CS’, ‘UWQ Worklist Items Release for Crashed session’,
+‘INVMGR’, ‘Inventory Manager’,
+‘INVTMRPM’, ‘INV Remote Procedure Manager’,
+‘OAMCOLMGR’, ‘OAM Metrics Collection Manager’,
+‘PASMGR’, ‘PA Streamline Manager’,
+‘PODAMGR’, ‘PO Document Approval Manager’,
+‘RCVOLTM’, ‘Receiving Transaction Manager’,
+‘STANDARD’, ‘Standard Manager’,
+‘WFALSNRSVC’, ‘Workflow Agent Listener Service’,
+‘WFMLRSVC’, ‘Workflow Mailer Service’,
+‘WFWSSVC’, ‘Workflow Document Web Services Service’,
+‘WMSTAMGR’, ‘WMS Task Archiving Manager’,
+‘XDP_APPL_SVC’, ‘SFM Application Monitoring Service’,
+‘XDP_CTRL_SVC’, ‘SFM Controller Service’,
+‘XDP_Q_EVENT_SVC’, ‘SFM Event Manager Queue Service’,
+‘XDP_Q_FA_SVC’, ‘SFM Fulfillment Actions Queue Service’,
+‘XDP_Q_FE_READY_SVC’, ‘SFM Fulfillment Element Ready Queue Service’,
+‘XDP_Q_IN_MSG_SVC’, ‘SFM Inbound Messages Queue Service’,
+‘XDP_Q_ORDER_SVC’, ‘SFM Order Queue Service’,
+‘XDP_Q_TIMER_SVC’, ‘SFM Timer Queue Service’,
+‘XDP_Q_WI_SVC’, ‘SFM Work Item Queue Service’,
+‘XDP_SMIT_SVC’, ‘SFM SM Interface Test Service’)
+AS “Concurrent Manager’s Name”,
+max_processes AS “TARGET Processes”,
+running_processes AS “ACTUAL Processes”
+FROM apps.fnd_concurrent_queues
+WHERE CONCURRENT_QUEUE_NAME IN
+(‘FNDICM’,
+‘FNDCRM’,
+‘AMSDMIN’,
+‘C_AQCT_SVC’,
+‘FFTM’,
+‘FNDCPOPP’,
+‘FNDSCH’,
+‘FNDSM_AQHERP’,
+‘FTE_TXN_MANAGER’,
+‘IEU_SH_CS’,
+‘IEU_WL_CS’,
+‘INVMGR’,
+‘INVTMRPM’,
+‘OAMCOLMGR’,
+‘PASMGR’,
+‘PODAMGR’,
+‘RCVOLTM’,
+‘STANDARD’,
+‘WFALSNRSVC’,
+‘WFMLRSVC’,
+‘WFWSSVC’,
+‘WMSTAMGR’,
+‘XDP_APPL_SVC’,
+‘XDP_CTRL_SVC’,
+‘XDP_Q_EVENT_SVC’,
+‘XDP_Q_FA_SVC’,
+‘XDP_Q_FE_READY_SVC’,
+‘XDP_Q_IN_MSG_SVC’,
+‘XDP_Q_ORDER_SVC’,
+‘XDP_Q_TIMER_SVC’,
+‘XDP_Q_WI_SVC’,
+‘XDP_SMIT_SVC’);
+
+SELECT   t.user_concurrent_queue_name AS "Concurrent Manager Name",
+         b.max_processes AS "Actual Processes",
+         b.running_processes AS "Target Processes",
+         b.concurrent_queue_name, b.cache_size,
+         b.min_processes, b.target_processes, b.target_node, b.sleep_seconds,
+         b.diagnostic_level, b.manager_type, b.enabled_flag, t.description
+    FROM fnd_concurrent_queues_tl t, fnd_concurrent_queues b
+   WHERE b.application_id = t.application_id
+    AND b.concurrent_queue_id = t.concurrent_queue_id
+    AND b.enabled_flag = 'Y'
+    AND t.LANGUAGE = USERENV ('LANG')
+    --and  t.user_concurrent_queue_name like 'Out%'
+ORDER BY b.max_processes DESC;
+================================================================================================================
+non-billable task entries:
+SCTASK0034929
+================================================================================================================
+Admin credentials :
+
+.\admin
+Itc@12345678
+================================================================================================================
+Weblogic Smart update patch:
+
+2271366.1
+================================================================================================================
+ETCC patch :
+
+17537119
+=================================================================================================================
+FNDCPASS jdk version mismatch workaround:
+
+SQL> show user
+USER is "SYS"
+SQL> @?/javavm/install/update_javavm_db.sql
+
+select dbms_java.get_jdk_version() from dual;
+================================================================================================================
+To check tablespace:
+
+set linesize 200
+set pages 99
+
+select a.TABLESPACE_NAME,
+a.BYTES MB_total,
+b.BYTES MB_free,
+b.largest,
+a.BYTES-b.BYTES MB_used,
+round(((a.BYTES-b.BYTES)/a.BYTES)*100,2) percent_used
+from
+(
+select TABLESPACE_NAME,
+sum(BYTES)/1048576 BYTES 
+from dba_data_files
+group by TABLESPACE_NAME
+)
+a,
+(
+select TABLESPACE_NAME,
+sum(BYTES)/1048576 BYTES ,
+max(BYTES)/1048576 largest
+from dba_free_space
+group by TABLESPACE_NAME
+)
+b
+where a.TABLESPACE_NAME=b.TABLESPACE_NAME
+order by ((a.BYTES-b.BYTES)/a.BYTES) desc;
+
+
+********************************************************************
+
+select a.tbl "Name",a.tsz "Total Size",b.fsz "Free Space",
+  round((1-(b.fsz/a.tsz))*100) "Pct Used",round((b.fsz/a.tsz)*100) "Pct Free" from
+    (select tablespace_name tbl,sum(bytes)/1024/1024 TSZ from dba_data_files
+    where tablespace_name like '%&1%' group by tablespace_name) a,
+    (select tablespace_name tblsp,sum(bytes)/1024/1024 FSZ from dba_free_space
+    where tablespace_name like '%&1%' group by tablespace_name) b
+    Where a.tbl=b.tblsp;
+============================================================================================================
+command to source file system :
+
+cd $RUN_BASE/..
+. EBSapps.env patch 
+==========================================================================================================
+Command to check rman progress status:
+
+SELECT OPERATION, STATUS, MBYTES_PROCESSED/1024 GB_PROCESSED , START_TIME, END_TIME from V$RMAN_STATUS where STATUS='RUNNING';
+
+select SID, to_char(START_TIME,'mm/dd/yy hh24:mi') start_time,TOTALWORK, sofar, (sofar/totalwork) * 100 done,sysdate + TIME_REMAINING/3600/24 end_at from v$session_longops where totalwork > sofar AND opname NOT LIKE '%aggregate%' AND opname like 'RMAN%';
+==================================================================================================================
+to start DR :
+
+Startup nomount
+Alter database mount standby database
+Alter database recover managed standby database disconnect from session
+==========================================================================================================
+issue after listener bounce in PDB database;
+
+exec dbms_service.start_service('ebs_TEST2'); 
+exec dbms_service.start_service('TEST2');  
+exec dbms_service.start_service('TEST2_ebs_patch');
+
+SQL> alter session set container=TEST2;
+
+Session altered.
+
+SQL> BEGIN
+  DBMS_SERVICE.CREATE_SERVICE(
+    service_name => 'ebs_TEST2',
+    network_name => 'ebs_TEST2'
+  );
+END;
+/  2    3    4    5    6    7
+
+PL/SQL procedure successfully completed.
+
+SQL> EXEC DBMS_SERVICE.START_SERVICE('ebs_TEST2');
+
+PL/SQL procedure successfully completed.
+
+
+=======================================================================================================
+to find file version :
+
+strings -a adgrants.sql |grep '$Header'
+=====================================================================================================
+SQL command to check the status of rman backup :
+
+SELECT SID, SERIAL#, CONTEXT, SOFAR, TOTALWORK,
+ROUND (SOFAR/TOTALWORK*100, 2) "% COMPLETE"
+FROM V$SESSION_LONGOPS
+WHERE OPNAME LIKE 'RMAN%' AND OPNAME NOT LIKE '%aggregate%'
+AND TOTALWORK! = 0 AND SOFAR <> TOTALWORK;
+
+SELECT OPERATION, STATUS, MBYTES_PROCESSED/1024 GB_PROCESSED , START_TIME, END_TIME from V$RMAN_STATUS where STATUS='RUNNING';
+===========================================================================================================================
+admin credentials :
+
+.\admin
+Itc@12345678
+===================================================================================================
+To put jobs on hold and then release:
+
+1.create table jobs_already_on_hold_bkp3 as select * from jobs_already_on_hold;
+2.Connect as apps user, Drop old table (jobs_already_on_hold)
+drop table jobs_already_on_hold;
+
+3. List out the Jobs which were already on HOLD
+select request_id, phase_code, status_code from fnd_concurrent_requests where hold_flag = 'Y';
+
+4.Create backup of the table with the jobs which were already ON HOLD.
+
+create table jobs_already_on_hold as (select request_id, phase_code, status_code from fnd_concurrent_requests where hold_flag = 'Y');
+
+select count(*) from jobs_already_on_hold;
+
+5.Now, Place the pending jobs on HOLD using the below update command. 
+
+SQL> update fnd_concurrent_requests set hold_flag = 'Y'  where phase_code ='P' and hold_flag ='N';
+
+Release jobs script:
+Connect as apps user and perform the below
+update fnd_concurrent_requests set hold_flag = 'N' where hold_flag = 'Y' and request_id not in (select request_id from jobs_already_on_hold);
+commit;
+=========================================================================================================================================================
+Sql query to check any running concurrent requests:
+
+SELECT request_id,
+parent_request_id,
+fcpt.user_concurrent_program_name Request_Name,
+fcpt.user_concurrent_program_name program_name,
+DECODE (fcr.phase_code,
+‘C’, ‘Completed’,
+‘I’, ‘Incactive’,
+‘P’, ‘Pending’,
+‘R’, ‘Running’)
+phase,
+DECODE (fcr.status_code,
+‘D’, ‘Cancelled’,
+‘U’, ‘Disabled’,
+‘E’, ‘Error’,
+‘M’, ‘No Manager’,
+‘R’, ‘Normal’,
+‘I’, ‘Normal’,
+‘C’, ‘Normal’,
+‘H’, ‘On Hold’,
+‘W’, ‘Paused’,
+‘B’, ‘Resuming’,
+‘P’, ‘Scheduled’,
+‘Q’, ‘Standby’,
+‘S’, ‘Suspended’,
+‘X’, ‘Terminated’,
+‘T’, ‘Terminating’,
+‘A’, ‘Waiting’,
+‘Z’, ‘Waiting’,
+‘G’, ‘Warning’,
+‘N/A’)
+status,
+ROUND ( (fcr.actual_completion_date – fcr.actual_start_date), 3)
+* 1440
+AS Run_Time,
+ROUND (
+AVG (
+ROUND (
+TO_NUMBER (actual_start_date – fcr.requested_start_date),
+3)
+* 1440),
+2)
+wait_time,
+fu.User_Name Requestor,
+fcr.argument_text parameters,
+TO_CHAR (fcr.requested_start_date, ‘MM/DD HH24:mi:SS’) requested_start,
+TO_CHAR (actual_start_date, ‘MM/DD/YY HH24:mi:SS’) startdate,
+TO_CHAR (actual_completion_date, ‘MM/DD/YY HH24:mi:SS’) completiondate,
+fcr.completion_text
+FROM fnd_concurrent_requests fcr,
+fnd_concurrent_programs fcp,
+fnd_concurrent_programs_tl fcpt,
+fnd_user fu
+WHERE 1 = 1
+AND fcr.concurrent_program_id = fcp.concurrent_program_id
+AND fcp.concurrent_program_id = fcpt.concurrent_program_id
+AND fcr.program_application_id = fcp.application_id
+AND fcp.application_id = fcpt.application_id
+AND fcr.requested_by = fu.user_id
+AND fcpt.language = ‘US’
+AND fcr.actual_start_date LIKE SYSDATE
+GROUP BY request_id,
+parent_request_id,
+fcpt.user_concurrent_program_name,
+fcr.requested_start_date,
+fu.User_Name,
+fcr.argument_text,
+fcr.actual_completion_date,
+fcr.actual_start_date,
+fcr.phase_code,
+fcr.status_code,
+fcr.resubmit_interval,
+fcr.completion_text,
+fcr.resubmit_interval,
+fcr.resubmit_interval_unit_code,
+fcr.description
+ORDER BY 1 DESC;
+-----------------------------------------------------
+
+set echo off pages 100 lines 202
+				column REQUEST heading 'Request' format a9
+				column PHASE heading 'Phase' format A8
+				column STATUS heading 'Status' format A8
+				column PROGRAM heading 'Program Name' format A40
+				column SHORT heading 'Short Name' format A15
+				column REQUESTOR heading 'Requestor' format A15
+				column START_TIME heading 'Start Time' format A15
+				column RUN_TIME justify left heading 'Time(e)' format 999999.9
+				column OSPID heading 'OSPID' format a5
+				column OS_PIDa heading 'OSPIDA' format a6
+				column SID heading 'SID' format 99999
+				column serial# heading 'Serial#' format 99999
+				select  substr(fcrv.request_id,1,9)REQUEST,
+						decode(fcrv.phase_code,'P','Pending','R','Running','I','Inactive','Completed')PHASE,
+						decode(fcrv.status_code,
+						'A','Waiting',
+						'B','Resuming',
+						'C','Normal',
+						'F','Scheduled',
+						'G','Warning',
+						'H','On Hold',
+						'I','Normal',
+						'M','No Manager',
+						'Q','Standby',
+						'R','Normal',
+						'S','Suspended',
+						'T','Terminating',
+						'U','Disabled',
+						'W','Paused',
+						'X','Terminated',
+						'Z','Waiting',fcrv.status_code)STATUS,
+						substr(fcrv.program,1,40)PROGRAM,
+						substr(fcrv.PROGRAM_SHORT_NAME,1,15)SHORT,
+						substr(fcrv.requestor,1,15)REQUESTOR,
+				--        to_char(fcrv.actual_start_date,'MM/DD/RR HH24:MI')START_TIME,
+						round(((sysdate - fcrv.actual_start_date)*1440),1)RUN_TIME,
+						substr(fcr.oracle_process_id,1,7)OSPID,
+						s.sid,s.serial#
+				--        substr(fcr.os_process_id,1,7)OS_PIDa
+				from    apps.fnd_conc_req_summary_v fcrv,
+						apps.fnd_concurrent_requests fcr,
+						v$session s,
+						v$process p
+				where   fcrv.phase_code = 'R'
+				and     fcrv.request_id = fcr.request_id
+				and     s.paddr = p.addr
+				and     fcr.oracle_process_id = p.spid
+				and     fcrv.concurrent_program_id not in ('40112','40113','36887')
+				--and   trunc(fcrv.actual_start_date) like trunc(sysdate)
+				order by PHASE, STATUS, REQUEST desc;
+==========================================================================================================
+Tria apex url issue after bounce :
+
+SQL> alter session set container="tst";
+
+Session altered.
+
+SQL> exec dbms_service.start_service('ebstst');
+
+PL/SQL procedure successfully completed.
+
+SQL> select name from v$services;
+
+NAME
+----------------------------------------------------------------
+ebs_prd
+tst
+prd_ebs_patch
+ebstst
+
+SQL> exec dbms_service.start_service('ebs_tst');
+
+PL/SQL procedure successfully completed.
+
+SQL> commit;
+
+Commit complete.
+
+SQL> exec dbms_service.start_service('tst_ebs_patch');bova
+
+PL/SQL procedure successfully completed.
+
+=============================================================================================================
+to run adgrants source/export PDB environment :
+
+. TEBSCDB_extn-365-pdb21.env
+echo $ORACLE_SID
+sqlplus '/as sysdba'
+export ORACLE_PDB_SID=EBSS
+echo $ORACLE_SID
+==================================================================================================
+To check the active adop sessions :
+
+select adop_session_id from ad_adop_sessions where status='R';
+
+To Cancel adop session :
+
+update ad_adop_sessions set status='C' where status='R';
+
+=======================================================================================================
+
+To check locks on database objects :
+
+select * from v$locked_object lo join dba_objects o on lo.object_id = o.object_id where o.object_name ='WFCLONES.PKG' and o.object_type = 'PACKAGE';
+
+SELECT * FROM v$access WHERE object = 'WFCLONES.PKG';
+
+SELECT S.SID SID,
+       S.USERNAME USERNAME,
+       S.MACHINE MACHINE,
+       L.TYPE TYPE
+  FROM V$LOCK L, V$SESSION S, DBA_OBJECTS O
+ WHERE L.SID = S.SID
+   AND O.OBJECT_ID(+) = L.ID1
+   AND O.OBJECT_NAME ='APPS.WFCLONES.PKG'
+ ORDER BY S.SID;
+==========================================================================================================
+issue with DB autoconfig in tria :
+
+[DEV oradeb1@tria-365-ddb02 template]$ diff txkcreateACL.sh txkcreateACL.sh_13nov22
+55c55
+<    ORACLE_SID=%s_instName%
+---
+>    ORACLE_SID=%s_dbSid%
+[DEV oradeb1@tria-365-ddb02 template]$
+
+====================================================================================================
+for new terminal in vnc :
+
+ctrl+shift+T
+
+========================================================================================
+Issue 1: [ERROR] ETCC not run in the database node ugnx-365-ddb01
+
+fix :
+SQL> UPDATE applsys.txk_tcc_results SET NODE_NAME ='UGNX-365-DDB01' where NODE_NAME ='UGNX-CHI-PDB02' ;
+
+1 row updated.
+
+SQL>
+SQL> commit;
+
+Commit complete.
+
+SQL>
+
+
+Issue 2:
+
+ERROR: The value of inventory_loc in /ua3001/fs1/FMW_Home/oracle_common/oraInst.loc is not the same as /ua3001/oraInventory present in other files
+inventory_loc = /ua3001/oraInventory (File = /ua3001/fs1/FMW_Home/webtier/oraInst.loc)
+
+ERROR: The value of inventory_loc in /ua3001/fs1/FMW_Home/webtier/oraInst.loc is not the same as /ua3001/oraInventory present in other files
+inventory_loc = /ua3001/oraInventory (File = /ua3001/fs1/FMW_Home/Oracle_EBS-app1/oraInst.loc)
+
+ERROR: The value of inventory_loc in /ua3001/fs1/FMW_Home/Oracle_EBS-app1/oraInst.loc is not the same as /ua3001/oraInventory present in other files
+
+Fix:
+
+
+[applmeb1@ugnx-365-dap02 ugnx-365-dap02]$ cat /etc/oraInst.loc
+#EBSD
+inventory_loc=/ua4001/oraInventory
+#EBSM
+#inventory_loc=/ua3001/oraInventory
+inst_group=dba
+[applmeb1@ugnx-365-dap02 ugnx-365-dap02]$ vi /etc/oraInst.loc
+[applmeb1@ugnx-365-dap02 ugnx-365-dap02]$ cat /etc/oraInst.loc
+#EBSD
+#inventory_loc=/ua4001/oraInventory
+#EBSM
+inventory_loc=/ua3001/oraInventory
+inst_group=dba
+[applmeb1@ugnx-365-dap02 ugnx-365-dap02]$
+
+
+=================================================================================
+Command to check discoverer url :
+
+grep disco $CONTEXT_FILE
+===================================================================================
+Exterran clone:
+
+pre-backups
+COF
+rsync from PRD to DR crontab
+rsync from DR
+control file creation-mounts, db name, add system,sysaux,undotbs data files from DR, rename control files
+create control file
+recover database using backup controlfile until cancel;-give redologs until cancel
+alter database open resetlogs;
+exec DBMS_SERVICE.CREATE_SERVICE(SERVICE_NAME=>'ebs_SUPPEBS', NETWORK_NAME=>'ebs_SUPPEBS');
+exec dbms_service.START_SERVICE('ebs_SUPPEBS');
+exec DBMS_SERVICE.CREATE_SERVICE(SERVICE_NAME=>'SUPPEBS_ebs_patch', NETWORK_NAME=>'SUPPEBS_ebs_patch');
+exec dbms_service.START_SERVICE('SUPPEBS_ebs_patch');
+startlistener
+truncate table applsys.fnd_oam_context_files;
+truncate table applsys.fnd_nodes;
+truncate table applsys.adop_valid_nodes;
+truncate table APPLSYS.TXK_TCC_RESULTS;
+set oracle home
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=/us5201/app/oracle/products/19.3.0/appsutil/SUPPEBS_extn-365-ddb23.xml -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=getUtlFileDir
+edit text file to target
+stop the app db list services
+stop mrp in DR 
+alter database recover managed standby database cancel;
+ALTER DATABASE BACKUP CONTROLFILE TO TRACE as '/home/orapeb1/ctrl_PROD_after_09Feb2023.sql';
+Snap taken by hosting team
+control file backup
+start mrp in DR
+alter database recover managed standby database disconnect from session;
+rename target mounts
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=/us5201/app/oracle/products/19.3.0/appsutil/SUPPEBS_extn-365-ddb23.xml -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=setUtlFileDir
+run autoconfig
+cd $ORACLE_HOME/appsutil
+ln -sf /us5201/app/oracle/products/19.3.0/jdk
+ln -sf /us5201/app/oracle/products/19.3.0/jdk jre
+run autoconfig
+===========================================================================================
+to get object definition like index
+=======================================
+
+set heading off
+set echo off
+set flush off
+set pagesize 9000
+set linesize 80
+set long 100000
+select dbms_metadata.get_ddl ('INDEX', 'GETTY_WF_ITEM_ATT_N1', 'APPLSYS') from dual;
+======================================================================================
+set overide adddress:
+
+select fscpv.parameter_value
+    from fnd_svc_comp_params_tl fscpt
+    ,fnd_svc_comp_param_vals fscpv
+    where fscpt.display_name = 'Test Address'
+    and fscpt.parameter_id = fscpv.parameter_id; 
+	
+
+	
+update fnd_svc_comp_param_vals
+set    parameter_value = 'IT.Applications@pomeroy.com'
+where  parameter_id =
+( select parameter_id
+ from   fnd_svc_comp_params_tl
+ where  display_name = 'T');
+ 
+ ==========================================================
+Litmos :
+
+https://itconvergence.litmos.com
+
+username : svelur@itconvergence.com
+Password : Butterfly@143
+
+============================================================
+to increase size in temp file :
+
+QL> select sum(bytes/1024/1024) from dba_temp_files;
+
+SUM(BYTES/1024/1024)
+--------------------
+                 156
+
+SQL> select file_name,bytes/1024/1024 from dba_temp_files where tablespace_name='TEMP';
+
+FILE_NAME
+--------------------------------------------------------------------------------
+BYTES/1024/1024
+---------------
+/ut4201/dev1ebs/oradata/D1EBSCDB/temp01.dbf
+            156
+
+
+SQL> ALTER DATABASE TEMPFILE '/ut4201/dev1ebs/oradata/D1EBSCDB/temp01.dbf' RESIZE 2000M;
+
+Database altered.
+
+=========================================================================
+query to check tablespace size :
+
+set feedback off
+set pagesize 70;
+set linesize 2000
+set head on
+COLUMN Tablespace format a25 heading 'Tablespace Name'
+COLUMN autoextensible format a11 heading
+'AutoExtend'
+COLUMN files_in_tablespace format 999 heading
+'Files'
+COLUMN total_tablespace_space format 99999999 heading
+'TotalSpace'
+COLUMN total_used_space format 99999999 heading
+'UsedSpace'
+COLUMN total_tablespace_free_space format 99999999 heading
+'FreeSpace'
+COLUMN total_used_pct format 9999 heading
+'%Used'
+COLUMN total_free_pct format 9999 heading
+'%Free'
+COLUMN max_size_of_tablespace format 99999999 heading
+'ExtendUpto'
+COLUM total_auto_used_pct format 999.99 heading
+'Max%Used'
+COLUMN total_auto_free_pct format 999.99 heading
+'Max%Free'
+WITH tbs_auto AS
+(SELECT DISTINCT tablespace_name, autoextensible
+FROM dba_data_files
+WHERE autoextensible = 'YES'),
+files AS
+(SELECT tablespace_name, COUNT (*) tbs_files,
+SUM (BYTES/1024/1024) total_tbs_bytes
+FROM dba_data_files
+GROUP BY tablespace_name),
+fragments AS
+(SELECT tablespace_name, COUNT (*) tbs_fragments,
+SUM (BYTES)/1024/1024 total_tbs_free_bytes,
+
+MAX (BYTES)/1024/1024 max_free_chunk_bytes
+FROM dba_free_space
+GROUP BY tablespace_name),
+AUTOEXTEND AS
+(SELECT tablespace_name, SUM (size_to_grow)
+total_growth_tbs
+FROM (SELECT tablespace_name, SUM
+(maxbytes)/1024/1024 size_to_grow
+FROM dba_data_files
+WHERE autoextensible = 'YES'
+GROUP BY tablespace_name
+UNION
+SELECT tablespace_name, SUM (BYTES)/1024/1024
+size_to_grow
+FROM dba_data_files
+WHERE autoextensible = 'NO'
+GROUP BY tablespace_name)
+GROUP BY tablespace_name)
+SELECT c.instance_name,a.tablespace_name Tablespace,
+CASE tbs_auto.autoextensible
+WHEN 'YES'
+THEN 'YES'
+ELSE 'NO'
+END AS autoextensible,
+files.tbs_files files_in_tablespace,
+files.total_tbs_bytes total_tablespace_space,
+(files.total_tbs_bytes - fragments.total_tbs_free_bytes
+) total_used_space,
+fragments.total_tbs_free_bytes
+total_tablespace_free_space,
+round(( ( (files.total_tbs_bytes -
+fragments.total_tbs_free_bytes)
+/ files.total_tbs_bytes
+)
+* 100
+)) total_used_pct,
+round(((fragments.total_tbs_free_bytes /
+files.total_tbs_bytes) * 100
+)) total_free_pct
+FROM dba_tablespaces a,v$instance c , files, fragments,
+AUTOEXTEND, tbs_auto
+WHERE a.tablespace_name = files.tablespace_name
+AND a.tablespace_name = fragments.tablespace_name
+AND a.tablespace_name = AUTOEXTEND.tablespace_name
+
+AND a.tablespace_name = tbs_auto.tablespace_name(+)
+and (((files.total_tbs_bytes - fragments.total_tbs_free_bytes)/
+files.total_tbs_bytes))* 100 > 90
+order by total_free_pct;
+
+
+to check datafiles in tablespace :
+
+col FILE_NAME for a70    
+set lines 200
+select
+TABLESPACE_NAME,FILE_NAME,bytes/1024/1024/1024,maxbytes/1024/1024/1024,STATUS,AUTOEXTENSIBLE
+from dba_data_files where TABLESPACE_NAME like '%&1%' order by file_name;
+
+to add datafile in tablespace :
+
+alter tablespace USERS resize datafile '/oracle/data/taxdev/datafiles/users02.dbf' size 5G;
+ALTER TABLESPACE tbs_perm_02 ADD DATAFILE 'tbs_perm_02.dat' SIZE 20M AUTOEXTEND ON;
+alter database datafile '+DATA/CEBSTST_IAD2DC/1E850E1D9D8970F9E0638C010A0A66DA/DATAFILE/apps_ts_tx_data.447.1175731587' resize 21G;
+
++DATA/CEBSTST_IAD2DC/1E850E1D9D8970F9E0638C010A0A66DA/DATAFILE/apps_ts_tx_data.447.1175731587
+
+======================================================================================================
+API to end date multiple EBS front end users :
+
+DECLARE
+  -- get user list which should be disabled
+  cursor c1 is
+  select user_name
+     from fnd_user
+    where (end_date is null or end_date > sysdate) -- access all users that has no end-date or end-date is future
+      and user_name in ('SDELLINGER','SPAWNER','MMCGOWAN','MBECK','CCOLON','CRANDOLPH','JUNTILOVA','SHAYJOHNSON','AHAMILTON','IJORDAN','MFUSTERCOLON','LDELLINGER','DAMSTUTZ','YVALDEZ-BEAS','CJACOBY','DOGONZALEZ','RCONVERSE','EVILLAGRAN','DLOGIE','VROCKWELL','CGUERRERO','FBARBALACE','GRAMIREZ','SSHEPHERD','YMOORE','IRYU','SYSADMIN','AFLORES','DMBEYA','LQUINTULI','MLOTT','KBAXTER','CQUIROZ','AFRIEND','CSULLIVAN','MRAGUS','ABURACKER','CGOODSON','KRBURACKER','KBRAKE','ENENON','WSIEGERT','DMARKNER','AESPINOSA','JROMERO','LINDELLINGER','ASMETANA','MSHAFFER'); 
+BEGIN
+  for c in c1 loop
+    -- disable user
+    fnd_user_pkg.disableuser(c.user_name);
+  end loop;
+  --commit changes
+END;
+==================================================================
+tar -zxvf jdk-7u421-linux-i586.tar.gz
+==================================================================
+screen commands :
+
+avatax
+iserver
+
+ctrl shift ad-to close screen
+screen screenname - to open new screen 
+screen -Dr screenname - to open existing screen 
+screen -ls - to list screens
+screen
+=====================================================================
+mailx command :
+
+mailx -a XXNHRSTOCKSUM.fmb svelur@itconvergence.com </dev/null
+============================================================================
+how to set utl file directory :
+
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=/us2101/app/oracle/product/19.3.0.0/dbhome_1/appsutil/dev_tria-365-ddb02.xml -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=getUtlFileDir
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=/us2101/app/oracle/product/19.3.0.0/dbhome_1/appsutil/dev_tria-365-ddb02.xml -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=setUtlFileDir
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=/us2101/app/oracle/product/19.3.0.0/dbhome_1/appsutil/dev_tria-365-ddb02.xml -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=createDirObject
+
+==============================================================================
+
+sql query to check rman backup status:
+
+select
+  sid,
+  start_time,
+  totalwork
+  sofar,
+ (sofar/totalwork) * 100 pct_done
+from
+   v$session_longops
+where
+   totalwork > sofar
+AND
+   opname NOT LIKE '%aggregate%'
+AND
+   opname like 'RMAN%'; 
+   
+set pages 200 
+set linesize 200
+col STATUS format a35
+col hrs format 999.99
+select
+SESSION_KEY, INPUT_TYPE, STATUS,
+to_char(START_TIME,'mm/dd/yy hh24:mi') start_time,
+to_char(END_TIME,'mm/dd/yy hh24:mi')   end_time,
+elapsed_seconds/3600                   hrs
+from V$RMAN_BACKUP_JOB_DETAILS
+order by session_key;
+===================================================================================
+autoconfig is failing in apply phase :
+
+SQL> SELECT ad_zd_adop.get_node_type('ugnx-365-dap01') from dual;
+SELECT ad_zd_adop.get_node_type('UGNX-CHI-TAP01') from dual
+       *
+ERROR at line 1:
+ORA-01422: exact fetch returns more than requested number of rows
+ORA-06512: at "APPS.AD_ZD_ADOP", line 3075
+
+create table APPLSYS.FND_OAM_CONTEXT_FILES_04Mar2025 as select * from APPLSYS.FND_OAM_CONTEXT_FILES;
+create table APPLSYS.FND_NODES_04Mar2025 as select * from APPLSYS.FND_NODES;
+create table APPLSYS.ADOP_VALID_NODES_04Mar2025 as select * from APPLSYS.ADOP_VALID_NODES;
+create table APPLSYS.AD_NODES_CONFIG_STATUS_04Mar2025 as select * from APPLSYS.AD_NODES_CONFIG_STATUS;
+ 
+ truncate table APPLSYS.FND_OAM_CONTEXT_FILES;
+ 
+ SQLPlus#> truncate table APPLSYS.FND_NODES;
+
+SQLPlus#> truncate table APPLSYS.ADOP_VALID_NODES;
+
+SQLPlus#> truncate table APPLSYS.AD_NODES_CONFIG_STATUS;
+
+db autoconfig
+app autoconfig in run fs
+conn ebs_system
+alter trigger ebs_logon disable;
+app autoconfig in patch fs
+alter trigger ebs_logon enable;
+!h#+3h5TRxah^8
+app autoconfig in run fs
+
+====================================================================================
+if pdb goes into restricted:
+
+select ctime,sqlstmt,name,flags,opcode,replay# from pdb_sync$ where sqlstmt like '%alter user ITCNIMBUS account unlock%';
+
+col name for a10
+col time for a18
+col cause for a15
+col message for a75
+set linesize 255
+alter session set nls_timestamp_format='dd-mon-yy hh24:mi:ss';
+
+select time,name,type,cause,status,message from pdb_plug_in_violations where status <>'RESOLVED';
+
+
+delete from PDB_SYNC$ where sqlstmt like ('alter user ITCNIMBUS%identified%');
+
+
+col name for a10
+col time for a18
+col cause for a15
+col message for a75
+set linesize 255
+alter session set nls_timestamp_format='dd-mon-yy hh24:mi:ss';
+12:59
+select time,name,type,cause,status,message from pdb_plug_in_violations where status <>'RESOLVED';
+1:02
+cd $ORACLE_HOME/OPatch
+$ORACLE_HOME/OPatch/datapatch -oh $ORACLE_HOME
+
+==============================================================================
+DR sync :
+
+PROD :
+
+select al.thread#, max(al.sequence#) ARCHIVED , max(ah.sequence#) APPLIED,(max(al.sequence#)-max(ah.sequence#)) GAP from v$archived_log al, v$log_history ah where al.thread#=ah.thread# group by al.thread#;
+
+DR :
+
+select arch.thread# "thread", arch.sequence# "last sequence received", appl.sequence# "last sequence applied", (arch.sequence# - appl.sequence#) "difference"
+from(select thread# ,sequence# from v$archived_log where (thread#,first_time ) in (select thread#,max(first_time) from v$archived_log group by thread#)) arch,
+(select thread# ,sequence# from v$log_history where (thread#,first_time ) in (select thread#,max(first_time) from v$log_history group by thread#)) appl
+where arch.thread# = appl.thread# order by 1;
+===============================================================================
+workflow notifications : 
+
+select count(*) from apps.wf_notifications where status = 'OPEN' and mail_status = 'MAIL';
+
+Query to Check Workflow Mailer Backlog
+--State=Ready implies that emails are not being sent & Waiting mailer to sent emails
+select tab.msg_state, count(*) from applsys.aq$wf_notification_out tab group by tab.msg_state;
+======================================================================================================
+to stop DR :
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE CANCEL;
+shutdown immediate;
+listener
+
+to start DR :
+
+start listener
+Startup nomount
+Alter database mount standby database
+Alter database recover managed standby database disconnect from session;
+=======================================================================================================
+WWSB fs_clone issue :
+
+ERROR: RC-50410: Fatal: OUI Registration failed with an Abnormal Termination error during call from  ouicli.pl . Please check the log file /u01/app/oracle/inst/fs2/inst/apps/UEBWW1_wwsb-ebs-ap01u/admin/log/ohclone.log for more details.
+Raised by oracle.apps.ad.clone.ApplyAppsTechStack
+
+ERROR: RC-50013: Fatal: Instantiate driver did not complete successfully.
+/u01/app/oracle/apps/fs2/EBSapps/10.1.2/appsutil/driver/regclone.drv
+ERROR: RC-50004: Fatal: Error occurred in ApplyAppsTechStack:
+RC-50013: Fatal: Failed to instantiate driver /u01/app/oracle/apps/fs2/EBSapps/10.1.2/appsutil/driver/regclone.drv 
+
+
+
+
+export CONFIG_JVM_ARGS="-Xms1024m -Xmx2048m"
+export TEMP=/home/applmgr/temp
+export TMP=/home/applmgr/temp
+export TMPDIR=$TMP
+export T2P_JAVA_OPTIONS=-Djava.io.tmpdir=/home/applmgr/temp
+export TEMPDIR=/home/applmgr/temp 
+
+
+=======================================
+fs_clone failed
+
+[applmgr@wwsb-ebs-ap01d wwsb-ebs-ap01d]$ cat txkADOPValidations.error
+Use of uninitialized value $result in split at /u01/app/oracle/DEBWW1/fs2/EBSapps/appl/au/12.0.0/perl/TXK/ADOPValidationUtils.pm line 1294.
+No such file or directory at /u01/app/oracle/DEBWW1/fs2/EBSapps/appl/au/12.0.0/perl/TXK/ADOPValidationUtils.pm line 230.
+[applmgr@wwsb-ebs-ap01d wwsb-ebs-ap01d]$
+
+
+Do below with both context files in run file system.
+
+fix
+
+[applmgr@wwsb-ebs-ap01d ~]$ cp /u01/app/oracle/DEBWW1/fs2/inst/apps/DEBWW1_wwsb-ebs-ap01d/appl/admin/DEBWW1_wwsb-ebs-ap01d.xml /u01/app/oracle/DEBWW1/fs2/inst/apps/DEBWW1_wwsb-ebs-ap01d/appl/admin/DEBWW1_wwsb-ebs-ap01d.xml_bkp_24oct24
+[applmgr@wwsb-ebs-ap01d ~]$ $ADJVAPRG oracle.apps.ad.autoconfig.oam.CtxSynchronizer \
+> action=upload \
+> contextfile=/u01/app/oracle/DEBWW1/fs2/inst/apps/DEBWW1_wwsb-ebs-ap01d/appl/admin/DEBWW1_wwsb-ebs-ap01d.xml \
+> logfile=/tmp/runctxupload.log
+Enter the APPS password:
+[applmgr@wwsb-ebs-ap01d ~]$
+============================================================================================================
+rimini credentials :
+
+https://streetcentral.riministreet.com/
+cms-ind-dba@itconvergence.com/Itconvergence@2024 
+
+
+killall -u svelur
+==============================================================================================================
+1.  After applying a patch you will need to sign jar files that have been updated.   You can use the following script to find them.
+
+        $ find $JAVA_TOP/oracle/apps/*/jar -mmin -60 -ls --> Finds jar files updated in the last 1 hour
+        $ find $JAVA_TOP/oracle/apps/*/jar -mtime -1 -ls --> Finds jar files updated in the last 1 day 
+		
+		jarsigner -verify -verbose /ua4001/fs1/EBSapps/comn/java/classes/oracle/apps/fnd/jar/fndlist.jar | grep "signer certificate will expire on"
+=================================================================================================================================
+To decrypt the weblogic password:
+
+[applmeb1@ugnx-365-dap02 scripts]$ cd $EBS_DOMAIN_HOME
+[applmeb1@ugnx-365-dap02 EBS_domain]$ cd servers/AdminServer/
+[applmeb1@ugnx-365-dap02 AdminServer]$ ls -lrt
+total 36
+drwxr----- 7 applmeb1 dba 4096 Jan 20 12:21 upload
+drwxr----- 3 applmeb1 dba 4096 Jan 20 12:21 cache
+drwxr----- 3 applmeb1 dba 4096 Jan 20 12:21 sysman
+drwxr----- 2 applmeb1 dba 4096 Jan 20 12:28 security
+drwxr----- 6 applmeb1 dba 4096 Jan 20 21:03 data
+drwxr----- 5 applmeb1 dba 4096 Apr  7 23:20 adr
+drwxr----- 5 applmeb1 dba 8192 Apr 30 14:22 logs
+drwxr----- 5 applmeb1 dba 4096 May  3 23:45 tmp
+[applmeb1@ugnx-365-dap02 AdminServer]$ cd security/
+[applmeb1@ugnx-365-dap02 security]$ ll
+total 4
+-rw------- 1 applmeb1 dba 118 Jan 20 12:29 boot.properties
+[applmeb1@ugnx-365-dap02 security]$ cat boot.properties
+username={AES}MEuNGdSNYilG/ggVHtdHY+BIOUAvxO+UW8vomKXXEgI=
+password={AES}/AnI7ByI/gllIYiLwSjykLVzaqiEpS6i/hnQGjf3qlc=
+[applmeb1@ugnx-365-dap02 security]$ cd ../../
+[applmeb1@ugnx-365-dap02 servers]$ pwd
+/ua3001/fs2/FMW_Home/user_projects/domains/EBS_domain/servers
+[applmeb1@ugnx-365-dap02 servers]$ cd ../
+[applmeb1@ugnx-365-dap02 EBS_domain]$ ll
+total 5292
+-rw-r-----  1 applmeb1 dba   20075 Jan 20 12:20 aferror.log
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 autodeploy
+drwxr-x---  5 applmeb1 dba    4096 Feb  9 04:57 bin
+drwxr-x--- 11 applmeb1 dba   36864 Mar  3 05:42 config
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 console-ext
+-rw-r-----  1 applmeb1 dba      32 Feb 22 06:17 edit.lok
+-rw-r-----  1 applmeb1 dba     495 Mar  3 05:42 fileRealm.properties
+drwxr-x---  2 applmeb1 dba    4096 Mar  3 05:42 init-info
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 lib
+-rw-r-----  1 applmeb1 dba 5265198 Jan 20 12:20 NULL
+drwxr-x---  5 applmeb1 dba    4096 Feb  9 09:22 opmn
+drwxr-x---  2 applmeb1 dba    4096 Feb 22 06:17 pending
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 security
+drwxr----- 16 applmeb1 dba    4096 Feb  9 09:15 servers
+-rw-r-----  1 applmeb1 dba     254 Jan 20 12:57 shutdown.py
+-rw-r--r--  1 applmeb1 dba     981 Mar  3 05:42 startManagedWebLogic_readme.txt
+-rwxr-x---  1 applmeb1 dba     269 Jan 20 12:21 startWebLogic.sh
+drwxr-x---  7 applmeb1 dba    4096 Jan 20 12:20 sysman
+drwxr-x---  2 applmeb1 dba    4096 Feb 22 06:17 tmp
+[applmeb1@ugnx-365-dap02 EBS_domain]$ cd security/
+[applmeb1@ugnx-365-dap02 security]$ ll
+total 36
+-rw-r----- 1 applmeb1 dba  3301 Jan 20 12:21 DefaultAuthenticatorInit.ldift
+-rw-r----- 1 applmeb1 dba  2398 Jan 20 12:20 DefaultRoleMapperInit.ldift
+-rw-r----- 1 applmeb1 dba    64 Jan 20 12:20 SerializedSystemIni.dat
+-rw-r----- 1 applmeb1 dba 22654 Jan 20 12:20 XACMLRoleMapperInit.ldift
+[applmeb1@ugnx-365-dap02 security]$ vi decrypt_password.py
+================================================================
+from weblogic.security.internal import *
+from weblogic.security.internal.encryption import *
+encryptionService = SerializedSystemIni.getEncryptionService(".")
+clearOrEncryptService = ClearOrEncryptedService(encryptionService)
+
+# Take encrypt password from user
+pwd = raw_input("Paste encrypted password ({AES}fk9EK...): ")
+
+# Delete unnecessary escape characters
+preppwd = pwd.replace("\\", "")
+
+# Display password
+print "Decrypted string is: " + clearOrEncryptService.decrypt(preppwd)
+
+====================================================================
+[applmeb1@ugnx-365-dap02 security]$ . $FMW_HOME/wlserver_10.3/server/bin/setWLSEnv.sh
+CLASSPATH=/ua3001/fs2/FMW_Home/patch_wls1036/profiles/default/sys_manifest_classpath/weblogic_patch.jar:/ua3001/fs2/EBSapps/comn/util/jdk64/lib/tools.jar:/ua3001/fs2/FMW_Home/wlserver_10.3/server/lib/weblogic_sp.jar:/ua3001/fs2/FMW_Home/wlserver_10.3/server/lib/weblogic.jar:/ua3001/fs2/FMW_Home/modules/features/weblogic.server.modules_10.3.6.0.jar:/ua3001/fs2/FMW_Home/wlserver_10.3/server/lib/webservices.jar:/ua3001/fs2/FMW_Home/modules/org.apache.ant_1.7.1/lib/ant-all.jar:/ua3001/fs2/FMW_Home/modules/net.sf.antcontrib_1.1.0.0_1-0b2/lib/ant-contrib.jar:/ua3001/fs2/EBSapps/comn/util/jdk32/lib/dt.jar:/ua3001/fs2/EBSapps/comn/util/jdk32/lib/tools.jar:/ua3001/fs2/EBSapps/comn/util/jdk32/jre/lib/rt.jar:/ua3001/fs2/EBSapps/comn/shared-libs/ebs-3rdparty/WEB-INF/lib/ebs3rdpartyManifest.jar:/ua3001/fs2/FMW_Home/Oracle_EBS-app1/shared-libs/ebs-fmw/WEB-INF/lib/ebsFMWManifest.jar:/ua3001/fs2/FMW_Home/Oracle_EBS-app1/shared-libs/ebs-appsborg/WEB-INF/lib/ebsAppsborgManifest.jar:/ua3001/fs2/FMW_Home/oracle_common/modules/oracle.uix_11.1.1/uix2.jar:/ua3001/fs2/EBSapps/comn/java/classes:/ua3001/fs2/EBSapps/10.1.2/forms/java:/ua3001/fs2/EBSapps/10.1.2/forms/java/frmall.jar:/ua3001/fs2/EBSapps/10.1.2/jlib/ewt3.jar:/ua3001/fs2/EBSapps/10.1.2/j2ee/OC4J_BI_Forms/applications/formsapp/formsweb/WEB-INF/lib/frmsrv.jar
+
+PATH=/ua3001/fs2/FMW_Home/wlserver_10.3/server/bin:/ua3001/fs2/FMW_Home/modules/org.apache.ant_1.7.1/bin:/ua3001/fs2/EBSapps/comn/util/jdk64/jre/bin:/ua3001/fs2/EBSapps/comn/util/jdk64/bin:/ua3001/fs_ne/EBSapps/appl/ad/bin:/ua3001/fs2/FMW_Home/modules/org.apache.ant_1.7.1/bin:/ua3002/fs2/inst/apps/EBSM_ugnx-365-dap02/admin/scripts:/ua3001/fs2/FMW_Home/webtier/perl/bin:/ua3001/fs2/EBSapps/10.1.2/bin:/ua3001/fs2/EBSapps/appl/fnd/12.0.0/bin:/ua3001/fs2/EBSapps/appl/ad/12.0.0/bin:/ua3001/fs2/EBSapps/comn/util/jdk32/jre/bin:/ua3001/fs2/EBSapps/comn/util/jdk32/bin::/ua3001/fs2/EBSapps/10.1.2/OPatch:/ua3001/fs2/EBSapps/10.1.2/bin:/usr/bin:/usr/sbin:/ua3001/fs2/EBSapps/comn/util/jdk32/jre/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/home/applmeb1/.local/bin:/home/applmeb1/bin
+
+Your environment has been set.
+[applmeb1@ugnx-365-dap02 security]$ java weblogic.WLST decrypt_password.py
+
+Initializing WebLogic Scripting Tool (WLST) ...
+
+Jython scans all the jar files it can find at first startup. Depending on the system, this process may take a few minutes to complete, and WLST may not return a prompt right away.
+
+Welcome to WebLogic Server Administration Scripting Shell
+
+Type help() for help on available commands
+
+Paste encrypted password ({AES}fk9EK...): {AES}/AnI7ByI/gllIYiLwSjykLVzaqiEpS6i/hnQGjf3qlc=
+Decrypted string is: welcome1
+[applmeb1@ugnx-365-dap02 security]$ 
+
+
+To see the weblogic password:
+
+vi decrypt_password.py
+=================================================================
+from weblogic.security.internal import *
+from weblogic.security.internal.encryption import *
+encryptionService = SerializedSystemIni.getEncryptionService(".")
+clearOrEncryptService = ClearOrEncryptedService(encryptionService)
+
+# Take encrypt password from user
+pwd = raw_input("Paste encrypted password ({AES}fk9EK...): ")
+
+# Delete unnecessary escape characters
+preppwd = pwd.replace("\\", "")
+
+# Display password
+print "Decrypted string is: " + clearOrEncryptService.decrypt(preppwd)
+=====================================================================
+
+. $FMW_HOME/wlserver_10.3/server/bin/setWLSEnv.sh
+
+java weblogic.WLST decrypt_password.py
+/u01/data/domains/vlmgrcidcsap01n_domain/security
+======================================================================
+
+space reclaim commands :
+
+find . -name "DefaultAuditRecorder*.log*" -mtime +30 -exec rm {} \; &
+===================================================================================================================
+
+
+head -100000 OFgAqHOv.t> OFgAqHOv.t_head_16oct2023
+
+tail -100000 OFgAqHOv.t> OFgAqHOv.t_tail_16oct2023
+
+
+find /path/to/directory -type f -mtime 10 | wc -l
+
+
+$APPLTOP :
+
+/ua1001/app/fs1/FMW_Home/user_projects/domains/EBS_domain/servers
+
+find ./*server*/logs -name "*.out*" -type f -mtime +5 -exec rm -rf "{}" \; &
+
+
+--> APPLCSF :
+
+cd <mount>/applcsf/log --> 
+find . -name "*.xls" -mtime +30 -exec gzip {} \; & 
+find . -name "*.out" -mtime +90 -exec rm {} \; &
+
+$ find /path/to/the/folder -name '*.*' -mmin +59 -delete > /dev/null &
+
+find . -name "*.aud" -mtime +30 -exec rm {} \; &
+find . -name "*.txt" -mtime +90 -exec ls -ltrh {} \; &
+
+find . -name "*.req" -mtime +9 -exec ls -ltr {} \;
+find . -name "*.req" -mtime +90 -exec rm {} \; &
+find . -name "*.mgr" -mtime +365 -exec rm  {} \; &
+find . -name "*.gz" -mtime +30 -exec rm {} \; &
+find . -name "*.pdf" -mtime +30 -exec gzip {} \; &
+find . -name "*.xml" -mtime +10 -exec gzip  {} \; &
+find . -name "*.system.log.*" -mtime +10 -exec ls -ltr  {} \;
+find . -name "*.out" -mtime +90 -exec ls -ltr {} \;
+
+find . -name "*.dmp" -mtime +80 -exec ls -ltr  {} \;
+
+find . -name "*.dmp" -mtime +80 -exec rm  {} \;
+
+
+cd <mount>/applcsf/out -->
+find . -name "*.gz" -mtime +60 -exec rm {} \; &
+find . -name "*.xml" -mtime +30 -exec gzip {} \; &
+find . -name "*oacore_server1*" -mtime +60 -exec rm  {} \; &
+
+find . -name "*.dat" -mtime +30 -exec rm  {} \; &
+find . -name "*.out" -mtime +60 -exec gzip {} \; &
+find . -name "*.aud" -mtime +90 -exec gzip  {} \; &
+find . -name "*.trc" -mtime +45 -exec rm {} \; &
+ls -lSah|head -30
+
+-->APPL_TOP & COMN_TOP :
+
+find . -name "forms_server1*" -mtime 390 -exec gzip {} \; &
+find . -name "*.aud" -mtime +20 -exec rm {} \; &
+
+
+find . -name "*.xml" -mtime +10 -exec gzip {} \; &
+
+===================================================================
+
+list directories consuming space :
+
+du -a . | sort -nr | head
+
+du -sh * | sort -hr | head -10
+
+=================================================================
+
+ list the files:
+
+find . -name "*.trc" -ctime +3 -exec ls -ltr {} \;
+
+==================================================================
+
+Tar zip 
+
+tar -czf /uu1001/refresh_files092221.tar.gz refresh_files092221 
+
+======================================================
+
+Move multiple files :
+
+find . -name "rx0000*" -mtime +1 -type f -exec mv "{}" /interface/GG_backup_dirdat_INC1168078/ \;
+
+=================================================================
+
+
+find . -maxdepth 1 -type f -printf '%TY-%Tm-%Td %s\n' | awk '{b[$1]+=$2} END{for (date in b) printf "%s %5.1f MB\n", date, b[date]/1024**2}' | sort
+
+
+
+
+
+find /ua2000/qa/appltmp/* -mtime +10 -exec rm -f {} \; 
+find /ua2000/qa/applptmp/* -mtime +10 -exec rm -f {} \; 
+
+find /ua2000/qa/applcsf/log/* -mtime +20 -exec rm -f {} \; 
+
+find /ua2000/qa/applcsf/out/* -mtime +20 -exec rm -f {} \; 
+find /ua2000/qa/applcsf/out/CFGLACGLOBES* -mtime +10 -exec rm -f {} \;
+find /ua2000/qa/applcsf/out/*.EXCEL -mtime +5 -exec rm -f {} \;
+
+
+
+find . -name "*.t" -mtime +10 -exec rm  {} \;
+
+ 
+==========================================================================================================================
+To set workflow overide adress :
+
+select fscpv.parameter_value
+from fnd_svc_comp_params_tl fscpt
+,fnd_svc_comp_param_vals fscpv
+where fscpt.display_name = 'Test Address'
+and fscpt.parameter_id = fscpv.parameter_id;
+
+update fnd_svc_comp_param_vals
+set    parameter_value = ‘&EnterEmailID’
+where  parameter_id =
+( select parameter_id
+from   fnd_svc_comp_params_tl
+where  display_name = 'Test Address');
+============================================================================================================================
+sql command to check AWR retention period :
+
+set lines 200
+col SNAP_INTERVAL format a20
+col RETENTION format a20
+col SRC_DBNAME format a20
+ 
+select * from dba_hist_wr_control;
+
+
+execute dbms_workload_repository.modify_snapshot_settings(retention => 43200);
+you can use above query to update the retention to 30 days
+=============================================================================================================================
+
+inding trace file with request ID and Process ID  
+
+************************************************* 
+select oracle_process_id from fnd_concurrent_requests where request_id=51155199; 
+SELECT req.request_id ,req.logfile_node_name node ,req.oracle_Process_id ,req.enable_trace ,dest.VALUE||'/'||LOWER(dbnm.VALUE)||'_ora_'||oracle_process_id||'.trc' trace_filename ,prog.user_concurrent_program_name ,execname.execution_file_name ,execname.subroutine_name ,phase_code ,status_code ,ses.SID ,ses.serial# ,ses.module ,ses.machine FROM fnd_concurrent_requests req ,v$session ses ,v$process proc ,v$parameter dest ,v$parameter dbnm ,fnd_concurrent_programs_vl prog ,fnd_executables execname WHERE 1=1 AND req.request_id = &request AND req.oracle_process_id=proc.spid(+) AND proc.addr = ses.paddr(+) AND dest.NAME='user_dump_dest' AND dbnm.NAME='db_name' AND req.concurrent_program_id = prog.concurrent_program_id AND req.program_application_id = prog.application_id AND prog.application_id = execname.application_id AND prog.executable_id=execname.executable_id;
+
+===========================================================================================================================
+fs_clone issue in UGNX :
+
+[EBSP|applpeb1@ugnx-chi-pap01|ugnx-chi-pap01]$ cat txkADOPValidations.error
+Exception in thread "Thread-0" java.lang.OutOfMemoryError: unable to create new native thread
+        at java.lang.Thread.start0(Native Method)
+        at java.lang.Thread.start(Thread.java:714)
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:956)
+        at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1381)
+        at java.lang.UNIXProcess.initStreams(UNIXProcess.java:226)
+        at java.lang.UNIXProcess$3.run(UNIXProcess.java:199)
+        at java.lang.UNIXProcess$3.run(UNIXProcess.java:197)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.lang.UNIXProcess.<init>(UNIXProcess.java:197)
+        at java.lang.ProcessImpl.start(ProcessImpl.java:130)
+        at java.lang.ProcessBuilder.start(ProcessBuilder.java:1028)
+        at java.lang.Runtime.exec(Runtime.java:617)
+        at java.lang.Runtime.exec(Runtime.java:485)
+        at oracle.apps.ad.util.TimedProcess$TimedProcessProcess.run(TimedProcess.java:869)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+fix :
+
+echo $CONFIG_JVM_ARGS
+export CONFIG_JVM_ARGS="-Xmx4096m -Xms2048m -XX:MaxPermSize=512m -XX:-UseGCOverheadLimit"
+=============================================================================================================
+Tuning Advisor:
+
+@?/rdbms/admin/sqltrpt
+
+to get sql id for a request:
+
+SELECT a.request_id,s.status, s.sid, s.serial#, s.sql_id,s.osuser, s.module, p.spid, s.sql_hash_value, i.instance_name, i.host_name FROM gv$session s, gv$process p, gv$instance i, apps.fnd_concurrent_requests a WHERE s.paddr = p.addr AND p.spid = a.oracle_process_id AND s.inst_id=p.inst_id AND s.inst_id=i.inst_id AND a.request_id = &Request_ID AND s.module is not null /
+
+SQL>
+SQL> DECLARE
+l_sql_tune_task_id VARCHAR2(100);
+BEGIN
+l_sql_tune_task_id := DBMS_SQLTUNE.CREATE_TUNING_TASK(
+sql_id      => '79gsdwavtw2f1',
+scope       => 'COMPREHENSIVE',
+time_limit  => 10000,
+task_name   => 'tune_sql_79gsdwavtw2f1',
+description => 'Tuning task for SQL ID 79gsdwavtw2f1');
+DBMS_SQLTUNE.EXECUTE_TUNING_TASK(task_name => 'tune_sql_79gsdwavtw2f1');
+END;
+/
+  2    3    4    5    6    7    8    9   10   11   12   13
+PL/SQL procedure successfully completed.
+SQL> SQL> SQL> SQL> SQL>
+SQL>
+SQL>
+
+SET LINES 150
+SET pages 50000
+SET long 5000000
+SET longc 5000000
+SQL> SELECT DBMS_SQLTUNE.REPORT_TUNING_TASK('tune_sql_79gsdwavtw2f1') AS recommendations FROM DUAL;
+RECOMMENDATIONS
+--------------------------------------------------------------------------------
+GENERAL INFORMATION SECTION
+----------------------------------------------------
+SQL>
+SQL>
+SQL> SET LINES 150
+SET pages 50000
+SET long 5000000
+SET longc 5000000
+SELECT DBMS_SQLTUNE.report_tuning_task('tune_sql_79gsdwavtw2f1') AS recommendations FROM dual;SQL> SQL> SQL> SQL> SQL>
+RECOMMENDATIONS
+------------------------------------------------------------------------------------------------------------------------------------------------------
+GENERAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+Tuning Task Name   : tune_sql_79gsdwavtw2f1
+Tuning Task Owner  : APPS
+Workload Type      : Single SQL Statement
+Scope              : COMPREHENSIVE
+Time Limit(seconds): 10000
+Completion Status  : COMPLETED
+Started at         : 07/07/2025 23:47:23
+Completed at       : 07/07/2025 23:49:46
+-------------------------------------------------------------------------------
+Schema Name   : APPS
+Container Name: tst
+SQL ID        : 79gsdwavtw2f1
+SQL Text      : select credit_line_available from
+                xxpin_credit_line_availability
+                where cust_account_id=:cust_account_id
+Bind Variables: :
+ 1 -  (NUMBER):105061
+-------------------------------------------------------------------------------
+FINDINGS SECTION (2 findings)
+-------------------------------------------------------------------------------
+1- SQL Profile Finding (see explain plans section below)
+--------------------------------------------------------
+  A potentially better execution plan was found for this statement.
+  Recommendation (estimated benefit: 81.51%)
+  ------------------------------------------
+  - Consider accepting the recommended SQL profile to use parallel execution
+    for this statement.
+    execute dbms_sqltune.accept_sql_profile(task_name =>
+            'tune_sql_79gsdwavtw2f1', task_owner => 'APPS', replace => TRUE,
+            profile_type => DBMS_SQLTUNE.PX_PROFILE);
+  Executing this query parallel with DOP 6 will improve its response time
+  81.52% over the original plan. However, this will increase the statement's
+  resource consumption by an estimated 10.89% which may result in a reduction
+  of system throughput. Also, because these resources are consumed over a much
+  smaller duration, the response time of concurrent statements might be
+  negatively impacted.
+2- Index Finding (see explain plans section below)
+--------------------------------------------------
+  The execution plan of this statement can be improved by creating one or more
+  indices.
+  Recommendation (estimated benefit: 99.94%)
+  ------------------------------------------
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.
+    create index AR.IDX$$_1986A0001 on AR.HZ_CUST_ACCOUNTS("CUST_ACCOUNT_ID","A
+    CCOUNT_NUMBER","ACCOUNT_NAME");
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.  If you choose to create the
+    recommended index, consider dropping the index
+    "ONT"."OE_BLANKET_HEADERS_N1" because it is a prefix of the recommended
+    index.
+    create index ONT.IDX$$_1986A0002 on ONT.OE_BLANKET_HEADERS_ALL("SOLD_TO_ORG
+    _ID","HEADER_ID");
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.
+    create index GL.IDX$$_1986A0003 on GL.GL_DAILY_RATES("FROM_CURRENCY","TO_CU
+    RRENCY","CONVERSION_TYPE","CONVERSION_DATE");
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.
+    create index AR.IDX$$_1986A0004 on AR.RA_CUSTOMER_TRX_ALL("BILL_TO_CUSTOMER
+    _ID","SET_OF_BOOKS_ID","CUSTOMER_TRX_ID");
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.  If you choose to create the
+    recommended index, consider dropping the index
+    "AR"."HZ_CUSTOMER_PROFILES_N1" because it is a prefix of the recommended
+    index.
+    create index AR.IDX$$_1986A0005 on AR.HZ_CUSTOMER_PROFILES("CUST_ACCOUNT_ID
+    ","SITE_USE_ID");
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.  If you choose to create the
+    recommended index, consider dropping the index
+    "AR"."HZ_CUST_PROFILE_AMTS_N3" because it is a prefix of the recommended
+    index.
+    create index AR.IDX$$_1986A0006 on AR.HZ_CUST_PROFILE_AMTS("CUST_ACCOUNT_ID
+    ","CURRENCY_CODE");
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.
+    create index XXPINOE.IDX$$_1986A0007 on
+    XXPINOE.XXPINOE_DELIVERY_DETAILS_ALL("LINE_ID","SA_HEADER_ID","ORG_ID");
+  Rationale
+  ---------
+    Creating the recommended indices significantly improves the execution plan
+    of this statement. However, it might be preferable to run "Access Advisor"
+    using a representative SQL workload as opposed to a single statement. This
+    will allow to get comprehensive index recommendations which takes into
+    account index maintenance overhead and additional space consumption.
+-------------------------------------------------------------------------------
+EXPLAIN PLANS SECTION
+-------------------------------------------------------------------------------
+1- Original
+-----------
+Plan hash value: 1873725767
+------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                     | Name                         | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                              |                              |     1 |    81 |   476K  (2)| 00:00:19 |
+|   1 |  TABLE ACCESS BY INDEX ROWID                  | GL_DAILY_RATES               |     1 |    39 |     3   (0)| 00:00:01 |
+|*  2 |   INDEX UNIQUE SCAN                           | GL_DAILY_RATES_U1            |     1 |       |     2   (0)| 00:00:01 |
+|   3 |    SORT AGGREGATE                             |                              |     1 |    24 |            |          |
+|*  4 |     INDEX RANGE SCAN                          | GL_DAILY_RATES_U1            |   110 |  2640 |    32   (0)| 00:00:01 |
+|*  5 |  HASH JOIN OUTER                              |                              |     1 |    81 |   476K  (2)| 00:00:19 |
+|   6 |   MERGE JOIN OUTER                            |                              |     1 |    55 |   254   (0)| 00:00:01 |
+|   7 |    MERGE JOIN CARTESIAN                       |                              |     1 |    39 |   252   (0)| 00:00:01 |
+|   8 |     NESTED LOOPS OUTER                        |                              |     1 |    31 |   250   (0)| 00:00:01 |
+|*  9 |      INDEX UNIQUE SCAN                        | HZ_CUST_ACCOUNTS_U1          |     1 |     5 |     1   (0)| 00:00:01 |
+|  10 |      VIEW                                     |                              |     1 |    26 |   249   (0)| 00:00:01 |
+|  11 |       SORT GROUP BY                           |                              |     1 |    89 |   249   (0)| 00:00:01 |
+|  12 |        NESTED LOOPS                           |                              |    44 |  3916 |   183   (0)| 00:00:01 |
+|  13 |         NESTED LOOPS                          |                              |    44 |  3916 |   183   (0)| 00:00:01 |
+|* 14 |          HASH JOIN                            |                              |    44 |  3388 |    51   (0)| 00:00:01 |
+|  15 |           NESTED LOOPS                        |                              |    45 |  2745 |    46   (0)| 00:00:01 |
+|  16 |            TABLE ACCESS BY INDEX ROWID        | HZ_CUST_ACCOUNTS             |     1 |    38 |     2   (0)| 00:00:01 |
+|* 17 |             INDEX UNIQUE SCAN                 | HZ_CUST_ACCOUNTS_U1          |     1 |       |     1   (0)| 00:00:01 |
+|  18 |            TABLE ACCESS BY INDEX ROWID BATCHED| RA_CUSTOMER_TRX_ALL          |    45 |  1035 |    44   (0)| 00:00:01 |
+|* 19 |             INDEX RANGE SCAN                  | RA_CUSTOMER_TRX_N11          |    45 |       |     2   (0)| 00:00:01 |
+|* 20 |           TABLE ACCESS FULL                   | GL_LEDGERS                   |    21 |   336 |     5   (0)| 00:00:01 |
+|* 21 |          INDEX RANGE SCAN                     | AR_PAYMENT_SCHEDULES_N2      |     1 |       |     2   (0)| 00:00:01 |
+|  22 |         TABLE ACCESS BY INDEX ROWID           | AR_PAYMENT_SCHEDULES_ALL     |     1 |    12 |     3   (0)| 00:00:01 |
+|  23 |     BUFFER SORT                               |                              |     1 |     8 |     3   (0)| 00:00:01 |
+|* 24 |      TABLE ACCESS BY INDEX ROWID BATCHED      | HZ_CUSTOMER_PROFILES         |     1 |     8 |     2   (0)| 00:00:01 |
+|* 25 |       INDEX RANGE SCAN                        | HZ_CUSTOMER_PROFILES_N1      |     2 |       |     1   (0)| 00:00:01 |
+|  26 |    BUFFER SORT                                |                              |     1 |    16 |   252   (0)| 00:00:01 |
+|* 27 |     TABLE ACCESS BY INDEX ROWID BATCHED       | HZ_CUST_PROFILE_AMTS         |     1 |    16 |     2   (0)| 00:00:01 |
+|* 28 |      INDEX RANGE SCAN                         | HZ_CUST_PROFILE_AMTS_N3      |     1 |       |     1   (0)| 00:00:01 |
+|  29 |   VIEW                                        |                              |     1 |    26 |   476K  (2)| 00:00:19 |
+|  30 |    HASH GROUP BY                              |                              |     1 |   380 |   476K  (2)| 00:00:19 |
+|* 31 |     HASH JOIN                                 |                              |     1 |   380 |   476K  (2)| 00:00:19 |
+|  32 |      NESTED LOOPS                             |                              |     1 |    75 |    16   (7)| 00:00:01 |
+|  33 |       NESTED LOOPS                            |                              |     1 |    75 |    16   (7)| 00:00:01 |
+|  34 |        VIEW                                   | VW_GBF_11                    |     1 |    56 |    14   (8)| 00:00:01 |
+|  35 |         HASH GROUP BY                         |                              |     1 |    48 |    14   (8)| 00:00:01 |
+|  36 |          NESTED LOOPS                         |                              |    14 |   672 |    13   (0)| 00:00:01 |
+|  37 |           TABLE ACCESS BY INDEX ROWID         | HZ_CUST_ACCOUNTS             |     1 |    38 |     2   (0)| 00:00:01 |
+|* 38 |            INDEX UNIQUE SCAN                  | HZ_CUST_ACCOUNTS_U1          |     1 |       |     1   (0)| 00:00:01 |
+|  39 |           TABLE ACCESS BY INDEX ROWID BATCHED | OE_BLANKET_HEADERS_ALL       |    14 |   140 |    11   (0)| 00:00:01 |
+|* 40 |            INDEX RANGE SCAN                   | OE_BLANKET_HEADERS_N1        |    14 |       |     1   (0)| 00:00:01 |
+|* 41 |        INDEX RANGE SCAN                       | OE_BLANKET_LINES_N1          |     1 |       |     1   (0)| 00:00:01 |
+|  42 |       TABLE ACCESS BY INDEX ROWID             | OE_BLANKET_LINES_ALL         |     1 |    19 |     2   (0)| 00:00:01 |
+|* 43 |      TABLE ACCESS FULL                        | XXPINOE_DELIVERY_DETAILS_ALL |    14M|  4245M|   476K  (2)| 00:00:19 |
+------------------------------------------------------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   2 - access("GDR"."FROM_CURRENCY"=:B1 AND "GDR"."TO_CURRENCY"=:B2 AND "GDR"."CONVERSION_DATE"= (SELECT
+              MAX("CONVERSION_DATE") FROM "APPS"."GL_DAILY_RATES" "GDR1" WHERE "GDR1"."CONVERSION_DATE"<=SYSDATE@! AND
+              "GDR1"."TO_CURRENCY"=:B3 AND "GDR1"."FROM_CURRENCY"=:B4 AND "GDR1"."CONVERSION_TYPE"=NVL(:B5,'1')) AND
+              "GDR"."CONVERSION_TYPE"=NVL(:B6,'1'))
+   4 - access("GDR1"."FROM_CURRENCY"=:B1 AND "GDR1"."TO_CURRENCY"=:B2 AND "GDR1"."CONVERSION_TYPE"=NVL(:B3,'1') AND
+              "GDR1"."CONVERSION_DATE"<=SYSDATE@!)
+       filter("GDR1"."CONVERSION_TYPE"=NVL(:B1,'1'))
+   5 - access("HCA"."CUST_ACCOUNT_ID"="C"."CUST_ACCOUNT_ID"(+))
+   9 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  14 - access("RCTA"."SET_OF_BOOKS_ID"="GL"."LEDGER_ID")
+  17 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  19 - access("RCTA"."BILL_TO_CUSTOMER_ID"=:CUST_ACCOUNT_ID)
+       filter("RCTA"."CUST_TRX_TYPE_ID"<>1061 AND "RCTA"."CUST_TRX_TYPE_ID"<>1081 AND "RCTA"."CUST_TRX_TYPE_ID"<>1080
+              AND "RCTA"."CUST_TRX_TYPE_ID"<>1062 AND "RCTA"."CUST_TRX_TYPE_ID"<>1125)
+  20 - filter("GL"."LEDGER_CATEGORY_CODE"='PRIMARY')
+  21 - access("RCTA"."CUSTOMER_TRX_ID"="APS"."CUSTOMER_TRX_ID")
+       filter("APS"."CUSTOMER_TRX_ID" IS NOT NULL)
+  24 - filter("HCP"."SITE_USE_ID" IS NULL)
+  25 - access("HCP"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  27 - filter("CURRENCY_CODE"(+)='USD' AND "SITE_USE_ID"(+) IS NULL)
+  28 - access("CUST_ACCOUNT_ID"(+)=:CUST_ACCOUNT_ID)
+  31 - access("LINE_ID"="OBL"."LINE_ID" AND "SA_HEADER_ID"="OBL"."HEADER_ID" AND "ORG_ID"="OBL"."ORG_ID")
+  38 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  40 - access("OBH"."SOLD_TO_ORG_ID"=:CUST_ACCOUNT_ID)
+  41 - access("OBL"."HEADER_ID"="ITEM_1")
+  43 - filter(NVL("CANCELLED_FLAG",'N')<>'Y')
+2- Using New Indices
+--------------------
+Plan hash value: 1653641408
+-----------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                    | Name                         | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                             |                              |     1 |    81 |   261   (1)| 00:00:01 |
+|   1 |  TABLE ACCESS BY INDEX ROWID                 | GL_DAILY_RATES               |     1 |    39 |     3   (0)| 00:00:01 |
+|*  2 |   INDEX UNIQUE SCAN                          | GL_DAILY_RATES_U1            |     1 |       |     2   (0)| 00:00:01 |
+|   3 |    SORT AGGREGATE                            |                              |     1 |    24 |            |          |
+|   4 |     FIRST ROW                                |                              |     1 |    24 |     4   (0)| 00:00:01 |
+|*  5 |      INDEX RANGE SCAN (MIN/MAX)              | IDX$$_1986A0003              |     1 |    24 |     4   (0)| 00:00:01 |
+|*  6 |  HASH JOIN OUTER                             |                              |     1 |    81 |   261   (1)| 00:00:01 |
+|   7 |   MERGE JOIN OUTER                           |                              |     1 |    55 |    15  (14)| 00:00:01 |
+|   8 |    MERGE JOIN CARTESIAN                      |                              |     1 |    39 |    13  (16)| 00:00:01 |
+|   9 |     NESTED LOOPS OUTER                       |                              |     1 |    31 |    12  (17)| 00:00:01 |
+|* 10 |      INDEX UNIQUE SCAN                       | HZ_CUST_ACCOUNTS_U1          |     1 |     5 |     1   (0)| 00:00:01 |
+|  11 |      VIEW                                    |                              |     1 |    26 |    11  (19)| 00:00:01 |
+|  12 |       SORT GROUP BY                          |                              |     1 |   380 |    11  (19)| 00:00:01 |
+|  13 |        NESTED LOOPS                          |                              |     1 |   380 |    10  (10)| 00:00:01 |
+|  14 |         NESTED LOOPS                         |                              |     1 |   380 |    10  (10)| 00:00:01 |
+|  15 |          NESTED LOOPS                        |                              |     1 |    75 |     6  (17)| 00:00:01 |
+|  16 |           VIEW                               | VW_GBF_11                    |     1 |    56 |     4  (25)| 00:00:01 |
+|  17 |            SORT GROUP BY                     |                              |     1 |    48 |     4  (25)| 00:00:01 |
+|  18 |             NESTED LOOPS                     |                              |    14 |   672 |     3   (0)| 00:00:01 |
+|  19 |              TABLE ACCESS BY INDEX ROWID     | HZ_CUST_ACCOUNTS             |     1 |    38 |     2   (0)| 00:00:01 |
+|* 20 |               INDEX UNIQUE SCAN              | HZ_CUST_ACCOUNTS_U1          |     1 |       |     1   (0)| 00:00:01 |
+|* 21 |              INDEX RANGE SCAN                | IDX$$_1986A0002              |    14 |   140 |     1   (0)| 00:00:01 |
+|  22 |           TABLE ACCESS BY INDEX ROWID BATCHED| OE_BLANKET_LINES_ALL         |     1 |    19 |     2   (0)| 00:00:01 |
+|* 23 |            INDEX RANGE SCAN                  | OE_BLANKET_LINES_N1          |     1 |       |     1   (0)| 00:00:01 |
+|* 24 |          INDEX RANGE SCAN                    | IDX$$_1986A0007              |     1 |       |     3   (0)| 00:00:01 |
+|* 25 |         TABLE ACCESS BY INDEX ROWID          | XXPINOE_DELIVERY_DETAILS_ALL |     1 |   305 |     4   (0)| 00:00:01 |
+|  26 |     BUFFER SORT                              |                              |     1 |     8 |     2   (0)| 00:00:01 |
+|* 27 |      INDEX RANGE SCAN                        | IDX$$_1986A0005              |     1 |     8 |     1   (0)| 00:00:01 |
+|  28 |    BUFFER SORT                               |                              |     1 |    16 |    14  (15)| 00:00:01 |
+|* 29 |     TABLE ACCESS BY INDEX ROWID BATCHED      | HZ_CUST_PROFILE_AMTS         |     1 |    16 |     2   (0)| 00:00:01 |
+|* 30 |      INDEX RANGE SCAN                        | IDX$$_1986A0006              |     1 |       |     1   (0)| 00:00:01 |
+|  31 |   VIEW                                       |                              |     1 |    26 |   246   (0)| 00:00:01 |
+|  32 |    HASH GROUP BY                             |                              |     1 |    89 |   246   (0)| 00:00:01 |
+|  33 |     NESTED LOOPS                             |                              |    44 |  3916 |   180   (0)| 00:00:01 |
+|  34 |      NESTED LOOPS                            |                              |    44 |  3916 |   180   (0)| 00:00:01 |
+|* 35 |       HASH JOIN                              |                              |    44 |  3388 |    48   (0)| 00:00:01 |
+|  36 |        NESTED LOOPS                          |                              |    45 |  2745 |    43   (0)| 00:00:01 |
+|  37 |         NESTED LOOPS                         |                              |    52 |  2745 |    43   (0)| 00:00:01 |
+|* 38 |          INDEX RANGE SCAN                    | IDX$$_1986A0001              |     1 |    38 |     2   (0)| 00:00:01 |
+|* 39 |          INDEX RANGE SCAN                    | IDX$$_1986A0004              |    52 |       |     2   (0)| 00:00:01 |
+|* 40 |         TABLE ACCESS BY INDEX ROWID          | RA_CUSTOMER_TRX_ALL          |    45 |  1035 |    41   (0)| 00:00:01 |
+|* 41 |        TABLE ACCESS FULL                     | GL_LEDGERS                   |    21 |   336 |     5   (0)| 00:00:01 |
+|* 42 |       INDEX RANGE SCAN                       | AR_PAYMENT_SCHEDULES_N2      |     1 |       |     2   (0)| 00:00:01 |
+|  43 |      TABLE ACCESS BY INDEX ROWID             | AR_PAYMENT_SCHEDULES_ALL     |     1 |    12 |     3   (0)| 00:00:01 |
+-----------------------------------------------------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   2 - access("GDR"."FROM_CURRENCY"=:B1 AND "GDR"."TO_CURRENCY"=:B2 AND "GDR"."CONVERSION_DATE"= (SELECT
+              MAX("CONVERSION_DATE") FROM "APPS"."GL_DAILY_RATES" "GDR1" WHERE "GDR1"."CONVERSION_DATE"<=SYSDATE@! AND
+              "GDR1"."CONVERSION_TYPE"=NVL(:B3,'1') AND "GDR1"."TO_CURRENCY"=:B4 AND "GDR1"."FROM_CURRENCY"=:B5) AND
+              "GDR"."CONVERSION_TYPE"=NVL(:B6,'1'))
+   5 - access("GDR1"."FROM_CURRENCY"=:B1 AND "GDR1"."TO_CURRENCY"=:B2 AND "GDR1"."CONVERSION_TYPE"=NVL(:B3,'1') AND
+              "GDR1"."CONVERSION_DATE"<=SYSDATE@!)
+   6 - access("HCA"."CUST_ACCOUNT_ID"="B"."CUST_ACCOUNT_ID"(+))
+  10 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  20 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  21 - access("OBH"."SOLD_TO_ORG_ID"=:CUST_ACCOUNT_ID)
+  23 - access("OBL"."HEADER_ID"="ITEM_1")
+  24 - access("LINE_ID"="OBL"."LINE_ID" AND "SA_HEADER_ID"="OBL"."HEADER_ID" AND "ORG_ID"="OBL"."ORG_ID")
+  25 - filter(NVL("CANCELLED_FLAG",'N')<>'Y')
+  27 - access("HCP"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID AND "HCP"."SITE_USE_ID" IS NULL)
+  29 - filter("SITE_USE_ID"(+) IS NULL)
+  30 - access("CUST_ACCOUNT_ID"(+)=:CUST_ACCOUNT_ID AND "CURRENCY_CODE"(+)='USD')
+  35 - access("RCTA"."SET_OF_BOOKS_ID"="GL"."LEDGER_ID")
+  38 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  39 - access("RCTA"."BILL_TO_CUSTOMER_ID"=:CUST_ACCOUNT_ID)
+  40 - filter("RCTA"."CUST_TRX_TYPE_ID"<>1061 AND "RCTA"."CUST_TRX_TYPE_ID"<>1081 AND
+              "RCTA"."CUST_TRX_TYPE_ID"<>1080 AND "RCTA"."CUST_TRX_TYPE_ID"<>1062 AND "RCTA"."CUST_TRX_TYPE_ID"<>1125)
+  41 - filter("GL"."LEDGER_CATEGORY_CODE"='PRIMARY')
+  42 - access("RCTA"."CUSTOMER_TRX_ID"="APS"."CUSTOMER_TRX_ID")
+       filter("APS"."CUSTOMER_TRX_ID" IS NOT NULL)
+3- Using Parallel Execution
+---------------------------
+Plan hash value: 3336639476
+------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------
+| Id  | Operation                                                  | Name                         | Rows  | Bytes | Cost (%CPU)| Time     |    TQ  |IN
+-OUT| PQ Distrib |
+------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------
+|   0 | SELECT STATEMENT                                           |                              |     3 |   243 | 88068   (2)| 00:00:04 |        |
+    |            |
+|   1 |  TABLE ACCESS BY INDEX ROWID                               | GL_DAILY_RATES               |     1 |    39 |     3   (0)| 00:00:01 |        |
+    |            |
+|*  2 |   INDEX UNIQUE SCAN                                        | GL_DAILY_RATES_U1            |     1 |       |     2   (0)| 00:00:01 |        |
+    |            |
+|   3 |    SORT AGGREGATE                                          |                              |     1 |    24 |            |          |        |
+    |            |
+|*  4 |     INDEX RANGE SCAN                                       | GL_DAILY_RATES_U1            |   110 |  2640 |    32   (0)| 00:00:01 |        |
+    |            |
+|   5 |  MERGE JOIN OUTER                                          |                              |     3 |   243 | 88068   (2)| 00:00:04 |        |
+    |            |
+|   6 |   PX COORDINATOR                                           |                              |       |       |            |          |        |
+    |            |
+|   7 |    PX SEND QC (RANDOM)                                     | :TQ10013                     |     1 |    65 | 88068   (2)| 00:00:04 |  Q1,13 | P
+->S | QC (RAND)  |
+|*  8 |     HASH JOIN OUTER BUFFERED                               |                              |     1 |    65 | 88068   (2)| 00:00:04 |  Q1,13 | P
+CWP |            |
+|   9 |      PX RECEIVE                                            |                              |     1 |    39 |   142   (1)| 00:00:01 |  Q1,13 | P
+CWP |            |
+|  10 |       PX SEND HASH                                         | :TQ10011                     |     1 |    39 |   142   (1)| 00:00:01 |  Q1,11 | P
+->P | HASH       |
+|* 11 |        HASH JOIN OUTER BUFFERED                            |                              |     1 |    39 |   142   (1)| 00:00:01 |  Q1,11 | P
+CWP |            |
+|  12 |         PX RECEIVE                                         |                              |     1 |    13 |     3   (0)| 00:00:01 |  Q1,11 | P
+CWP |            |
+|  13 |          PX SEND HASH                                      | :TQ10008                     |     1 |    13 |     3   (0)| 00:00:01 |  Q1,08 | P
+->P | HASH       |
+|  14 |           BUFFER SORT                                      |                              |     3 |   243 |            |          |  Q1,08 | P
+CWP |            |
+|  15 |            NESTED LOOPS                                    |                              |     1 |    13 |     3   (0)| 00:00:01 |  Q1,08 | P
+CWP |            |
+|  16 |             PX RECEIVE                                     |                              |       |       |            |          |  Q1,08 | P
+CWP |            |
+|  17 |              PX SEND ROUND-ROBIN                           | :TQ10005                     |       |       |            |          |  Q1,05 | S
+->P | RND-ROBIN  |
+|  18 |               PX SELECTOR                                  |                              |       |       |            |          |  Q1,05 | S
+CWC |            |
+|* 19 |                INDEX UNIQUE SCAN                           | HZ_CUST_ACCOUNTS_U1          |     1 |     5 |     1   (0)| 00:00:01 |  Q1,05 | S
+CWP |            |
+|* 20 |             TABLE ACCESS BY INDEX ROWID BATCHED            | HZ_CUSTOMER_PROFILES         |     1 |     8 |     0   (0)| 00:00:01 |  Q1,08 | P
+CWP |            |
+|* 21 |              INDEX RANGE SCAN                              | HZ_CUSTOMER_PROFILES_N1      |     2 |       |     0   (0)| 00:00:01 |  Q1,08 | P
+CWP |            |
+|  22 |         PX RECEIVE                                         |                              |     1 |    26 |   139   (1)| 00:00:01 |  Q1,11 | P
+CWP |            |
+|  23 |          PX SEND HASH                                      | :TQ10009                     |     1 |    26 |   139   (1)| 00:00:01 |  Q1,09 | P
+->P | HASH       |
+|  24 |           VIEW                                             |                              |     1 |    26 |   139   (1)| 00:00:01 |  Q1,09 | P
+CWP |            |
+|  25 |            HASH GROUP BY                                   |                              |     1 |    89 |   139   (1)| 00:00:01 |  Q1,09 | P
+CWP |            |
+|  26 |             PX RECEIVE                                     |                              |     1 |    89 |   139   (1)| 00:00:01 |  Q1,09 | P
+CWP |            |
+|  27 |              PX SEND HASH                                  | :TQ10006                     |     1 |    89 |   139   (1)| 00:00:01 |  Q1,06 | P
+->P | HASH       |
+|  28 |               HASH GROUP BY                                |                              |     1 |    89 |   139   (1)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|  29 |                NESTED LOOPS                                |                              |    44 |  3916 |    73   (2)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|  30 |                 NESTED LOOPS                               |                              |    44 |  3916 |    73   (2)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|* 31 |                  HASH JOIN                                 |                              |    44 |  3388 |    48   (0)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|  32 |                   PX RECEIVE                               |                              |    45 |  2745 |    46   (0)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|  33 |                    PX SEND HYBRID HASH                     | :TQ10002                     |    45 |  2745 |    46   (0)| 00:00:01 |  Q1,02 | P
+->P | HYBRID HASH|
+|  34 |                     STATISTICS COLLECTOR                   |                              |       |       |            |          |  Q1,02 | P
+CWC |            |
+|  35 |                      NESTED LOOPS                          |                              |    45 |  2745 |    46   (0)| 00:00:01 |  Q1,02 | P
+CWP |            |
+|  36 |                       TABLE ACCESS BY INDEX ROWID          | HZ_CUST_ACCOUNTS             |     1 |    38 |     2   (0)| 00:00:01 |  Q1,02 | P
+CWP |            |
+|  37 |                        BUFFER SORT                         |                              |       |       |            |          |  Q1,02 | P
+CWC |            |
+|  38 |                         PX RECEIVE                         |                              |     1 |       |     1   (0)| 00:00:01 |  Q1,02 | P
+CWP |            |
+|  39 |                          PX SEND HASH (BLOCK ADDRESS)      | :TQ10000                     |     1 |       |     1   (0)| 00:00:01 |  Q1,00 | S
+->P | HASH (BLOCK|
+|  40 |                           PX SELECTOR                      |                              |       |       |            |          |  Q1,00 | S
+CWC |            |
+|* 41 |                            INDEX UNIQUE SCAN               | HZ_CUST_ACCOUNTS_U1          |     1 |       |     1   (0)| 00:00:01 |  Q1,00 | S
+CWP |            |
+|  42 |                       TABLE ACCESS BY INDEX ROWID BATCHED  | RA_CUSTOMER_TRX_ALL          |    45 |  1035 |     8   (0)| 00:00:01 |  Q1,02 | P
+CWP |            |
+|* 43 |                        INDEX RANGE SCAN                    | RA_CUSTOMER_TRX_N11          |    45 |       |     0   (0)| 00:00:01 |  Q1,02 | P
+CWP |            |
+|  44 |                   PX RECEIVE                               |                              |    21 |   336 |     2   (0)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|  45 |                    PX SEND HYBRID HASH                     | :TQ10003                     |    21 |   336 |     2   (0)| 00:00:01 |  Q1,03 | P
+->P | HYBRID HASH|
+|  46 |                     PX BLOCK ITERATOR                      |                              |    21 |   336 |     2   (0)| 00:00:01 |  Q1,03 | P
+CWC |            |
+|* 47 |                      TABLE ACCESS FULL                     | GL_LEDGERS                   |    21 |   336 |     2   (0)| 00:00:01 |  Q1,03 | P
+CWP |            |
+|* 48 |                  INDEX RANGE SCAN                          | AR_PAYMENT_SCHEDULES_N2      |     1 |       |     0   (0)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|  49 |                 TABLE ACCESS BY INDEX ROWID                | AR_PAYMENT_SCHEDULES_ALL     |     1 |    12 |     1   (0)| 00:00:01 |  Q1,06 | P
+CWP |            |
+|  50 |      PX RECEIVE                                            |                              |     1 |    26 | 87926   (2)| 00:00:04 |  Q1,13 | P
+CWP |            |
+|  51 |       PX SEND HASH                                         | :TQ10012                     |     1 |    26 | 87926   (2)| 00:00:04 |  Q1,12 | P
+->P | HASH       |
+|  52 |        VIEW                                                |                              |     1 |    26 | 87926   (2)| 00:00:04 |  Q1,12 | P
+CWP |            |
+|  53 |         HASH GROUP BY                                      |                              |     1 |   380 | 87926   (2)| 00:00:04 |  Q1,12 | P
+CWP |            |
+|  54 |          PX RECEIVE                                        |                              |     1 |   380 | 87926   (2)| 00:00:04 |  Q1,12 | P
+CWP |            |
+|  55 |           PX SEND HASH                                     | :TQ10010                     |     1 |   380 | 87926   (2)| 00:00:04 |  Q1,10 | P
+->P | HASH       |
+|  56 |            HASH GROUP BY                                   |                              |     1 |   380 | 87926   (2)| 00:00:04 |  Q1,10 | P
+CWP |            |
+|* 57 |             HASH JOIN                                      |                              |     1 |   380 | 87926   (2)| 00:00:04 |  Q1,10 | P
+CWP |            |
+|  58 |              JOIN FILTER CREATE                            | :BF0000                      |     1 |    75 |    14   (8)| 00:00:01 |  Q1,10 | P
+CWP |            |
+|  59 |               PX RECEIVE                                   |                              |     1 |    75 |    14   (8)| 00:00:01 |  Q1,10 | P
+CWP |            |
+|  60 |                PX SEND BROADCAST                           | :TQ10007                     |     1 |    75 |    14   (8)| 00:00:01 |  Q1,07 | P
+->P | BROADCAST  |
+|  61 |                 NESTED LOOPS                               |                              |     1 |    75 |    14   (8)| 00:00:01 |  Q1,07 | P
+CWP |            |
+|  62 |                  NESTED LOOPS                              |                              |     1 |    75 |    14   (8)| 00:00:01 |  Q1,07 | P
+CWP |            |
+|  63 |                   VIEW                                     | VW_GBF_11                    |     1 |    56 |    14   (8)| 00:00:01 |  Q1,07 | P
+CWP |            |
+|  64 |                    HASH GROUP BY                           |                              |     1 |    48 |    14   (8)| 00:00:01 |  Q1,07 | P
+CWP |            |
+|  65 |                     PX RECEIVE                             |                              |     1 |    48 |    14   (8)| 00:00:01 |  Q1,07 | P
+CWP |            |
+|  66 |                      PX SEND HASH                          | :TQ10004                     |     1 |    48 |    14   (8)| 00:00:01 |  Q1,04 | P
+->P | HASH       |
+|  67 |                       HASH GROUP BY                        |                              |     1 |    48 |    14   (8)| 00:00:01 |  Q1,04 | P
+CWP |            |
+|  68 |                        NESTED LOOPS                        |                              |    14 |   672 |    13   (0)| 00:00:01 |  Q1,04 | P
+CWP |            |
+|  69 |                         TABLE ACCESS BY INDEX ROWID        | HZ_CUST_ACCOUNTS             |     1 |    38 |     2   (0)| 00:00:01 |  Q1,04 | P
+CWP |            |
+|  70 |                          PX RECEIVE                        |                              |     1 |       |     1   (0)| 00:00:01 |  Q1,04 | P
+CWP |            |
+|  71 |                           PX SEND HASH (BLOCK ADDRESS)     | :TQ10001                     |     1 |       |     1   (0)| 00:00:01 |  Q1,01 | S
+->P | HASH (BLOCK|
+|  72 |                            PX SELECTOR                     |                              |       |       |            |          |  Q1,01 | S
+CWC |            |
+|* 73 |                             INDEX UNIQUE SCAN              | HZ_CUST_ACCOUNTS_U1          |     1 |       |     1   (0)| 00:00:01 |  Q1,01 | S
+CWP |            |
+|  74 |                         TABLE ACCESS BY INDEX ROWID BATCHED| OE_BLANKET_HEADERS_ALL       |    14 |   140 |     2   (0)| 00:00:01 |  Q1,04 | P
+CWP |            |
+|* 75 |                          INDEX RANGE SCAN                  | OE_BLANKET_HEADERS_N1        |    14 |       |     0   (0)| 00:00:01 |  Q1,04 | P
+CWP |            |
+|* 76 |                   INDEX RANGE SCAN                         | OE_BLANKET_LINES_N1          |     1 |       |     0   (0)| 00:00:01 |  Q1,07 | P
+CWP |            |
+|  77 |                  TABLE ACCESS BY INDEX ROWID               | OE_BLANKET_LINES_ALL         |     1 |    19 |     0   (0)| 00:00:01 |  Q1,07 | P
+CWP |            |
+|  78 |              JOIN FILTER USE                               | :BF0000                      |    14M|  4245M| 87882   (2)| 00:00:04 |  Q1,10 | P
+CWP |            |
+|  79 |               PX BLOCK ITERATOR                            |                              |    14M|  4245M| 87882   (2)| 00:00:04 |  Q1,10 | P
+CWC |            |
+|* 80 |                TABLE ACCESS FULL                           | XXPINOE_DELIVERY_DETAILS_ALL |    14M|  4245M| 87882   (2)| 00:00:04 |  Q1,10 | P
+CWP |            |
+|  81 |   BUFFER SORT                                              |                              |     3 |    48 | 88068   (2)| 00:00:04 |        |
+    |            |
+|* 82 |    TABLE ACCESS BY INDEX ROWID BATCHED                     | HZ_CUST_PROFILE_AMTS         |     3 |    48 |     0   (0)| 00:00:01 |        |
+    |            |
+|* 83 |     INDEX RANGE SCAN                                       | HZ_CUST_PROFILE_AMTS_N3      |     1 |       |     0   (0)| 00:00:01 |        |
+    |            |
+------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   2 - access("GDR"."FROM_CURRENCY"=:B1 AND "GDR"."TO_CURRENCY"=:B2 AND "GDR"."CONVERSION_DATE"= (SELECT MAX("CONVERSION_DATE") FROM "APPS"."GL_DAILY_
+RATES"
+              "GDR1" WHERE "GDR1"."CONVERSION_DATE"<=SYSDATE@! AND "GDR1"."TO_CURRENCY"=:B3 AND "GDR1"."FROM_CURRENCY"=:B4 AND "GDR1"."CONVERSION_TYPE
+"=NVL(:B5,'1')) AND
+              "GDR"."CONVERSION_TYPE"=NVL(:B6,'1'))
+   4 - access("GDR1"."FROM_CURRENCY"=:B1 AND "GDR1"."TO_CURRENCY"=:B2 AND "GDR1"."CONVERSION_TYPE"=NVL(:B3,'1') AND "GDR1"."CONVERSION_DATE"<=SYSDATE@
+!)
+       filter("GDR1"."CONVERSION_TYPE"=NVL(:B1,'1'))
+   8 - access("HCA"."CUST_ACCOUNT_ID"="C"."CUST_ACCOUNT_ID"(+))
+  11 - access("HCA"."CUST_ACCOUNT_ID"="B"."CUST_ACCOUNT_ID"(+))
+  19 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  20 - filter("HCP"."SITE_USE_ID" IS NULL)
+  21 - access("HCP"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  31 - access("RCTA"."SET_OF_BOOKS_ID"="GL"."LEDGER_ID")
+  41 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  43 - access("RCTA"."BILL_TO_CUSTOMER_ID"=:CUST_ACCOUNT_ID)
+       filter("RCTA"."CUST_TRX_TYPE_ID"<>1061 AND "RCTA"."CUST_TRX_TYPE_ID"<>1081 AND "RCTA"."CUST_TRX_TYPE_ID"<>1080 AND "RCTA"."CUST_TRX_TYPE_ID"<>1
+062 AND
+              "RCTA"."CUST_TRX_TYPE_ID"<>1125)
+  47 - filter("GL"."LEDGER_CATEGORY_CODE"='PRIMARY')
+  48 - access("RCTA"."CUSTOMER_TRX_ID"="APS"."CUSTOMER_TRX_ID")
+       filter("APS"."CUSTOMER_TRX_ID" IS NOT NULL)
+  57 - access("LINE_ID"="OBL"."LINE_ID" AND "SA_HEADER_ID"="OBL"."HEADER_ID" AND "ORG_ID"="OBL"."ORG_ID")
+  73 - access("HCA"."CUST_ACCOUNT_ID"=:CUST_ACCOUNT_ID)
+  75 - access("OBH"."SOLD_TO_ORG_ID"=:CUST_ACCOUNT_ID)
+  76 - access("OBL"."HEADER_ID"="ITEM_1")
+  80 - filter(NVL("CANCELLED_FLAG",'N')<>'Y' AND SYS_OP_BLOOM_FILTER(:BF0000,"LINE_ID","SA_HEADER_ID","ORG_ID"))
+  82 - filter("CURRENCY_CODE"(+)='USD' AND "SITE_USE_ID"(+) IS NULL)
+  83 - access("CUST_ACCOUNT_ID"(+)=:CUST_ACCOUNT_ID)
+Hint Report (identified by operation id / Query Block Name / Object Alias):
+Total hints for statement: 1 (U - Unused (1))
+---------------------------------------------------------------------------
+   0 -  STATEMENT
+         U -  PARALLEL
+-------------------------------------------------------------------------------
+SQL>
+=====================================================================================================================
+obiee prod db went to restrict :
+
+https://www.dbaplus.ca/2020/10/pluggable-database-opened-with.html
+
+===================================================================================================================
+
+2656252 applmgr   20   0 6064320   3.7g  70472 S 365.7  12.7 485:59.20 java
+   1732 root      20   0 1918376 109956  33892 S   2.6   0.4   1837:56 ampdaemon
+ 592874 applmgr   20   0   67860   4684   3760 R   0.7   0.0   0:00.81 top
+   4043 root      20   0  946964 108768  91712 S   0.3   0.4   6:29.24 ClMgrS
+   4218 nagios    20   0  161988  34132   5008 S   0.3   0.1   8:59.19 ncpa_passive
+====================================================================================================================
+if a request is running long :
+
+to get sql id and sesssion details of request :
+
+
+SELECT r.request_id,
+       s.sid,
+       s.serial#,
+       s.username,
+       s.status,
+       s.sql_id,
+       q.sql_text
+FROM fnd_concurrent_requests r
+JOIN v$session s
+    ON r.oracle_session_id = s.audsid
+LEFT JOIN v$sql q
+    ON s.sql_id = q.sql_id
+WHERE r.request_id = 53832237  
+  AND s.status = 'ACTIVE';
+  
+run awr report and tuning advisor
+=====================================================================================================================
+
+CMS account assignment :
+
+https://docs.google.com/spreadsheets/d/1xhI0kwhnRfaVQ7Auhe7coya3LtA46eixwSFatgmSK54/edit?gid=552118186#gi
+
+customer portal :
+
+https://sites.google.com/itconvergence.com/customerportal/home/
+
+https://drive.google.com/drive/u/0/folders/0AHlyvEzLKktpUk9PVA
+
+weekend handover sheet :
+
+https://docs.google.com/spreadsheets/d/1xDF_IrCddX3WgbpWtLQZc2ktOuUCTxO8sR6LJCuK_aI/edit?gid=233683828#gid=
+
+tower-b server inventory:
+
+https://docs.google.com/spreadsheets/d/1dR7Fz_Cn7kAPt25OZGyjussEsQAksGXg6mrnpBCcXIQ/edit?gid=1037505270#gid=1037505270
+
+nova :
+
+https://portal.novabenefits.com/login/logout
+
+weekend dba meeting :
+
+https://meet.google.com/stb-omfa-jqs
+
+pinterest okta :
+
+https://pinterest.okta.com/
+
+one login :
+
+https://itconvergence.onelogin.com/login2/?return=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmZl9tdWx0aXBsZV9icmFuZHMiOmZhbHNlLCJpc3MiOiJNT05PUkFJTCIsInVyaSI6Imh0dHBzOi8vaXRjb252ZXJnZW5jZS5vbmVsb2dpbi5jb20vIiwiYXVkIjoiQUNDRVNTIiwiYnJhbmRfaWQiOiJtYXN0ZXIiLCJleHAiOjE3MTE1NDEwMDQsInBhcmFtcyI6e30sIm1ldGhvZCI6ImdldCJ9.gWteJ63LGGBVxFc9_-r8l3REvBKSv2SZcY4zcm1ViuU#app=
+
+Hosting team roaster :
+
+https://docs.google.com/spreadsheets/d/1MhWMg94uPwpW69VYZNIm6_7LvFeu_SPOgi7HggZoNLk/edit?gid=693808743#gid=693808743
+
+shift schedule :
+
+https://docs.google.com/spreadsheets/d/1cDGqH-XmaGa4PaF0425TauG9Wz4sf5Ul/edit?gid=1624965520#gid=1624965520
+
+Shift-A hand off meet :
+
+https://meet.google.com/fvb-gbvy-qws?authuser=0
+
+Shift-B hand off meet :
+
+https://meet.google.com/egq-pzwe-aeq
+
+Shift-C hand off meet :
+
+https://meet.google.com/bni-ybdd-qmg
+
+Oracle support :
+
+https://support.oracle.com/signin?page=shell&shell=main&main=main-signin-no-tenancy
+
+dba team leave request :
+
+https://docs.google.com/spreadsheets/d/1HoLepdNTS8HEdkPYhajk-VmHyS3TN0KRfw4ZbgMThbA/edit?pli=1&gid=0#gid=0
