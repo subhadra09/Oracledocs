@@ -1,0 +1,184 @@
+Database alert log:
+
+Login into server and directed to the orauser
+Execute adcri cmd
+select the correct instance num
+Check With ora number and take jobid
+
+
+To check the status of error with job id:
+col LOG_USER for a20
+col PRIV_USER for a30
+col SCHEMA_USER for a30
+col WHAT for a20
+set lines 200
+select JOB,LOG_USER,PRIV_USER,SCHEMA_USER,WHAT,FAILURES from dba_jobs where job in (44985);
+
+
+ORA-01555: snapshot too old: rollback segment number string with name "string" too small
+Cause: Rollback records needed by a reader for consistent read are overwritten by other writers.
+Action: If in Automatic Undo Management mode, increase the setting of UNDO_RETENTION. Otherwise, use larger rollback segments.
+
+This error can be the result of there being insufficient rollback segments.
+
+A query may not be able to create the snapshot because the rollback data is not available. This can happen when there are many transactions that are modifying data, and performing commits and rollbacks. Rollback data is overwritten when the rollback segments are too small for the size and number of changes that are being performed.
+
+To correct this problem, make more larger rollback segments available. Your rollback data for completed transactions will be kept longer.
+
+Option #2
+This error can be the result of programs not closing cursors after repeated FETCH and UPDATE statements.
+
+To correct this problem, make sure that you are closing cursors when you no longer require them.
+
+Option #3
+This error can occur if a FETCH is executed after a COMMIT is issued.
+
+The number of rollback records created since the last CLOSE of your cursor will fill the rollback segments and you will begin overwriting earlier records.
+
+
+
+ORA-19815:
+
+
+
+
+ORA-06510:Error is related to the code. As the error is not being reported often, we can disregard it.
+
+Description
+When you encounter an ORA-06510 error, the following error message will appear:
+
+ORA-06510: unhandled user-defined exception
+Cause
+You tried to execute a block of code that raised a user-defined exception, but there was no exception block code to handle this exception.
+
+Resolution
+The option(s) to resolve this Oracle error are:
+
+Option #1
+Remove the user-defined exception from the code.
+
+
+Description
+When you encounter an ORA-06510 error, the following error message will appear:
+
+ORA-06510: unhandled user-defined exception
+Cause
+You tried to execute a block of code that raised a user-defined exception, but there was no exception block code to handle this exception.
+
+
+
+
+The ORA-07445 is a very generic error, OS dependent, and almost always requires logging a service request (SR) with Oracle Technical support on MOSC. 
+
+See MOSC Note 153788.1 titled "Troubleshoot an ORA-600 or ORA-7445 Error Using the Error Lookup Tool" to find the details for your error.
+
+In general, an "exception" is an un-trapped error, such as dividing a number by zero.  The docs note:
+
+Error: ORA-07445 exception encountered: core dump
+
+Cause : An operating system exception occurred which should result in the creation of a core file. This is an internal error.
+
+Action : Contact Oracle Customer Support.
+
+Common precipitators of the ORA-07445 include:
+
+High volume user transactions
+ 
+Software bugs (i.e. Bug 4098853).  See note 342443.1 on MOSC.
+ 
+Too-small RAM regions (shared_pool_size, java pool, large_pool_size), and a too-small application memory stack (e.g. PL/SQL array too small)
+ 
+Too small undo and temp segments
+ 
+Program errors (addressing outside of RAM region), e.g. S0C4.
+ 
+Improper NLS parameter settings
+ 
+Hardware errors
+ 
+Oracle block corruption
+
+and a host of other related issues. 
+Oracle DBA's use alert mechanisms to send an e-mail to the DBA when ORA-07445 errors occur, e-mailing the associated core dump file.  MOSC now offers an ORA-7445 search tool, as described in MOSC note Note:208922.1, and you can supply details from the Oracle trace file to see the exact cause. 
+
+Other common causes of the ORA-07445 include:
+
+
+ ORA-48170: unable to lock file - already in use
+ 
+ 
+To check job status:
+col OWNER for a20 
+col JOB_NAME for a25
+col ACTUAL_START_DATE for a30
+col ADDITIONAL_INFO for a25
+col STATUS for a20
+select OWNER,JOB_NAME,STATUS,ERROR#,ACTUAL_START_DATE,ADDITIONAL_INFO from  ALL_SCHEDULER_JOB_RUN_DETAILS where JOB_NAME='JSCUTL1' order by ACTUAL_START_DATE;
+
+
+
+
+
+
+
+
+
+
+
+Fri Dec 24 03:06:37 2021
+Completed checkpoint up to RBA [0x3d7b0.2.10], SCN: 10251518032166
+Completed checkpoint up to RBA [0x3d7b1.2.10], SCN: 10251518033650
+Fri Dec 24 03:08:34 2021
+Errors in file /us1101/app/oracle/diag/rdbms/prodebs/PRODEBS/trace/PRODEBS_q004_108670.trc:
+ORA-00932: inconsistent datatypes: expected NUMBER got ROWID
+Fri Dec 24 03:11:36 2021
+Incremental checkpoint up to RBA [0x3d7b1.52ee3.0], current log tail at RBA [0x3d7b1.6210d.0]
+Fri Dec 24 03:11:51 2021
+FAST_START_MTTR_TARGET 300 is set too low, using minimum achievable MTTR 301 instead.
+
+
+
+*** 2021-12-24 03:08:34.874
+*** SESSION ID:(7167.20134) 2021-12-24 03:08:34.874
+*** CLIENT ID:() 2021-12-24 03:08:34.874
+*** SERVICE NAME:(SYS$BACKGROUND) 2021-12-24 03:08:34.874
+*** MODULE NAME:(Streams) 2021-12-24 03:08:34.874
+*** CLIENT DRIVER:() 2021-12-24 03:08:34.874
+*** ACTION NAME:(QMON Slave) 2021-12-24 03:08:34.874
+
+kwqicaclcur: Error 604
+             Error(2) 932
+             Cursor Session Number : 7238
+             Cursor Session Serial : 18331
+             Cursor Pin     Number : 0
+kwqitmmit during kwqitmmit:time mgr IOT proc: Error 932 in Queue Table APPLSYS.WF_NOTIFICATION_OUT
+kwqicaclcur: Error 932
+             Cursor Session Number : 7238
+             Cursor Session Serial : 18331
+             Cursor Pin     Number : 16793609
+kwqitmmit during kwqitmmit:end proc: Error 932 in Queue Table APPLSYS.WF_NOTIFICATION_OUT
+kwqitptmcb: error 932 encountered during serving 12771109
+KSV 932 error in slave process
+
+
+
+
+
+ORA-27037:unable to obtain file status
+This ORA-27037 error is related with the Stat system call returned an error. Additional information indicates which function encountered the error.
+
+It's a missing file, usually an archived redo log or a parm file:
+
+ORA-27037: unable to obtain file status
+
+Cause: Stat system call returned an error. Additional information indicates
+which function encountered the error.
+
+Action: Examine errno.
+ 
+
+Run the following command to solve the problem.
+
+RMAN> crosscheck archivelog all;
+RMAN> delete expired archivelog all;
+RMAN> resync catalog;

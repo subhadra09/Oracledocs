@@ -1,0 +1,600 @@
+Long Running and current request list 
+
+ >
+Request status : set echo off pages 100 lines 202 
+column REQUEST heading 'Request' format a9 
+column PHASE heading 'Phase' format A8 
+column STATUS heading 'Status' format A8 
+column PROGRAM heading 'Program Name' format A60 
+column SHORT heading 'Short Name' format A15 
+column REQUESTOR heading 'Requestor' format A15 
+column START_TIME heading 'Start Time' format A15 
+column RUN_TIME justify left heading 'Time(e)' format 999999.9 
+column OSPID heading 'OSPID' format a6 
+column OS_PIDa heading 'OSPIDA' format a6 
+column SID heading 'SID' format 99999 
+column serial# heading 'Serial#' format 99999 
+select substr(fcrv.request_id,1,9)REQUEST, 
+decode(fcrv.phase_code,'P','Pending','R','Running','I','Inactive','Completed')PHASE, 
+decode(fcrv.status_code, 
+'A','Waiting', 
+'B','Resuming', 
+'C','Normal', 
+'F','Scheduled', 
+'G','Warning', 
+'H','On Hold', 
+'I','Normal', 
+'M','No Manager', 
+'Q','Standby', 
+'R','Normal', 
+'S','Suspended', 
+'T','Terminating', 
+'U','Disabled', 
+'W','Paused', 
+'X','Terminated', 
+'Z','Waiting',fcrv.status_code)STATUS, 
+substr(fcrv.program,1,60)PROGRAM, 
+substr(fcrv.PROGRAM_SHORT_NAME,1,15)SHORT, 
+substr(fcrv.requestor,1,15)REQUESTOR, 
+-- to_char(fcrv.actual_start_date,'MM/DD/RR HH24:MI')START_TIME, 
+round(((sysdate - fcrv.actual_start_date)*1440),1)RUN_TIME, 
+substr(fcr.oracle_process_id,1,7)OSPID, 
+s.sid,s.serial# 
+--substr(fcr.os_process_id,1,7)OS_PIDa 
+from apps.fnd_conc_req_summary_v fcrv, 
+apps.fnd_concurrent_requests fcr, 
+v$session s, 
+v$process p 
+where fcrv.phase_code = 'R' 
+and fcrv.request_id = fcr.request_id 
+and s.paddr = p.addr 
+and fcr.oracle_process_id = p.spid 
+and fcrv.concurrent_program_id not in ('40112','40113','36887') 
+--andÂ trunc(fcrv.actual_start_date) like trunc(sysdate) 
+order by PHASE, STATUS, REQUEST desc;
+
+
+For RAC:
+
+column request format a55
+set linesize 160
+set pagesize 80
+column requestor format a15
+col short format a25
+col queue format a15
+set feedback off
+select fcwr.request_id||' - '||fcwr.User_CONCURRENT_PROGRAM_name request,fcp.CONCURRENT_PROGRAM_name short,
+gvs.sid,SERIAL#, v.requestor,substr(fcwr.CONCURRENT_QUEUE_NAME,1,15) Queue,
+        fcwr.phase_code,
+        fcwr.status_code,
+        round((sysdate - fcwr.actual_start_date),3)*1440 run_time
+   -- (sysdate - logon_time) *1440 life
+-- last_call_et/60 st_run,
+--        decode(gvw.WAIT_TIME
+--               ,0,gvw.seconds_in_wait
+--              ,-1,gvw.seconds_in_wait
+--             ,( (gvw.seconds_in_wait - gvw.wait_time) /100 ) ) wait,
+--    decode(gvw.state,'WAITING',gvw.event,null,null,'ON CPU') event
+--  , gvsa.sql_id
+--  , disk_reads/decode(executions,0,1,executions) physio,buffer_gets/decode(executions,0,1,executions) Logio, executions
+-- , fcwr.ARGUMENT_TEXT
+-- , gvsa.sql_text
+--  ,'exec dbms_monitor.session_trace_enable('||gvs.sid||','||gvs.serial#||',true,true);'
+from apps.fnd_concurrent_worker_requests fcwr, apps.fnd_concurrent_programs fcp,
+        gv$session gvs,gv$session_wait gvw,gv$sqlarea gvsa,apps.fnd_conc_req_summary_v v
+where fcwr.REQUESTED_START_DATE<sysdate
+and gvs.audsid(+)=fcwr.oracle_session_id
+and gvs.inst_id=gvw.inst_id(+)
+and gvs.sid=gvw.sid(+)
+and fcwr.request_id=v.request_id
+and CONCURRENT_QUEUE_NAME not in ( 'FNDCRM','CUST_ZEXEC')
+and fcp.CONCURRENT_PROGRAM_name not in ('XBOL_MCANALYZE')
+and fcwr.actual_start_date is not null
+and fcwr.status_code='R'
+and fcwr.HOLD_FLAG='N'
+and round(( sysdate - fcwr.actual_start_date),3)*1440 > 60
+and fcwr.PROGRAM_APPLICATION_ID=fcp.APPLICATION_ID
+and fcwr.concurrent_program_id=fcp.concurrent_program_id
+and gvsa.hash_value(+)=gvs.sql_hash_value
+and gvsa.inst_id(+)=gvs.inst_id
+order by 8 desc;
+
+ 
+
+To see status:
+select  REQUEST_ID, PHASE_CODE, STATUS_CODE from apps.fnd_concurrent_requests where REQUEST_ID=&no;
+
+To see Program name with ID:
+Select program from apps.FND_CONC_REQ_SUMMARY_V where request_id ='100258308';
+
+
+W0rkfL0w
+To see previous request:
+set lines 200
+col "Program Name" for a40
+SELECT /*+ rule */
+      rq.request_id                          "Req. ID",
+      tl.user_concurrent_program_name        "Program Name",
+      rq.actual_start_date                   "Start Date",
+      rq.actual_completion_date              "Completion Date",
+      ROUND((rq.actual_completion_date -
+          rq.actual_start_date) * 1440, 2)   "Runtime (in Minutes)"      
+ FROM applsys.fnd_concurrent_programs_tl  tl,
+      applsys.fnd_concurrent_requests     rq
+WHERE tl.application_id        = rq.program_application_id
+  AND tl.concurrent_program_id = rq.concurrent_program_id
+  AND tl.LANGUAGE              = USERENV('LANG')
+  AND rq.actual_start_date IS NOT NULL
+  AND rq.actual_completion_date IS NOT NULL
+  AND tl.user_concurrent_program_name = 'WBT%Analysis';
+  
+  
+  
+  set lines 200
+col "Program Name" for a40
+SELECT /*+ rule */
+      rq.parent_request_id                   "Parent Req. ID",
+      rq.request_id                          "Req. ID",
+      tl.user_concurrent_program_name        "Program Name",
+      rq.actual_start_date                   "Start Date",
+      rq.actual_completion_date              "Completion Date",
+      ROUND((rq.actual_completion_date -
+          rq.actual_start_date) * 1440, 2)   "Runtime (in Minutes)"      
+ FROM applsys.fnd_concurrent_programs_tl  tl,
+      applsys.fnd_concurrent_requests     rq
+WHERE tl.application_id        = rq.program_application_id
+  AND tl.concurrent_program_id = rq.concurrent_program_id
+  AND tl.LANGUAGE              = USERENV('LANG')
+  AND rq.actual_start_date IS NOT NULL
+  AND rq.actual_completion_date IS NOT NULL
+  AND tl.user_concurrent_program_name = 'Report Set' and rq.request_id='&req_id';
+  
+  
+  
+To get requestor, phase & status using request id :
+
+set lines 200
+col REQUESTOR for a25
+col USER_CONCURRENT_PROGRAM_NAME for a55
+select REQUEST_ID,PHASE_CODE,STATUS_CODE,USER_CONCURRENT_PROGRAM_NAME,REQUESTOR from apps.fnd_conc_requests_form_v where request_id='60351880';
+
+
+set lines 200
+col REQUESTOR for a25
+col USER_CONCURRENT_PROGRAM_NAME for a55
+select REQUEST_ID,PHASE_CODE,STATUS_CODE,USER_CONCURRENT_PROGRAM_NAME,REQUESTOR, parent_request_id from apps.fnd_conc_requests_form_v where request_id='83921689';
+  
+  
+select REQUEST_ID,LAST_UPDATE_DATE,REQUEST_DATE,REQUESTED_BY,PHASE_CODE,STATUS_CODE from apps.fnd_concurrent_requests where REQUEST_ID in(
+21879060);
+ITC4@Uei
+
+
+To terminate the request:
+ 
+update apps.fnd_concurrent_requests set phase_code='C',status_code='X' where request_id=21956726; 
+
+To see the user who has terminated the request:
+set lines 999
+col REQUESTOR for a25
+col USER_CONCURRENT_PROGRAM_NAME for a55
+col COMPLETION_TEXT for a40
+select REQUEST_ID,PHASE_CODE,STATUS_CODE,USER_CONCURRENT_PROGRAM_NAME,REQUESTOR,COMPLETION_TEXT from apps.fnd_conc_requests_form_v where request_id='&req_id';
+
+
+
+To see previous runs with parameters:
+
+set lines 205
+col ARGUMENT_TEXT for a47
+col USER_CONCURRENT_PROGRAM_NAME for a47
+SELECT a.request_id,b.user_concurrent_program_name,to_char(a.actual_start_date,'DD-MON-RR HH24:MI:SS'),to_char(a.actual_completion_date,'DD-MON-RR HH24:MI:SS'),
+decode(a.phase_code,'R','Running','P','Inactive','C','Completed', a.phase_code),
+decode(a.status_code,'E','Error',   'C','Normal',    'X','Terminated', 'Q','On Hold', 'D','Cancelled', 'G','Warning', 'R','Normal',  'W', 'Paused',   a.status_code),a.ARGUMENT_TEXT FROM apps.fnd_concurrent_programs_vl b,apps.fnd_concurrent_requests a
+WHERE  a.concurrent_program_id = b.concurrent_program_id and b.user_concurrent_program_name like 'UGNX: GL Analytics%';
+
+  
+
+set lines 205
+col ARGUMENT_TEXT for a47
+col USER_CONCURRENT_PROGRAM_NAME for a47
+SELECT 
+a.request_id,
+b.user_concurrent_program_name,
+a.actual_start_date,
+ROUND((a.actual_completion_date - a.actual_start_date) * 1440, 2) as Run_Time, 
+decode(a.phase_code,'R','Running','P','Inactive','C','Completed', a.phase_code),
+decode(a.status_code,'E','Error',   'C','Normal',    'X','Terminated', 'Q','On Hold', 'D','Cancelled', 'G','Warning', 'R','Normal',  'W', 'Paused',   a.status_code),a.ARGUMENT_TEXT 
+FROM apps.fnd_concurrent_programs_vl b,apps.fnd_concurrent_requests a
+WHERE  a.concurrent_program_id = b.concurrent_program_id and b.user_concurrent_program_name like '%AutoReconciliation%' order by a.actual_start_date;
+
+
+
+
+set lines 205
+col ARGUMENT_TEXT for a47
+col USER_CONCURRENT_PROGRAM_NAME for a47
+SELECT 
+a.request_id,
+b.user_concurrent_program_name,
+a.actual_start_date,
+ROUND((a.actual_completion_date - a.actual_start_date) * 1440, 2) as Run_Time, 
+decode(a.phase_code,'R','Running','P','Inactive','C','Completed', a.phase_code),
+decode(a.status_code,'E','Error',   'C','Normal',    'X','Terminated', 'Q','On Hold', 'D','Cancelled', 'G','Warning', 'R','Normal',  'W', 'Paused',   a.status_code),a.ARGUMENT_TEXT 
+FROM apps.fnd_concurrent_programs_vl b,apps.fnd_concurrent_requests a
+WHERE  a.concurrent_program_id = b.concurrent_program_id and b.user_concurrent_program_name like '%GLO Ukraine - Load NBU Exchange Rates' order by a.actual_start_date desc;
+
+  
+set lines 205
+col ARGUMENT_TEXT for a47
+col USER_CONCURRENT_PROGRAM_NAME for a47
+SELECT 
+a.request_id,
+b.user_concurrent_program_name,
+a.actual_start_date,
+decode(a.phase_code,'R','Running','P','Inactive','C','Completed', a.phase_code),
+decode(a.status_code,'E','Error',   'C','Normal',    'X','Terminated', 'Q','On Hold', 'D','Cancelled', 'G','Warning', 'R','Normal',  'W', 'Paused',   a.status_code),a.ARGUMENT_TEXT 
+FROM apps.fnd_concurrent_programs_vl b,apps.fnd_concurrent_requests a
+WHERE  a.concurrent_program_id = b.concurrent_program_id and REQUEST_ID='&req_id';  
+
+
+Find SID using request id:
+
+SELECT a.request_id, d.sid, d.serial# ,d.osuser,d.process , c.SPID ,d.inst_id
+FROM apps.fnd_concurrent_requests a,
+apps.fnd_concurrent_processes b,
+gv$process c,
+gv$session d
+WHERE a.controlling_manager = b.concurrent_process_id
+AND c.pid = b.oracle_process_id
+AND b.session_id=d.audsid
+AND a.request_id =&req_id
+AND a.phase_code = 'R';
+
+
+set lines 205
+col ARGUMENT_TEXT for a47
+col USER_CONCURRENT_PROGRAM_NAME for a47
+SELECT 
+a.request_id,
+b.user_concurrent_program_name,
+a.actual_start_date,
+ROUND((a.actual_completion_date - a.actual_start_date) * 1440, 2) as Run_Time, 
+decode(a.phase_code,'R','Running','P','Inactive','C','Completed', a.phase_code),
+decode(a.status_code,'E','Error',   'C','Normal',    'X','Terminated', 'Q','On Hold', 'D','Cancelled', 'G','Warning', 'R','Normal',  'W', 'Paused',   a.status_code),a.ARGUMENT_TEXT 
+FROM apps.fnd_concurrent_programs_vl b,apps.fnd_concurrent_requests a
+WHERE  a.concurrent_program_id = b.concurrent_program_id and b.user_concurrent_program_name like '%Report Set%' and REQUEST_ID='&req_id';
+
+
+To check pending requests count:
+
+select COUNT (distinct cwr.request_id) Peding_Requests FROM apps.fnd_concurrent_worker_requests cwr, apps.fnd_concurrent_queues_tl cq, apps.fnd_user fu WHERE (cwr.phase_code = 'P' OR cwr.phase_code = 'R') AND cwr.hold_flag != 'Y' AND cwr.requested_start_date <= SYSDATE AND cwr.concurrent_queue_id = cq.concurrent_queue_id AND cwr.queue_application_id = cq.application_id and cq.LANGUAGE='US' 
+AND cwr.requested_by = fu.user_id and cq.user_concurrent_queue_name 
+in ( select unique user_concurrent_queue_name from apps.fnd_concurrent_queues_tl);
+
+
+
+To check Parent request:
+
+
+select request_id ,
+  user_concurrent_program_name ,
+ DECODE(phase_code,'C','Completed',phase_code) phase_code,
+  DECODE(status_code,'D', 'Cancelled','E', 'Error' , 'G', 'Warning', 'H',
+  'On Hold' , 'T', 'Terminating', 'M', 'No Manager' , 'X', 'Terminated', 'C',
+  'Normal', status_code) status_code,
+  request_date ,
+  requested_start_date ,
+  actual_completion_date,
+  parent_request_id ,
+  ARGUMENT_TEXT
+  from apps.FND_CONC_REQ_SUMMARY_V
+  where priority_REQUEST_ID=125284032
+  order by request_id;
+
+
+a) Concurrent Request Log:
+select logfile_name from apps.fnd_concurrent_requests where request_id ='&req_id';
+
+b) Concurrent Output file:
+select outfile_name from fnd_concurrent_requests where request_id ='&req_id';
+
+
+To get email id of user:
+select USER_NAME,EMAIL_ADDRESS from apps.fnd_user where USER_NAME like '&1';
+
+
+To get the spid of request:
+select oracle_process_id from apps.fnd_concurrent_requests where request_id=23251022;
+
+
+To get the udump location:
+SQL>SELECT name,value from v$parameter WHERE name like 'user_dump_dest';
+
+
+
+
+
+To see responsibility of program:
+
+SELECT frt.responsibility_name, frg.request_group_name,
+    frgu.request_unit_type,frgu.request_unit_id,
+    fcpt.user_concurrent_program_name
+    FROM fnd_Responsibility fr, fnd_responsibility_tl frt,
+    fnd_request_groups frg, fnd_request_group_units frgu,
+    fnd_concurrent_programs_tl fcpt
+    WHERE frt.responsibility_id = fr.responsibility_id
+    AND frg.request_group_id = fr.request_group_id
+    AND frgu.request_group_id = frg.request_group_id
+    AND fcpt.concurrent_program_id = frgu.request_unit_id
+    AND frt.LANGUAGE = USERENV('LANG')
+    AND fcpt.LANGUAGE = USERENV('LANG')
+    AND fcpt.user_concurrent_program_name ='Revenue Recognition Master Program'
+    ORDER BY 1,2,3,4;
+	
+	
+To see responsibility with request:
+
+select c.request_id, r.responsibility_name
+from fnd_responsibility_vl r, fnd_concurrent_requests c
+where c.request_id = 106765679
+and c.responsibility_application_id = r.application_id
+and c.responsibility_id = r.responsibility_id	
+
+
+
+
+
+
+
+select REQUEST_ID,LAST_UPDATE_DATE,REQUEST_DATE,REQUESTED_BY,PHASE_CODE,STATUS_CODE from apps.fnd_concurrent_requests where REQUEST_ID in(
+40275325,
+40275322,
+40275314);
+  
+
+EiS reports self cancel after 10 hours---> For AMR
+
+
+For RVBD-Adapter Startup Program;
+
+Hi Team,
+As per previous instructions from DBA team
+
+Customer update: This request needs to be run when ever the DB is running
+
+Hence we are closing this alert.
+ 
+
+
+For EXTN - Cost Manager Programe
+
+It is a scheduled request which runs in every 5 min
+
+
+Customer Update:This is a normal thing. It just runs and runs and runs (every 5 min) and spawns “Actual Cost Worker” as it needs to, but it doesn’t actually reschedule itself.
+
+For WTW - WTW NA Payroll Process Wrapper Program: We need to monitor this request untill it completes.
+
+,
+
+
+update apps.fnd_concurrent_requests set phase_code='C',status_code='X' where request_id=64103015; 
+
+
+21support1TC%
+21support1TC%
+
+select REQUEST_ID,LAST_UPDATE_DATE,REQUEST_DATE,REQUESTED_BY,PHASE_CODE,STATUS_CODE from apps.fnd_concurrent_requests where REQUEST_ID in(
+155486221);
+select FILE#,name from v$datafile where FILE#=224;
+
+
+SQL> desc apps.fnd_conc_requests_form_v
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ROW_ID                                             ROWID
+ REQUEST_ID                                NOT NULL NUMBER(15)
+ PHASE_CODE                                NOT NULL VARCHAR2(1)
+ STATUS_CODE                               NOT NULL VARCHAR2(1)
+ PRIORITY_REQUEST_ID                       NOT NULL NUMBER(15)
+ PRIORITY                                  NOT NULL NUMBER(15)
+ REQUEST_DATE                              NOT NULL DATE
+ REQUESTED_BY                              NOT NULL NUMBER(15)
+ REQUESTED_START_DATE                      NOT NULL DATE
+ HOLD_FLAG                                 NOT NULL VARCHAR2(1)
+ ENFORCE_SERIALITY_FLAG                    NOT NULL VARCHAR2(1)
+ SINGLE_THREAD_FLAG                        NOT NULL VARCHAR2(1)
+ HAS_SUB_REQUEST                           NOT NULL VARCHAR2(1)
+ IS_SUB_REQUEST                            NOT NULL VARCHAR2(1)
+ IMPLICIT_CODE                             NOT NULL VARCHAR2(1)
+ UPDATE_PROTECTED                          NOT NULL VARCHAR2(1)
+ QUEUE_METHOD_CODE                         NOT NULL VARCHAR2(1)
+ ARGUMENT_INPUT_METHOD_CODE                NOT NULL VARCHAR2(1)
+ ORACLE_ID                                 NOT NULL NUMBER(15)
+ PROGRAM_APPLICATION_ID                    NOT NULL NUMBER(15)
+ CONCURRENT_PROGRAM_ID                     NOT NULL NUMBER(15)
+ RESPONSIBILITY_APPLICATION_ID             NOT NULL NUMBER(15)
+ RESPONSIBILITY_ID                         NOT NULL NUMBER(15)
+ NUMBER_OF_ARGUMENTS                       NOT NULL NUMBER(3)
+ NUMBER_OF_COPIES                          NOT NULL NUMBER(15)
+ SAVE_OUTPUT_FLAG                          NOT NULL VARCHAR2(1)
+ LAST_UPDATE_DATE                          NOT NULL DATE
+ LAST_UPDATED_BY                           NOT NULL NUMBER(15)
+ LAST_UPDATE_LOGIN                                  NUMBER(15)
+ PRINTER                                            VARCHAR2(30)
+ PRINT_STYLE                                        VARCHAR2(30)
+ PRINT_GROUP                                        VARCHAR2(1)
+ REQUEST_CLASS_APPLICATION_ID                       NUMBER(15)
+ CONCURRENT_REQUEST_CLASS_ID                        NUMBER(15)
+ PARENT_REQUEST_ID                                  NUMBER(15)
+ CONC_LOGIN_ID                                      NUMBER(15)
+ LANGUAGE_ID                                        NUMBER(15)
+ DESCRIPTION                                        VARCHAR2(240)
+ REQ_INFORMATION                                    VARCHAR2(240)
+ RESUBMIT_INTERVAL                                  NUMBER(15,10)
+ RESUBMIT_INTERVAL_UNIT_CODE                        VARCHAR2(30)
+ RESUBMIT_INTERVAL_TYPE_CODE                        VARCHAR2(30)
+ RESUBMIT_TIME                                      VARCHAR2(8)
+ RESUBMIT_END_DATE                                  DATE
+ RESUBMITTED                                        VARCHAR2(1)
+ CONTROLLING_MANAGER                                NUMBER(15)
+ ACTUAL_START_DATE                                  DATE
+ ACTUAL_COMPLETION_DATE                             DATE
+ COMPLETION_TEXT                                    VARCHAR2(240)
+ OUTCOME_PRODUCT                                    VARCHAR2(20)
+ OUTCOME_CODE                                       NUMBER(15)
+ CPU_SECONDS                                        NUMBER(15,3)
+ LOGICAL_IOS                                        NUMBER(15)
+ PHYSICAL_IOS                                       NUMBER(15)
+ LOGFILE_NAME                                       VARCHAR2(255)
+ LOGFILE_NODE_NAME                                  VARCHAR2(30)
+ OUTFILE_NAME                                       VARCHAR2(255)
+ OUTFILE_NODE_NAME                                  VARCHAR2(30)
+ ARGUMENT_TEXT                                      VARCHAR2(240)
+ ARGUMENT1                                          VARCHAR2(240)
+ ARGUMENT2                                          VARCHAR2(240)
+ ARGUMENT3                                          VARCHAR2(240)
+ ARGUMENT4                                          VARCHAR2(240)
+ ARGUMENT5                                          VARCHAR2(240)
+ ARGUMENT6                                          VARCHAR2(240)
+ ARGUMENT7                                          VARCHAR2(240)
+ ARGUMENT8                                          VARCHAR2(240)
+ ARGUMENT9                                          VARCHAR2(240)
+ ARGUMENT10                                         VARCHAR2(240)
+ ARGUMENT11                                         VARCHAR2(240)
+ ARGUMENT12                                         VARCHAR2(240)
+ ARGUMENT13                                         VARCHAR2(240)
+ ARGUMENT14                                         VARCHAR2(240)
+ ARGUMENT15                                         VARCHAR2(240)
+ ARGUMENT16                                         VARCHAR2(240)
+ ARGUMENT17                                         VARCHAR2(240)
+ ARGUMENT18                                         VARCHAR2(240)
+ ARGUMENT19                                         VARCHAR2(240)
+ ARGUMENT20                                         VARCHAR2(240)
+ ARGUMENT21                                         VARCHAR2(240)
+ ARGUMENT22                                         VARCHAR2(240)
+ ARGUMENT23                                         VARCHAR2(240)
+ ARGUMENT24                                         VARCHAR2(240)
+ ARGUMENT25                                         VARCHAR2(240)
+ NLS_LANGUAGE                                       VARCHAR2(30)
+ NLS_TERRITORY                                      VARCHAR2(30)
+ CRM_THRSHLD                                        NUMBER(15)
+ CRM_TSTMP                                          DATE
+ CRITICAL                                           VARCHAR2(1)
+ REQUEST_TYPE                                       VARCHAR2(1)
+ ORACLE_PROCESS_ID                                  VARCHAR2(30)
+ ORACLE_SESSION_ID                                  NUMBER(15)
+ OS_PROCESS_ID                                      VARCHAR2(240)
+ PRINT_JOB_ID                                       VARCHAR2(240)
+ OUTPUT_FILE_TYPE                                   VARCHAR2(4)
+ RELEASE_CLASS_APP_ID                               NUMBER
+ RELEASE_CLASS_ID                                   NUMBER
+ STALE_DATE                                         DATE
+ CANCEL_OR_HOLD                                     VARCHAR2(1)
+ NOTIFY_ON_PP_ERROR                                 VARCHAR2(255)
+ NLS_COMPLIANT                             NOT NULL VARCHAR2(1)
+ CD_ID                                              NUMBER
+ REQUEST_LIMIT                                      VARCHAR2(1)
+ CRM_RELEASE_DATE                                   DATE
+ POST_REQUEST_STATUS                                VARCHAR2(1)
+ COMPLETION_CODE                                    VARCHAR2(30)
+ INCREMENT_DATES                                    VARCHAR2(1)
+ RESTART                                            VARCHAR2(1)
+ ENABLE_TRACE                                       VARCHAR2(1)
+ RESUB_COUNT                                        NUMBER
+ NLS_CODESET                                        VARCHAR2(30)
+ OFILE_SIZE                                         NUMBER(15)
+ LFILE_SIZE                                         NUMBER(15)
+ STALE                                              VARCHAR2(1)
+ SECURITY_GROUP_ID                                  NUMBER
+ USER_CD_NAME                                       VARCHAR2(240)
+ PROGRAM_SHORT_NAME                                 VARCHAR2(30)
+ EXECUTION_METHOD_CODE                              VARCHAR2(1)
+ FCP_QUEUE_METHOD_CODE                              VARCHAR2(1)
+ QUEUE_CONTROL_FLAG                                 VARCHAR2(1)
+ RUN_ALONE                                          VARCHAR2(1)
+ ENABLED                                            VARCHAR2(1)
+ SRS_FLAG                                           VARCHAR2(1)
+ PROGRAM                                            VARCHAR2(483)
+ USER_CONCURRENT_PROGRAM_NAME                       VARCHAR2(240)
+ FCP_PRINTER                                        VARCHAR2(30)
+ FCP_PRINT_STYLE                                    VARCHAR2(30)
+ FCP_REQUIRED_STYLE                                 VARCHAR2(1)
+ APPLICATION_SHORT_NAME                             VARCHAR2(50)
+ APPLICATION_NAME                                   VARCHAR2(240)
+ REQUESTOR                                          VARCHAR2(100)
+ USER_PRINT_STYLE                                   VARCHAR2(80)
+ PARENT                                             VARCHAR2(40)
+ RESUBMIT_INTERVAL_UNIT                             VARCHAR2(80)
+ RESUBMIT_INTERVAL_TYPE                             VARCHAR2(80)
+ UPDATED_BY_NAME                                    VARCHAR2(100)
+ ATTRIBUTE_ORDER                                    VARCHAR2(4000)
+ LANGUAGE                                           VARCHAR2(255)
+ ORG_ID                                             NUMBER(15)
+ OPERATING_UNIT                                     VARCHAR2(240)
+ SCH_APP_ID                                         NUMBER
+ SCH_ID                                             NUMBER
+ SCH_NAME                                           VARCHAR2(20)
+ SCH_DESCRIPTION                                    VARCHAR2(80)
+ SCH_DATE1                                          DATE
+ SCH_DATE2                                          DATE
+ SCH_TYPE                                           VARCHAR2(1)
+ SCH_CURR_VALUES                                    VARCHAR2(64)
+ SCH_OWNER_REQ_ID                                   NUMBER
+ SCH_EXISTS                                         NUMBER
+ SCH_PERM                                           NUMBER
+
+
+
+
+
+
+
+
+REQUEST_ID P S USER_CONCURRENT_PROGRAM_NAME                            REQUESTOR
+---------- - - ------------------------------------------------------- -------------------------
+ 125975551 C E WBT Intransit Value Report (XML)                        CL57724
+
+ 125975552 C E WBT Intransit Value Report (XML)                        CL57724
+
+
+
+
+
+REQUEST_ID USER_CONCURRENT_PROGRAM_NAME                    ACTUAL_START_DA Time(e)   DECODE(A. DECODE(A.S ARGUMENT_TEXT
+---------- ----------------------------------------------- --------------- --------- --------- ---------- -----------------------------------------------
+ 154394718 AutoReconciliation                              25-JAN-22            24.4 Completed Normal     RECONCILE, 95632297, 12001, , , , , 2022/01/25
+                                                                                                          21:30:52, , , , , NO_ACTION, N, ,
+
+ 154399412 AutoReconciliation                              25-JAN-22            15.8 Completed Normal     RECONCILE, 95631147, 10143, , , , , 2022/01/25
+                                                                                                          10:02:10, , , , , NO_ACTION, N, ,
+
+ 154409581 AutoReconciliation                              26-JAN-22                 Running   Normal     RECONCILE, 95649721, 10089, , , , , 2022/01/26
+                                                                                                          12:44:38, , , , , NO_ACTION, N, ,
+
+ 154417564 AutoReconciliation                              26-JAN-22            12.4 Completed Normal     RECONCILE, 95631780, 10141, , , , , 2022/01/26
+                                                                                                          01:06:54, , , , , NO_ACTION, N, ,
+
+
+
+
+
+
+
+Request   Phase    Status   Program Name                                                 Short Name      Requestor       Time(e)   OSPID     SID Serial#
+--------- -------- -------- ------------------------------------------------------------ --------------- --------------- --------- ------ ------ -------
+22923246  Running  Normal   Check Periodic Alert                                         ALECDC          XGAO               3151.4 103850   6856    2427
+22923235  Running  Normal   Check Periodic Alert                                         ALECDC          XGAO               3152.1 103551   6245   54239
+22923202  Running  Normal   Check Periodic Alert                                         ALECDC          XGAO               3158.8 101358    592   47710
+22923137  Running  Normal   Check Periodic Alert                                         ALECDC          XGAO               3169.8 97481    2282   29378
+
+
+PrdUEI07@231280124902
+
+
+
+
+
+
+

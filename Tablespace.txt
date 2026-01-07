@@ -1,0 +1,244 @@
+Tablespace:
+
+
+1.sql> select name,database_role,open_mode from v$database;
+select name,open_mode,database_role from v$database,v$instance;
+srvctl   status   database   -d   prod
+
+
+
+2.to check the tablespace size (used and free):
+	sql> select a.tbl "Name",a.tsz "Total Size",b.fsz "Free Space", round((1-(b.fsz/a.tsz))*100) "Pct Used",round((b.fsz/a.tsz)*100) "Pct Free" from (select tablespace_name tbl,sum(bytes)/1024/1024 TSZ from dba_data_files where tablespace_name like '%&1%' group by tablespace_name) a, (select tablespace_name tblsp,sum(bytes)/1024/1024 FSZ from dba_free_space where tablespace_name like '%&1%' group by tablespace_name) b Where a.tbl=b.tblsp;
+
+
+
+
+3.To check How many datafiles there in a tablespace:
+sql> col FILE_NAME for a40;
+      set lines 200;
+      select TABLESPACE_NAME,FILE_NAME,bytes/1024/1024,maxbytes/1024/1024,STATUS,AUTOEXTENSIBLE from dba_data_files where TABLESPACE_NAME like '%&1%' order by file_name;
+
+4.To check the free size of the ASM disk tablespace:
+sql> SELECT name, total_mb, free_mb,total_mb-free_mb "used", state FROM v$asm_diskgroup WHERE name IN (SELECT substr(name,2,instr(name,'/',1)-2) FROM v$datafile);
+
+select name,total_mb/1024,free_mb/1024 from v$asm_diskgroup;
+
+
+5.To see whether datafile existed or not:
+col FILE_NAME for a50;
+set lines 200;
+select 
+TABLESPACE_NAME,FILE_NAME,bytes/1024/1024,maxbytes/1024/1024,STATUS,AUTOEXTENSIBLE from dba_data_files where TABLESPACE_NAME like 'BT_MEDIUM_IDX' and FILE_NAME like '%43%' order by file_name;
+
+6.To add datafile to ASM disk:
+alter tablespace tablespace_name add datafile 'Diskgroup' size 5G;
+alter tablespace APPS_TS_TX_DATA add datafile '+EBST_DATA' size 3G;
+
+
+alter database datafile '/ud1110/PEBEV1/oradata/apps_ts_tx_idx142.dbf' resize 21G ;
+
+To check PGA usage:
+select name,value/1024/1024 inMB from v$pgastat where name in ('total PGA allocated','maximum PGA allocated');
+
+select value from v$parameter where name = 'pga_aggregate_limit';
+
+
+
+select name,value/1024/1024 inMB from v$pgastat where name in ('total PGA allocated','maximum PGA allocated');
+
+SELECT ROUND(SUM(pga_used_mem)/(1024*1024),2) PGA_USED_MB FROM v$process;
+
+show parameter shared_pool_size
+
+
+show parameter pga_aggregate_target
+
+=============================================================================
+
+SGA components :
+
+SELECT * FROM v$sgainfo;
+Today
+Vishweshwar Theegulla Goud, 7:58 AM
+set lines 1000
+set pages 1000
+SELECT sn.INSTANCE_NUMBER,
+         sga.allo sga,
+         pga.allo pga,
+         (sga.allo + pga.allo) tot,
+         TRUNC (SN.END_INTERVAL_TIME, 'mi') time
+    FROM (  SELECT snap_id,
+                   INSTANCE_NUMBER,
+                   ROUND (SUM (bytes) / 1024 / 1024 / 1024, 3) allo
+              FROM DBA_HIST_SGASTAT
+          GROUP BY snap_id, INSTANCE_NUMBER) sga,
+         (  SELECT snap_id,
+                   INSTANCE_NUMBER,
+                   ROUND (SUM (VALUE) / 1024 / 1024 / 1024, 3) allo
+              FROM DBA_HIST_PGASTAT
+             WHERE name = 'total PGA allocated'
+          GROUP BY snap_id, INSTANCE_NUMBER) pga,
+         dba_hist_snapshot sn
+   WHERE     sn.snap_id = sga.snap_id
+         AND sn.INSTANCE_NUMBER = sga.INSTANCE_NUMBER
+         AND sn.snap_id = pga.snap_id
+         AND sn.INSTANCE_NUMBER = pga.INSTANCE_NUMBER
+ORDER BY sn.snap_id DESC, sn.INSTANCE_NUMBER;
+
+
+SELECT DECODE(TRUNC(SYSDATE - LOGON_TIME), 0, NULL, TRUNC(SYSDATE - LOGON_TIME) || ' Days' || ' + ') || 
+TO_CHAR(TO_DATE(TRUNC(MOD(SYSDATE-LOGON_TIME,1) * 86400), 'SSSSS'), 'HH24:MI:SS') LOGON, 
+SID, v$session.SERIAL#, v$process.SPID , ROUND(v$process.pga_used_mem/(1024*1024), 2) PGA_MB_USED, 
+v$session.USERNAME, STATUS, OSUSER, MACHINE, v$session.PROGRAM, MODULE 
+FROM v$session, v$process 
+WHERE v$session.paddr = v$process.addr 
+--and status = 'ACTIVE' 
+--and v$session.sid = 97
+--and v$session.username = 'SYSTEM' 
+--and v$process.spid = 24301
+ORDER BY pga_used_mem DESC;
+
+
+show parameter memory_target
+
+show parameter sga_target 
+
+To check SGA usage:
+
+SELECT POOL,NAME, ROUND(BYTES/(1024*1024),2) FREE_MB FROM V$SGASTAT WHERE POOL='shared pool' AND NAME='free memory' ORDER BY BYTES DESC;
+
+sho parameter sga
+
+show parameter shared_pool_size
+
+
+To check DB size:
+SELECT SUM (bytes) / 1024 / 1024 / 1024 AS GB FROM dba_data_files;
+
+alter tablespace TIBCO_TBS add datafile '/ud1105/oracle/oradata/TBPROD/tibco_tbs47.dbf' size 3G;
+
+
+To add space or datafile:
+sql> alter database datafile '+DATA1/ebsprod/datafile/apps_ts_tx_data.406.1056696019' resize 29G;
+sql> alter tablespace tablespace_name add datafie 'datafile_path' size 5G;
+
+
+alter tablespace TWEPM_REPOSITORY add datafile '+DATAC1' size 7G autoextend on maxsize 15000m;
+
+
+alter database datafile '/ud1106/PEBAM1/oradata/apps_ts_media34.dbf' resize 7G;
+
+
+To check cannot alloctae next extent status:
+
+
+set linesize 200
+set pages 99
+
+select a.TABLESPACE_NAME,
+a.BYTES MB_total,
+b.BYTES MB_free,
+b.largest,
+a.BYTES-b.BYTES MB_used,
+round(((a.BYTES-b.BYTES)/a.BYTES)*100,2) percent_used
+from
+(
+select TABLESPACE_NAME,
+sum(BYTES)/1048576 BYTES 
+from dba_data_files
+group by TABLESPACE_NAME
+)
+a,
+(
+select TABLESPACE_NAME,
+sum(BYTES)/1048576 BYTES ,
+max(BYTES)/1048576 largest
+from dba_free_space
+group by TABLESPACE_NAME
+)
+b
+where a.TABLESPACE_NAME=b.TABLESPACE_NAME
+order by ((a.BYTES-b.BYTES)/a.BYTES) desc;
+
+
+
+To check duplicate datafiles:
+
+column file_name format a50
+select file_name, tablespace_name, online_status, MAXBYTES/1024/1024 MAX_MB, user_bytes/1024/1024 USE_MB, autoextensible from dba_data_files where substr(file_name,16) in (select substr(file_name,16) from dba_data_files having count(*) > 1 group by substr(file_name,16)) ;
+
+
+To check duplicate datafile creation date:
+
+select File#, a.FILE_NAME,a.TABLESPACE_NAME,a.BYTES/1024/1024,a.AUTOEXTENSIBLE,a.MAXBYTES/1024/1024,b.CREATION_TIME from dba_data_files a, v$datafile b where a.FILE_NAME like '%/a_media18.dbf%' and a.FILE_ID=b.FILE#;
+
+
+To Check Corrupted blocks:
+
+select * from v$database_block_corruption;
+
+Query to check the status of file:
+
+col NAME for a50
+select file#,name from v$datafile where file#=167;
+
+
+select FILE#,BLOCK#,BLOCKS,CORRUPTION_CHANGE# from v$datafile where file#='167';
+
+To See datafile status:
+SQL> set lines 180
+col TABLESPACE_NAME for a20
+col NAME for a30
+col ERROR for a20
+SELECT FILE#, STATUS, ERROR, RECOVER, TABLESPACE_NAME, NAME FROM V$DATAFILE_HEADER
+WHERE NAME LIKE '&your_datafile';
+
+
+To check DB size:
+col "Database Size" format a20
+col "Free space" format a20
+col "Used space" format a20
+select round(sum(used.bytes) / 1024 / 1024 / 1024 ) || ' GB' "Database Size"
+, round(sum(used.bytes) / 1024 / 1024 / 1024 ) -
+round(free.p / 1024 / 1024 / 1024) || ' GB' "Used space"
+, round(free.p / 1024 / 1024 / 1024) || ' GB' "Free space"
+from (select bytes
+from v$datafile
+union all
+select bytes
+from v$tempfile
+union all
+select bytes
+from v$log) used
+, (select sum(bytes) as p
+from dba_free_space) free
+group by free.p
+/
+
+
+To check schema Size:
+SELECT sum(bytes)/1024/1024/1024 as "Size in GB"
+from dba_segments
+WHERE owner = UPPER('&schema_name'); 
+
+select owner,sum(bytes)/1024/1024/1024 as "Size in GB"
+from dba_segments group by owner;
+
+To see size of the tablespaces index:
+select FILE_NAME , TABLESPACE_NAME , BYTES/1024/1024/1024 , MAXBYTES/1024/1024/1024 from dba_data_files where file_name like '%tablespace_index_01%' order by 1;
+
+
+
+
+
+
+
+DEV1EBS cloned on 06-APR-22
+
+s_sitename
+
+
+
+
+
+

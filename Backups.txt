@@ -1,0 +1,151 @@
+To see RMAN Backup Status:
+col STATUS format a9
+col hrs format 999.99
+select
+SESSION_KEY, INPUT_TYPE, STATUS,to_char(START_TIME,'mm/dd/yy hh24:mi') start_time,
+to_char(END_TIME,'mm/dd/yy hh24:mi')   end_time,
+elapsed_seconds/3600               hrs
+from V$RMAN_BACKUP_JOB_DETAILS
+order by session_key;
+
+To see rman backup status:
+select output from v$rman_output where session_key='&A';
+
+
+set lines 200 pages 999
+col OUTPUT_BYTES_DISPLAY for a20;
+col INPUT_TYPE for a20;
+col TIME_TAKEN_DISPLAY for a20;
+col START_TIME for a30;
+col END_TIME for a20;
+col status for a30;
+select session_key,
+       input_type,
+       status,
+       to_char(start_time,'yyyy-mm-dd hh24:mi') start_time,
+       to_char(end_time,'yyyy-mm-dd hh24:mi')   end_time,
+       output_bytes_display,
+       time_taken_display
+from v$rman_backup_job_details
+order by session_key asc;
+
+For  10G :
+
+select SID,STATUS, MBYTES_PROCESSED, START_TIME, END_TIME from V$RMAN_STATUS order by START_TIME ;
+
+
+SELECT COUNT(*) FROM v$rman_status WHERE operation = 'BACKUP' AND status != 'COMPLETED' AND status != 'RUNNING' AND start_time > sysdate-4;
+
+
+
+select decode(backup_type,'L','ARCHIVELOG','D','FULL-BACKUP','I','INC-BACKUP') "BCK-TYPE", incremental_level "INC-LEVEL", controlfile_included "CTL-INCLUDED", to_char(min(start_time),'DD-MON-YYYY HH24:MI') "START_TIME", to_char(max(completion_time),'DD-MON-YYYY HH24:MI') "COMPLETION_TIME", trunc(sum(elapsed_seconds)/60,2) "ELAP-MINS" from v$BACKUP_SET where trunc(completion_time) >= trunc(sysdate - 5) and backup_type in ('D', 'I') group by backup_type, incremental_level, controlfile_included, trunc(start_time) order by 4;
+
+
+To see list of backups completed:
+RMAN>list backup completed between "to_date('29/10/2021','dd/mm/yyyy')" and "to_date('18/11/2021','dd/mm/yyyy')";
+
+To see backup status:
+
+SQL> select STATUS from v$BACKUP;
+
+
+To check block change tracking:
+select status from v$block_change_tracking;
+
+
+crontab -l | grep -i odsprod | grep -i arch
+
+https://aka.ms/mfasetup 
+
+https://access.willistowerswatson.com 
+
+
+select to_char(start_time,'DD-MON HH24:MI') StartTime,
+ to_char(end_time,'DD-MON HH24:MI') EndTime,
+ (end_time-start_time)*1440 RunMin,
+ input_bytes/1048576 Read_MB, output_bytes/1048576 Write_MB, input_type, status
+ from v$rman_backup_job_details
+ where start_time > sysdate-32
+ order by start_time;
+ 
+ 
+ 
+ INC2244557
+ 
+ 
+ Regular support VM details as below -
+-----------------------------------------
+NA21-CS-TSFS02P / 10.207.129.101 - Actual servers for frontend
+
+NA26-CS-TSFN01P / 10.207.162.132 - DR servers for frontend
+
+NA20-CS-TSFS02R - New DR servers
+
+OWNER                          OBJECT_NAME                                        OBJECT_TYPE             STATUS  LAST_DDL_TIME
+------------------------------ -------------------------------------------------- ----------------------- ------- ------------------
+APPS                           XXOTL_EMP_HOURS_SUMMARY_PKG                        PACKAGE                 VALID   07-OCT-21
+APPS                           XXOTL_EMP_HOURS_SUMMARY_PKG                        PACKAGE BODY            VALID   07-OCT-21
+
+SQL> SQL> set lines 200
+col OWNER for a30;
+col OBJECT_NAME for a50;
+select OWNER,OBJECT_NAME,OBJECT_TYPE, STATUS,LAST_DDL_TIME from dba_objects where OBJECT_NAME like '%XXOTL_TIMESHEET_UTILS_PKG%';SQL> SQL> SQL>
+
+OWNER                          OBJECT_NAME                                        OBJECT_TYPE             STATUS  LAST_DDL_TIME
+------------------------------ -------------------------------------------------- ----------------------- ------- ------------------
+APPS                           XXOTL_TIMESHEET_UTILS_PKG                          PACKAGE                 VALID   30-SEP-21
+APPS                           XXOTL_TIMESHEET_UTILS_PKG                          PACKAGE BODY            VALID   07-OCT-21
+
+SQL>
+
+
+
+
+Taking backup of existing Package
+========================================
+
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool XXOTL_TIMESHEET_UTILS_PKG_DEC16_pks.sql
+select text from dba_source where name='XXOTL_TIMESHEET_UTILS_PKG' and type='PACKAGE' and OWNER='APPS';
+
+
+=======================================================
+
+Taking backup of existing Package Body
+
+===========================================
+
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool XXOTL_TIMESHEET_UTILS_PKG_DEC16_pkb.sql
+select text from dba_source where name='XXOTL_TIMESHEET_UTILS_PKG' and type='PACKAGE BODY' and OWNER='APPS';
+
+
+
+
+
+create table invalidsRITM0038188 TABLESPACE BKPD as (select owner,object_name,object_type from dba_objects where status='INVALID');
+
+
+
+
+WTW :
+
+create table invalids_18mar2022 tablespace BKPD as (select owner,object_name,object_type from dba_objects where status='INVALID');
+
+create table AP_TEMP_DATA_INV_DRV_9288086_bkp tablespace BKPD as (select * from AP_TEMP_DATA_INV_DRV_9288086);
+
+
+
+
+  
+
+
+

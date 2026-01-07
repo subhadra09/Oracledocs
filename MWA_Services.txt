@@ -1,0 +1,360 @@
+MWA Services in Oracle Apps
+
+Login as applmgr user :
+Go to $ADMIN_SCRIPTS_HOME
+
+Stop Mobile Application Services :
+
+./mwactl.sh -login apps/apps_password stop_force
+./mwactlwrpr.sh stop apps/apps_password
+
+Start Mobile Application Services :
+
+./mwactl.sh -login apps/apps_password start
+./mwactlwrpr.sh start apps/apps_password
+
+Check Mobile Services are up and Runing:
+
+ps -ef | grep mwa
+
+Find port Number of Mobile Services :
+
+grep mwa $CONTEXT_FILE
+
+Connect to Mobile Services :
+telnet hostname.domainname portnumber(mobile application service port_number)
+++++++++++++++++++++++++++++++++++++
+Hot to configure Mobile applications on EBS – 11i
+++++++++++++++++++++++++++++++++++++
+1. Stop the current servers.
+a. $ cd $MWA_TOP/bin
+b. $ nohup mwactl.sh -login SYSADMIN/sysadmin1 stop 10260
+    $ netstat -na  | grep 10260
+c. $ ./mwactl.sh stop_dispatcher
+2. Verify that MWA servers are stopped.
+a. $ ps -ef | grep mwa
+b. No processes should be found.
+3. Locate the mwa.cfg file in the $MWA_TOP/secure directory.
+4. Edit the mwa.cfg file and configure following parameters
+a. Set mwa.DbcFolder=full directory of folder containing the .dbc file ending with “/”:
+mwa.DbcFolder=/d01/oracle/SVRSUPTappl/fnd/11.5.0/secure/SVRSUPT_svrsuptsql1
+b. Set mwa.DbcFile=dbc file name with extension:
+mwa.DbcFile=SVRSUPT
+c. Set mwa.logdir=full directory of log file without the trailing “/”:
+mwa.logdir=/d01/oracle/SVRSUPTcomn/admin/log/SVRSUPT_svrsuptsql1
+d. Set mwa.LogLevel=error or trace:
+mwa.LogLevel=error
+e. Set mwa.TelnetPortNumber=port number
+mwa.TelnetPortNumber=10240
+f. Set mwa.DropConnectionTimeout= no. of minutes:
+mwa.DropConnectionTimeout=5
+g. Set mwa.StaleSessionTimeout= no. of minutes:
+mwa.StaleSessionTimeout=60
+h. Specify the port number and machine for running the dispatcher:
+mwa.Dispatcher=svrsuptsql1.d-rco.com:10328
+i. Specify the server manager telnet server information
+mwa.TelnetServer=svrsuptsql1.d-rco.com:10260;10262
+5. Start the MWA telnet servers
+a. $ cd $MWA_TOP/bin
+b. $ nohup ./mwactl.sh start 10260 &
+6. Start the dispatcher
+a. $ nohup ./mwactl.sh start_dispatcher &
+
+++++++++++++++++++++++++++++++++
+how to check it is working or not:
+Start  à  Run à cmd à telnet hostame:portnumber  ß press enter  , it will show 4 options select , appropriate option & give username & password.
+
+++++++++++++++++++++++++++++++++porx-365-dap01.porx.itciss.com:
+
+
+[DEBPO1|appldeb1@porx-365-dap01|~]$ history|grep mwa
+  356   2021-11-01  10:55:01  ps -ef|grep mwa
+  359   2021-11-01  10:57:02  mwactl.sh start 10200
+  360   2021-11-01  10:57:22  nohup ./mwactl.sh start_dispatcher &
+  361   2021-11-01  10:57:32  ps -ef|grep mwa
+  379   2021-11-01  17:16:08  ps -ef |grep mwa*
+  448   2021-12-03  09:34:58  ps -ef|grep mwa
+ 1001   2022-02-18  03:47:24  history|grep mwa
+ 1002   2022-02-18  03:47:51  ps -ef|grep mwa
+ 1003   2022-02-18  03:48:04  history|grep mwa
+[DEBPO1|appldeb1@porx-365-dap01|~]$ hostname;date
+porx-365-dap01.porx.itciss.com
+Fri Feb 18 03:48:08 EST 2022
+[DEBPO1|appldeb1@porx-365-dap01|~]$
+
+
+
+tlc-365-pap14.tlc.itciss.com
+
+porx-365-pap01.porx.itciss.com:9001
+
+[TEBPO1|applteb1@porx-365-pap01|~]$ history|grep mwa
+    2  21/10/21 21:45:46 ps -ef|grep mwa
+    5  21/10/21 21:46:17 ps -ef|grep mwa
+    6  21/10/21 21:46:20  nohup ./mwactl.sh start_dispatcher &
+    8  21/10/21 21:46:28 ps -ef|grep mwa
+   92  01/01/22 22:15:12 ./mwactl.sh stop_dispatcher
+   99  01/01/22 22:20:08 ps -ef|grep mwa
+  100  01/01/22 22:20:14 mwactl.sh -login sysadmin/OracleDba02Jan stop_force 10200
+  101  01/01/22 22:20:23 mwactl.sh -login sysadmin/OracleDba02Jan stop_force 10202
+  102  01/01/22 22:20:30 mwactl.sh -login sysadmin/OracleDba02Jan stop_force 10204
+  103  01/01/22 22:20:36 ps -ef|grep mwa
+  105  01/01/22 22:21:54 sh mwactl.sh stop_dispatcher
+  106  01/01/22 22:22:00 ps -ef|grep mwa
+  496  02/01/22 05:37:01 ps -ef|grep mwa
+  527  02/01/22 05:38:22 mwactl.sh start 10208
+  528  02/01/22 05:38:27 ps -ef|grep mwa
+  529  02/01/22 05:38:32 ps -ef|grep mwa
+  531  02/01/22 05:42:21 sh mwactl.sh start 10200
+  532  02/01/22 05:42:27 sh mwactl.sh start 10202
+  533  02/01/22 05:42:37 sh mwactl.sh start 10204
+  534  02/01/22 05:42:42 sh mwactl.sh start 10208
+  535  02/01/22 05:42:50 ps -ef|grep mwa
+  536  02/01/22 05:42:59 nohup ./mwactl.sh start_dispatcher &
+  537  02/01/22 05:43:04 ps -ef|grep mwa
+  572  02/01/22 19:55:25 ps -ef|grep mwa
+  577  02/01/22 19:56:15 ./mwactl.sh stop_dispatcher
+  578  02/01/22 19:56:44 mwactl.sh -login sysadmin/OracleDba02Jan stop_force 10200
+  579  02/01/22 19:56:57 mwactl.sh -login sysadmin/OracleDba02Jan stop_force 10202
+  580  02/01/22 19:57:01 mwactl.sh -login sysadmin/OracleDba02Jan stop_force 10204
+  581  02/01/22 19:57:04 mwactl.sh -login sysadmin/OracleDba02Jan stop_force 10208
+  794  03/01/22 02:23:34 sh mwactl.sh start 10200
+  795  03/01/22 02:23:39 sh mwactl.sh start 10202
+  796  03/01/22 02:23:45 sh mwactl.sh start 10204
+  797  03/01/22 02:23:50 sh mwactl.sh start 10208
+  798  03/01/22 02:24:04 nohup ./mwactl.sh start_dispatcher &
+  799  03/01/22 02:24:09 ps -ef|grep mwa
+  989  18/02/22 02:06:05 ps -ef|grep mwa
+  990  18/02/22 02:07:59 history|grep mwa
+  991  18/02/22 02:09:22 ps -ef|grep mwa
+  997  18/02/22 02:27:16 history|grep mwa
+ 1000  18/02/22 02:43:26 ps -ef|grep mwa
+ 1001  18/02/22 02:43:34 history|grep mwa
+[TEBPO1|applteb1@porx-365-pap01|~]$ hostname;date
+porx-365-pap01.porx.itciss.com
+Fri Feb 18 02:43:40 CST 2022
+[TEBPO1|applteb1@porx-365-pap01|~]$
+
+
+
+
+
+porx-365-tap01.porx.itciss.com:
+
+
+
+[SEBPO1 applteb1@porx-365-tap01 ~]$ history|grep mwa
+   57  03/09/21 04:27:44 mwactl.sh start 10200
+   58  03/09/21 04:27:53 mwactl.sh start 10202
+   59  03/09/21 04:28:00 mwactl.sh start 10204
+   60  03/09/21 04:28:29 ps -ef|grep mwa
+   61  03/09/21 04:28:44 nohup ./mwactl.sh start_dispatcher &
+   63  03/09/21 04:32:44 ps -ef|grep mwa
+  134  02/12/21 23:33:11 ps -ef|grep mwa
+  140  02/12/21 23:33:53 history|grep mwactl.sh
+  152  02/12/21 23:36:39 history|grep mwactl.sh
+  153  02/12/21 23:37:02 sh $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaOct2021  stop_force 10200
+  154  02/12/21 23:37:07 ps -ef|grep mwa
+  155  02/12/21 23:37:12 sh $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaOct2021  stop_force 10202
+  156  02/12/21 23:37:17 sh $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaOct2021  stop_force 10204
+  157  02/12/21 23:37:21 ps -ef|grep mwa
+  159  02/12/21 23:37:37 ./mwactl.sh stop_dispatcher
+  160  02/12/21 23:37:41 ps -ef|grep mwa
+  281  03/12/21 08:06:29 ps -ef|grep mwa
+  282  03/12/21 08:06:52 history|grep mwa
+  284  03/12/21 08:07:41 nohup ./mwactl.sh start_dispatcher &
+  285  03/12/21 08:07:55 sh mwactl.sh start 10200
+  286  03/12/21 08:09:24 ps -ef|grep mwa
+  287  03/12/21 08:09:44 mwactl.sh start 10200
+  293  03/12/21 08:15:31 ps -ef|grep mwa
+  321  03/12/21 08:29:00 mwactl.sh start 10200
+  322  03/12/21 08:29:35 ps -ef|grep mwa
+  323  03/12/21 08:29:50 mwactl.sh start 10202
+  324  03/12/21 08:31:25 mwactl.sh start 10204
+  325  03/12/21 08:31:39 mwactl.sh start 10208
+  326  03/12/21 08:31:55 nohup ./mwactl.sh start_dispatcher &
+  327  03/12/21 08:32:20 ps -ef|grep mwa
+  343  03/12/21 09:03:48 ps -ef|grep mwa
+  390  03/12/21 09:21:44 mwactl.sh start 10200
+  391  03/12/21 09:25:41 history|grep mwa
+  392  03/12/21 09:28:36 ps -ef|grep mwa
+  398  03/12/21 09:30:13 history|grep mwactlwrpr.sh
+  399  03/12/21 09:30:42 sh mwactlwrpr.sh startall sysadmin/OracledbaDec21
+  400  03/12/21 09:31:08 sh mwactlwrpr.sh startall sysadmin/OracledbaDec21
+  401  03/12/21 09:31:36 sh mwactlwrpr.sh start sysadmin/OracledbaDec21
+  402  03/12/21 09:31:59 ps -ef|grep mwa
+  403  03/12/21 09:32:24 ps -ef|grep mwa
+  404  03/12/21 09:32:58 ps -ef|grep mwa
+  406  03/12/21 09:33:29 mwactl.sh start 10200
+  407  03/12/21 11:55:34 ps -ef | grep mwa
+  411  03/12/21 11:56:27 history | grep mwactl.sh
+  412  03/12/21 11:56:54 mwactl.sh start 10200
+  413  03/12/21 11:57:17 ps -ef | grep mwa
+  415  03/12/21 12:04:17 ps -ef|grep mwa
+  511  07/12/21 14:25:43 history |grep mwa
+  512  07/12/21 14:26:21 ./mwactl.sh stop_dispatcher
+  513  07/12/21 14:27:04 ./mwactl.sh stop_dispatcher
+  514  07/12/21 14:27:12 ps -ef |grep mwa
+  515  07/12/21 14:30:19 $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaDec2021 stop_force 10200
+  516  07/12/21 14:31:23 ps -ef |grep mwa
+  517  07/12/21 14:31:34 $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaDec2021 stop_force 10202
+  518  07/12/21 14:31:46 $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaDec2021 stop_force 10204
+  519  07/12/21 14:32:26 sh mwactl.sh stop_dispatcher
+  523  07/12/21 14:34:34 /ua4001/oracle/11510/sebpo1appl/mwa/11.5.0/bin/mwactl.sh stop_dispatcher
+  524  07/12/21 14:34:48 sh -f /ua4001/oracle/11510/sebpo1appl/mwa/11.5.0/bin/mwactl.sh stop_dispatcher
+  530  07/12/21 14:36:35 ps -ef |grep mwa*
+  532  07/12/21 14:38:06 mwactl.sh start 10200
+  533  07/12/21 14:38:23 mwactl.sh start 10202
+  534  07/12/21 14:38:43 mwactl.sh start 10204
+  535  07/12/21 14:38:58 nohup ./mwactl.sh start_dispatcher &
+  538  07/12/21 14:40:19 ./mwactl.sh stop_dispatcher
+  539  07/12/21 14:42:04 $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaDec2021 stop_force 10200
+  540  07/12/21 14:42:13 $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaDec2021 stop_force 10202
+  541  07/12/21 14:42:19 $MWA_TOP/bin/mwactl.sh -login sysadmin/OracledbaDec2021 stop_force 10204
+  542  07/12/21 14:42:33 nohup ./mwactl.sh start_dispatcher &
+  543  07/12/21 14:43:00 grep mwa $CONTEXT_FILE
+  546  07/12/21 14:45:15 ps -ef |grep mwa
+  549  07/12/21 14:47:51 nohup ./mwactl.sh start_dispatcher &
+  550  07/12/21 14:47:59 ps -ef |grep mwa
+  551  07/12/21 14:48:12 mwactl.sh start 10200
+  552  07/12/21 14:48:21 mwactl.sh start 10202
+  553  07/12/21 14:48:31 mwactl.sh start 10204
+  788  01/02/22 23:18:27 ps -ef|grep mwa
+  790  01/02/22 23:19:46 sh mwactl.sh stop_dispatcher
+  792  01/02/22 23:20:44 ps -ef|grep -i mwa
+  793  01/02/22 23:22:07 mwactl.sh -login sysadmin/Oracledba10DEC stop_force 10200
+  794  01/02/22 23:22:16 mwactl.sh -login sysadmin/Oracledba10DEC stop_force 10202
+  795  01/02/22 23:22:24 mwactl.sh -login sysadmin/Oracledba10DEC stop_force 10204
+  796  01/02/22 23:22:34 ps -ef|grep -i mwa
+  797  01/02/22 23:22:55 ./mwactl.sh stop_dispatcher
+  798  01/02/22 23:23:36 ./mwactl.sh sysadmin/Oracledba10DEC stop_dispatcher
+  923  02/02/22 07:53:12 ps -ef |grep mwa*
+  924  03/02/22 03:25:13 ps -ef|grep mwa
+  925  03/02/22 03:26:38 history|grep mwa
+  927  03/02/22 03:29:09 grep mwa $CONTEXT_FILE
+  928  03/02/22 03:36:20 grep mwa $CONTEXT_FILE
+  929  03/02/22 03:36:22 grep mwa $CONTEXT_FILE
+  930  03/02/22 03:36:28 ps -ef|grep mwa
+  931  03/02/22 03:39:21 ps -ef|grep mwa
+  932  03/02/22 03:44:07 ps -ef|grep mwa
+  946  03/02/22 03:52:31 mwactl.sh start 10200
+  947  03/02/22 03:55:18 ps -ef|grep mwa
+  948  03/02/22 03:55:28 mwactl.sh start 10202
+  949  03/02/22 03:55:36 mwactl.sh start 10204
+  950  03/02/22 03:55:42 ps -ef|grep mwa
+  951  03/02/22 03:56:17 nohup ./mwactl.sh start_dispatcher &
+  952  03/02/22 03:56:27 ps -ef|grep mwa
+  955  03/02/22 03:59:53 locate mwa.cfg
+  958  03/02/22 04:01:20 cd /ua4001/oracle/11510/sebpo1appl/mwa/11.5.0/secure/
+  959  03/02/22 04:01:31 cat mwa.cfg
+  960  03/02/22 04:02:45 grep -i Dispatcher mwa.cfg
+  967  03/02/22 04:10:13 ps -ef|grep mwa
+ 1000  18/02/22 03:49:23 ps -ef|grep mwa
+ 1001  18/02/22 03:50:26 history|grep mwa
+[SEBPO1 applteb1@porx-365-tap01 ~]$ hostname;date
+porx-365-tap01.porx.itciss.com
+Fri Feb 18 03:51:01 EST 2022
+[SEBPO1 applteb1@porx-365-tap01 ~]$
+
+
+
+
+
+[PEBTL1(UCS) applpeb1@tlc-chi-pap11 ~]$
+[PEBTL1(UCS) applpeb1@tlc-chi-pap11 ~]$
+[PEBTL1(UCS) applpeb1@tlc-chi-pap11 ~]$ history|grep mwa
+  166  2021-11-06 03:06:55 ./stopmwa.sh
+  168  2021-11-06 03:07:11 ps -ef|grep mwa
+  225  2021-11-06 03:52:48 ./startmwa.sh
+  226  2021-11-06 03:53:06 ps -ef|grep mwa
+  748  2022-02-02 04:32:45 ./stopmwa.sh
+  754  2022-02-02 04:45:05 ./startmwa.sh
+  845  2022-02-06 00:38:28 ps -ef |grep mwa
+  849  2022-02-06 00:41:14 sh stopmwa.sh
+  850  2022-02-06 00:41:27 ps -ef |grep mwa
+  861  2022-02-06 03:44:45 ps -ef |grep mwa
+  864  2022-02-06 03:45:16 sh startmwa.sh
+  865  2022-02-06 03:45:42 ps -ef |grep mwa
+  998  2022-03-16 05:03:18 ps -ef|grep mwa
+ 1000  2022-03-16 05:08:59 history|grep mwa
+[PEBTL1(UCS) applpeb1@tlc-chi-pap11 ~]$
+
+
+
+
+
+nohup ./startNodeManager.sh >> $HOME/log/nm.log &
+ tail -f $HOME/log/nm.log
+ choose_env
+ cd $DOMAIN_HOME/bin
+ PWD
+ pwd
+ nohup ./startWebLogic.sh -Dweblogic.management.username='weblogic' -Dweblogic.management.password='weblogic10' >> $HOME/log/wls.log &
+ tail -f $HOME/log/wls.log
+ nohup ./startManagedWebLogic.sh WLS_DISCO "http://tlc-365-pap14.tlc.itciss.com:7001" -Dweblogic.management.username='weblogic' -Dweblogic.management.password='weblogic10' >> $HOME/log/WLS_DISCO.log &
+
+
+
+
+To find forms port :
+
+
+[TST|applteb1@prg-365-tap01|~]$ grep -i web_port $CONTEXT_FILE
+         <oem_web_port oa_var="s_oemweb_port" oa_type="PORT">10019</oem_web_port>
+         <web_port oa_var="s_webport" oa_type="PORT">8019</web_port>
+         <web_port_pls oa_var="s_webport_pls" oa_type="PORT">8219</web_port_pls>
+[TST|applteb1@prg-365-tap01|~]$
+
+
+
+
+
+
+cd /us1001/oracle/product/fmw/as_1/opmn/bin
+opmnctl status -l
+opmnctl stopall
+cd
+choose_env
+cd /us1001/oracle/product/fmw/user_projects/domains/DISCODomain/bin
+history |grep stopManagedWebLogic.sh
+./stopManagedWebLogic.sh WLS_DISCO "t3://tlc-chi-pap14.tlc.itciss.com:7001" 'weblogic' 'w3bl0g1c30'
+cd /us1001/oracle/product/fmw/user_projects/domains/DISCODomain/bin
+history |grep stopWebLogic.sh
+./stopWebLogic.sh weblogic 'w3bl0g1c30' "t3://tlc-chi-pap14.tlc.itciss.com:7001"
+ps -ucx
+kill -9 27607
+ps -ucx
+choose_env
+cd /us1001/oracle/product/fmw/wlserver_10.3/server/bin
+nohup ./startNodeManager.sh >> $HOME/log/nm.log &
+ps -ucx
+cd
+choose_env
+cd /us1001/oracle/product/fmw/user_projects/domains/DISCODomain/bin
+history |grep startWebLogic.sh
+./startWebLogic.sh -Dweblogic.management.username='weblogic' -Dweblogic.management.password='w3bl0g1c30' >> $HOME/log/wls.log &
+tail -f $HOME/log/wls.log
+cd /ua2001/oracle/product/fmw/user_projects/domains/DEVDomain/bin
+history |grep startManagedWebLogic
+./startManagedWebLogic.sh WLS_DISCO "http://tlc-chi-pap14.tlc.itciss.com:7001" -Dweblogic.management.username='weblogic' -Dweblogic.management.password='w3bl0g1c30' >> $HOME/log/WLS_DISCO.log &
+jobs
+cd cd /us1001/oracle/product/fmw/as_1/opmn/bin
+cd /us1001/oracle/product/fmw/as_1/opmn/bin
+opmnctl startall
+./opmnctl startall
+
+
+
+
+mwa.logdir= /ua4002/fs2/inst/apps/EBSD_ugnx-365-dap02/logs
+
+
+
+
+
+
+
+
+
+
+

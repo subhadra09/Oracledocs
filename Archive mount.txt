@@ -1,0 +1,670 @@
+DR Archive mount:
+
+To see archive sequence:
+select arch.thread# "thread", arch.sequence# "last sequence received", appl.sequence# "last sequence applied", (arch.sequence# - appl.sequence#) "difference"
+from(select thread# ,sequence# from v$archived_log where (thread#,first_time ) in (select thread#,max(first_time) from v$archived_log group by thread#)) arch,
+(select thread# ,sequence# from v$log_history where (thread#,first_time ) in (select thread#,max(first_time) from v$log_history group by thread#)) appl
+where arch.thread# = appl.thread# order by 1;
+
+To verify the database:
+select name,open_mode,database_role,startup_time from v$database,v$instance;
+
+select name,open_mode,database_role,to_char(startup_time, 'DD-MON-YYYY hh24:mi:ss') start_time from gv$database,gv$instance;
+select to_char(current_date,'DD-MON-YYYY hh:mi:ss') from dual;
+
+
+To see uptime of database:
+select STARTUP_TIME, STATUS, INSTANCE_NAME,DATABASE_STATUS from v$instance;
+
+select to_char (startup_time, 'dd-mon-yyyy hh24:mi:ss' ) start_time from V$instance;
+
+To check reset logs time:
+select RESETLOGS_TIME, RESETLOGS_CHANGE#, STATUS from v$database_incarnation;
+
+Argentina$8416!   
+To remove archives:
+rman target /
+
+delete force noprompt archivelog until sequence 70042;
+
+11740
+
+To verify RFS in the stand by:
+================================
+select process, status, sequence# from v$managed_standby;
+select process,client_process,status,thread#,sequence#,block#,blocks from v$managed_standby;
+
+For PROD:
+1. Verifying the latest backup status 
+2. DR sync 
+3. Backup script 
+ /nsr/scripts/oracle/arch_INSTANCENAME_rman
+4. Connect to RMAN and remove archives
+
+
+To see RMAN Backup Status:
+col STATUS format a9
+col hrs format 999.99
+select
+SESSION_KEY, INPUT_TYPE, STATUS,to_char(START_TIME,'mm/dd/yy hh24:mi') start_time,
+to_char(END_TIME,'mm/dd/yy hh24:mi')   end_time,
+elapsed_seconds/3600               hrs
+from V$RMAN_BACKUP_JOB_DETAILS
+order by session_key;
+
+To see rman backup status:
+select output from v$rman_output where session_key='&A';
+
+
+set lines 200 pages 999
+col OUTPUT_BYTES_DISPLAY for a20;
+col INPUT_TYPE for a20;
+col TIME_TAKEN_DISPLAY for a20;
+col START_TIME for a30;
+col END_TIME for a20;
+col status for a30;
+select session_key,
+       input_type,
+       status,
+       to_char(start_time,'yyyy-mm-dd hh24:mi') start_time,
+       to_char(end_time,'yyyy-mm-dd hh24:mi')   end_time,
+       output_bytes_display,
+       time_taken_display
+from v$rman_backup_job_details
+order by session_key asc;
+
+
+delete force archivelog all backed up 2 times to device type sbt completed before 'sysdate-1';
+
+
+J2g Prod-
+delete force noprompt archivelog all completed before 'sysdate-1';
+
+
+HHMI PROD:
+delete noprompt archivelog all backed up 1 times to device type DISK completed before 'sysdate-1/2';
+
+For HDFS Non-prod:
+delete force archivelog all backed up 2 times to device type sbt completed before 'sysdate-1';
+
+
+To see archive sequence in PROD:
+select thread#,max(sequence#) from v$archived_log where resetlogs_change#=(select resetlogs_change# from v$database) group by thread#;
+
+
+To see archive status:
+set lines 200
+set pages 200
+select process,pid,status,thread#,sequence#,block#,blocks,client_process,client_pid from v$managed_standby where status='RECEIVING';
+
+list archivelog all;
+
+
+To check archives daily generation:
+select trunc(COMPLETION_TIME,'DD') Day, thread#, 
+round(sum(BLOCKS*BLOCK_SIZE)/1024/1024/1024) GB,
+count(*) Archives_Generated from v$archived_log 
+group by trunc(COMPLETION_TIME,'DD'),thread# order by 1;
+
+
+
+To see applied sequence in DR:
+select max(sequence#) from v$log_history;
+
+select max(sequence#) from v$archived_log where APPLIED='YES';
+
+
+
+select thread#, max(sequence#) "Last Standby Seq Applied" 
+from v$archived_log val, v$database vdb 
+where val.resetlogs_change# = vdb.resetlogs_change# 
+and val.applied in ('YES','IN-MEMORY') 
+group by thread# order by 1;
+
+
+
+set pages 1000
+alter session set nls_date_format = 'DD-MON-YYYY HH24:MI:SS';
+
+select trunc(COMPLETION_TIME,'HH') Hour,thread# , 
+round(sum(BLOCKS*BLOCK_SIZE)/1024/1024/1024) GB,
+count(*) Archives from v$archived_log 
+group by trunc(COMPLETION_TIME,'HH'),thread#  order by 1 ;
+
+
+
+VALIDATE DR status :
+
+col Archive_dest for a25
+col Error for a20
+SELECT DEST_ID "ID",STATUS "DB_status",DESTINATION "Archive_dest", ERROR "Error" FROM V$ARCHIVE_DEST WHERE DESTINATION IS NOT NULL;
+
+select process, status, sequence# from v$managed_standby; 
+
+select process,client_process,status,thread#,sequence#,block#,blocks from v$managed_standby;
+select process, status, sequence# from v$managed_standby;
+
+
+
+To change archive log location:
+
+alter system set db_recovery_file_dest='/interface/exp/PRS/fra_temp/';
+
+To check patch is applied or not:
+
+select * from ad_bugs where bug_number='25104332_LAN';
+
+
+To drop restore point:
+
+
+
+
+System Hold, Fix Manager before resetting counters
+
+
+As per ORACLE Support : Scheduler/Prereleaser Manager Hangs In System Hold, Fix Manager Before Resetting Counters Status (Doc ID 2126072.1)	
+delete force noprompt archivelog all backed up 2 times to device type sbt completed before 'sysdate-1/2';
+du
+
+
+DB Recovery usage:
+
+select PERCENT_SPACE_USED,PERCENT_SPACE_RECLAIMABLE,NUMBER_OF_FILES from v$recovery_area_usage;
+
+delete force noprompt archivelog all completed before 'sysdate-1';
+
+delete force noprompt archivelog all backed up 2 times to device type sbt completed before 'sysdate-1/2';
+
+SELECT COUNT(*) FROM v$rman_status WHERE operation = 'BACKUP' AND status != 'COMPLETED' AND status != 'RUNNING' AND start_time > sysdate-4;
+
+
+set linesize 300;
+set pagesize 999;
+SELECT * FROM V$RECOVERY_AREA_USAGE;
+
+
+set linesize 300;
+set pagesize 999;
+col name format a20
+select * from v$recovery_file_dest;
+
+
+
+To Enable MRP process:
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE DISCONNECT FROM SESSION;
+
+
+
+To Cancel MRP process:
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE CANCEL;
+
+To see alert log location:
+select value from v$diag_info where name like '%Trace';
+
+VI tool shortcuts:
+
+CTRL+d : Move forward 1/2 screen.
+CTRL+f : Move forward one full screen.
+CTRL+u : Move backward 1/2 screen.
+CTRL+b : Move backward one full screen.
+CTRL+e : Moves screen up one line.
+CTRL+y : Moves screen down one line.
+CTRL+u : Moves screen up 1/2 page.
+
+
+To see DR status from PROD:
+col Archive_dest for a25
+col Error for a20
+SELECT DEST_ID "ID",STATUS "DB_status",DESTINATION "Archive_dest", ERROR "Error" FROM V$ARCHIVE_DEST WHERE DESTINATION IS NOT NULL; 
+
+To prepare AWR report:
+
+SQL> @$ORACLE_HOME/rdbms/admin/awrrpt.sql
+
+
+To check the status of user:
+select USERNAME,ACCOUNT_STATUS,EXPIRY_DATE from dba_users where USERNAME='APPSRO';
+
+alter user MROMO account unlock;
+
+alter user NBATTALA identified by Nbattla$123;
+
+To reset the account with old password:
+select password from user$ where name='ITCNIMBUS';
+
+
+alter user MROMO identified by values '7274B583009DCB81';
+  
+  select password from user$ where name='ITCNIMBUS';
+
+SELECT resource_name, limit FROM dba_profiles WHERE profile = 'DEFAULT' AND resource_type = 'PASSWORD';
+
+ALTER PROFILE DEFAULT LIMIT FAILED_LOGIN_ATTEMPTS UNLIMITED;
+
+ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
+
+To Grant privileges:
+GRANT CREATE SESSION TO "ITCNIMBUS";
+
+
+
+To disable access to the user:
+alter user user_name account lock;
+
+set lines 200
+col USERNAME for a20
+select username, account_status, default_tablespace from dba_users where username='user_name';
+
+
+
+delete archivelog all backed up 1 times to device type sbt completed before 'sysdate-1/2';
+
+To log switch:
+
+alter system switch logfile;
+
+To add space to DB recovery:
+
+alter system set db_recovery_file_dest_size=800g;
+
+alter system set db_recovery_file_dest='/interface/exp/QA/FRA_DEC31/';
+
+
+
+RMAN> catalog recovery area;
+select host from dba_db_links where db_link='PLAN.HARSCO.COM';
+
+
+select password from user$ where name='ITCNIMBUS' ;
+
+
+
+alter user ITCNIMBUS identified by values 'DD2AE841E9964D04';
+  
+select password from user$ where name='ITCNIMBUS';
+  
+To kill VNC session with port:
+
+ vncserver -kill :1
+ 
+To start pluggabale database:
+alter pluggable database dev open;
+ 
+  
+To see exact time window:
+
+select to_char(sysdate,'DD-MON-YYYY HH:MI:SS AM') from dual;
+
+SQL> select instance_name,name,open_mode,log_mode,database_role,host_name,controlfile_type,force_logging,switchover_status,DATAGUARD_BROKER,database_status,logins,to_char(startup_time,'dd-mon-yyyy hh24:mi:ss') "UPTIME" from v$database,gv$instance;
+
+To See directories:
+select * from dba_directoreies;
+
+To chage the directories path:
+create or replace directory CSR_XML_TOP as '/us1101/applprod/DEBCU1/fs1/EBSapps/appl/csr/12.0.0/patch/115/xml';
+
+
+adopmnctl.sh status -l
+
+adopmnctl.sh stopall
+
+adopmnctl.sh startall
+
+adopmnctl.sh status -l
+
+
+
+https://drive.google.com/drive/u/0/folders/1ef_vpBoF6C3exsZ4hlov6uo9aQ5LjKAH
+
+
+
+
+apps/mydreAm4w0rk
+
+
+
+
+
+
+
+
+CHG0050256 - Weekly Web Services (EBS oafm and oacore) bounce as workaround for PRB0040158
+CHG0050253 - Weekly WebCenter Capture Managed Server Bounce
+
+select File#, a.FILE_NAME,a.TABLESPACE_NAME,a.BYTES/1024/1024,a.AUTOEXTENSIBLE,a.MAXBYTES/1024/1024,b.CREATION_TIME from dba_data_files a, v$datafile b where a.FILE_NAME like '%/a_media18.dbf%' and a.FILE_ID=b.FILE#;
+
+
+
+
+dl-vpn.mgrc.com
+sridhar.sriramoju
+
+Wh@tAk@rm#a1n22$
+
+DB node:  vlmgrcebsdb01p.oci.mgrc.com 
+
+App node :  vlmgrcebsap01p.oci.mgrc.com  /  vlmgrcebsap02p.oci.mgrc.com
+
+
+
+
+SQL> set pages 300 lines 300
+SQL> SELECT inst_id, DECODE(request,0,'Holder: ','Waiter: ')|| sid sess, id1, id2, lmode,request, type
+  2  FROM GV$LOCK WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM GV$LOCK WHERE request>0)
+ORDER BY id1, request;  3  
+
+no rows selected
+
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         3 EBS11p                         READ WRITE NO
+		 
+SQL> !hostname;date
+ nze1lora01.sinopecarg.com.ar 
+Tue Jul 20 13:10:54 -03 2021
+
+SQL> 
+
+
+
+find . -name "EBSPRD1_ora_332575.trc" -exec mv /shared/tracefiles_21_JULY_21/ {} \; &
+
+
+
+
+apps/ProdApps#10
+
+welcome1
+
+
+Pagadala Gopala Krishna - pagadalagopala.krishna@finastra.com
+
+INC0809834
+
+
+9^P8H2w7S;46
+
+
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  SWAP COMMAND
+ 6371 root      20   0 3985m 619m 9.8m S  1.0  2.1 662:46.58  56m java
+ 2278 root      20   0 3618m 231m 9568 S  0.3  0.8  54:15.37  39m java
+ 9437 root      20   0 2366m 130m  47m S  1.3  0.4 590:16.36  43m crsd.bin
+10235 grid      20   0 1923m  58m  41m S  1.6  0.2 596:51.19  37m oraagent.bin
+ 4993 root      20   0 2373m  92m  44m S  0.7  0.3 514:18.43  36m ohasd.bin
+10224 root      20   0 1188m  44m  33m S  1.0  0.1 418:57.41  25m orarootagent.bi
+ 5484 grid      20   0  776m  38m  28m S  1.0  0.1 305:10.46  13m evmd.bin
+ 8061 root      20   0  837m  35m  27m S  0.7  0.1 315:25.33  12m octssd.bin
+
+
+alter user dbrman identified by 'accu123';
+
+TEST2
+
+
+connect target dbrman/accu123@TST2CDB;
+connect catalog TRIA_TRIA_365_TDB03_TST2CDB/TRIA_TRIA_365_TDB03_TST2CDB@REPRMAN;
+RUN {
+ALLOCATE CHANNEL CH1 TYPE 'SBT_TAPE';
+ALLOCATE CHANNEL CH2 TYPE 'SBT_TAPE';
+ALLOCATE CHANNEL CH3 TYPE 'SBT_TAPE';
+ALLOCATE CHANNEL CH4 TYPE 'SBT_TAPE';
+CROSSCHECK archivelog all;
+backup archivelog all not backed up 1 times format 'AL_%d_%U';
+delete force noprompt archivelog all backed up 1 times to device type sbt completed before 'sysdate-1/2';
+RELEASE CHANNEL CH1;
+RELEASE CHANNEL CH2;
+RELEASE CHANNEL CH3;
+RELEASE CHANNEL CH4;
+}
+
+
+rman target / catalog TRIA_TRIA_365_TDB03_TST2CDB/TRIA_TRIA_365_TDB03_TST2CDB@REPRMAN;
+
+
+
+show parameter recovery 
+select flashback_on from v$database;
+
+select name from v$restore_point;
+
+MARKVIEW_UPGD122_TMGRCI
+
+drop restore point grp_dg;
+select * from v$flash_recovery_area_usage;
+v$flash_recovery_area_usage
+
+alter database flashback off;
+set pages 2000
+
+
+
+FILE_TYPE               PERCENT_SPACE_USED PERCENT_SPACE_RECLAIMABLE NUMBER_OF_FILES     CON_ID
+----------------------- ------------------ ------------------------- --------------- ----------
+CONTROL FILE                             0                         0               0          0
+REDO LOG                             26.67                         0               4          0
+ARCHIVED LOG                           .18                       .18               1          0
+BACKUP PIECE                           .07                       .03               2          0
+IMAGE COPY                               0                         0               0          0
+FLASHBACK LOG                            0                         0               0          0
+FOREIGN ARCHIVED LOG                     0                         0               0          0
+AUXILIARY DATAFILE COPY                  0                         0               0          0
+
+
+NAME                             TOTAL_GB    FREE_GB    USED_GB   USED_PCT
+------------------------------ ---------- ---------- ---------- ----------
+ASMCONFIG                              20         20          0          0
+EAGLEPRD_ASMDATA                     1100        200        900         81
+EAGLEPRD_ASMREDO                      200         94        106         52
+PIAPROD_ASMDATA                        50         38         12         24
+PIAPROD_ASMREDO                        20         10         10         47
+WINTPROD_ASMDATA                       70         24         46         65
+WINTPROD_ASMREDO                      120         72         48         40
+
+
+
+SQL> select name,open_mode,database_role,startup_time from v$database,v$instance;
+
+NAME      OPEN_MODE            DATABASE_ROLE    STARTUP_T
+--------- -------------------- ---------------- ---------
+WINTPROD  READ WRITE           PRIMARY          24-JUL-21
+
+SQL> !hostname; date
+hq-oradbsrv16.hhmi.org
+Sun Aug 22 07:05:14 EDT 2021
+
+SQL>
+SQL>
+
+
+10.160.7.91  	  oraprod.evhc.net
+
+
+
+dl-vpn.mgrc.com  
+Umar.Iskapalli
+F!J6G^~mdMqp#-T 
+
+
+vidyasagar.kandakantl
+dDL4Kh8@UyqYK$j
+
+ 
+
+
+
+SELECT TABLESPACE_NAME FROM DBA_TABLESPACES WHERE STATUS ='READ ONLY’;
+
+
+
+
+
+/us2002/appsr12/inst/apps/PROD_ctfg-chi-pap05/logs/ora/10.1.3/opmn/oacore_default_group_2/oacorestd.out.old
+
+
+nohup tar cvf - cache 2>/backup/reports_cache_ZIP_`date '+%d-%m-%Y'`.log | gzip >/backup/cache_`date '+%d-%m-%Y'`.tar.gz &
+
+
+
+CHG0048857/CHG0049242----HYP ctfg bounce
+ctfg-chi-pap21.ctfg.itciss.com,
+ctfg-chi-pap22.ctfg.itciss.com,(pap22 is primary & will have all scripts here)
+ctfg-chi-pap23.ctfg.itciss.com
+
+hosting\ctfg_srvrunner/t$6SaSTe(RDP login details)
+
+D:\Oracle\Middleware\Scripts
+pap22
+
+http://ctfg-chi-pap22.ctfg.itciss.com:19000/workspace/index.jsp  (RDP)
+admin/welcome1
+
+step1: connect to RDP to pap22 server
+
+step2: goto TASK SCEDULER--->and disable the recent jobs which are running.
+
+step3: goto"D:\Oracle\Middleware\Scripts"--> click on "STOP_ALL_EPM_CMD" to stop the services(it will stop automatically in pap21&pap23 as well)
+
+step4: login to pap21$23 verify if the services are stopped properly and if not start the particular service by 
+rightclick on the service
+     |__stop(click on)
+	 
+step5: and start the serives in pap22 by running "START_ALL_EPM_CMD" 
+
+step6: login to weblogic url " ctfg-chi-pap22.ctfg.itciss.com:7001/console " and monitor if all the services are started and running
+(causion: we cant stop or start the services in frontend)
+epm_admin/welcome1
+step7: perform sanity and enable the jobs in pap22
+
+
+Perryellis Change: CHG0049442
+
+
+10.150.12.19
+
+
+
+
+
+
+
+ cd $WL_HOME/server/bin
+ pwd
+ nohup ./startNodeManager.sh >> $HOME/log/nm.log &
+ tail -f $HOME/log/nm.log
+ choose_env
+ cd $DOMAIN_HOME/bin
+ pwd
+ cd /us2001/oracle/product/fmw/user_projects/domains/DISCODomain/bin
+ pwd
+ nohup ./startWebLogic.sh -Dweblogic.management.username='weblogic' -Dweblogic.management.password='weblogic20' >> $HOME/log/wls.log &
+ tail -f $HOME/log/wls.log
+ pwd
+ ll
+ nohup ./startManagedWebLogic.sh WLS_DISCO "http://tlc-365-pap14.tlc.itciss.com:7002" -Dweblogic.management.username='weblogic' -Dweblogic.management.password='weblogic20' >> $HOME/log/WLS_DISCO.log &
+
+
+
+
+
+
+SELECT a.tablespace_name, ROUND((a.tablespace_size * b.block_size) / 1048576, 1) AS "Tablespace size (MB)", ROUND((a.used_space * b.block_size) / 1048576, 1) AS "Used space (MB)", round(((a.tablespace_size * b.block_size)-(a.used_space * b.block_size))/1048576, 1) AS "Free space (MB)", ROUND(a.used_percent, 1) AS "Used %" FROM dba_tablespace_usage_metrics a JOIN dba_tablespaces b ON a.tablespace_name = b.tablespace_name where a.TABLESPACE_NAME not like '%TEMP%' AND a.TABLESPACE_NAME not like '%UNDO%'
+
+
+
+
+ 37  2022-01-03 09:14:51 cd cache
+   38  2022-01-03 09:16:11 ls -lrt
+   39  2022-01-03 09:16:55 find . -mtime +7 -exec rm -rf *txt *pdf *xml {} \;
+   40  2022-01-03 09:17:34 pwd
+   41  2022-01-03 09:17:38 find . -mtime +7 | xargs  rm -rf
+
+
+To stop ASM Services :
+
+ps -ef|grep d.bin
+
+crsctl stop has 
+
+TO Start ASM Services :
+
+crsctl start has
+
+
+
+
+
+alter session set container=EBSD;
+exec dbms_service.start_service('EBSD_ebs_patch');
+
+exec dbms_service.start_service('ebs_EBSD');
+
+
+
+admanagedsrvctl.sh stop oacore_server1
+
+
+
+
+SESSION_KEY INPUT_TYPE           STATUS                         START_TIME                     END_TIME             OUTPUT_BYTES_DISPLAY TIME_TAKEN_DISPLAY
+----------- -------------------- ------------------------------ ------------------------------ -------------------- -------------------- --------------------
+     108300 ARCHIVELOG           COMPLETED                      2022-09-05 11:30               2022-09-05 11:30        35.25M            00:00:18
+     108306 ARCHIVELOG           COMPLETED                      2022-09-05 12:30               2022-09-05 12:30        30.00M            00:00:24
+     108313 ARCHIVELOG           COMPLETED                      2022-09-05 15:30               2022-09-05 15:30        35.50M            00:00:12
+
+186 rows selected.
+
+SQL> select name from v$database;
+
+NAME
+---------
+RMAN
+
+SQL> !hostname;date
+vlmgrcrmndb01p
+Mon Sep  5 15:40:04 PDT 2022
+
+SQL>
+
+
+
+
+  905   2020-09-04  12:04:12 cd /u01/app/Apache_Tomcat/apache-tomcat-9.0.37/webapps/fop
+  906   2020-09-04  12:04:13 ls -ltr
+  907   2020-09-04  12:04:16 vi apex_fop.jsp
+  908   2020-09-04  12:05:11 cd ../..
+  909   2020-09-04  12:05:12 ls
+  910   2020-09-04  12:05:14 cd bin/
+  911   2020-09-04  12:05:14 ls
+  912   2020-09-04  12:05:24 ./shutdown.sh
+  913   2020-09-04  12:05:27 sh startup.
+  914   2020-09-04  12:05:29 sh startup.sh
+  915   2020-09-04  12:06:37 vi apex_fop.jsp
+  916   2020-09-04  12:06:40 cd ..
+  917   2020-09-04  12:06:41 ls -tlr
+  918   2020-09-04  12:06:43 cd webapps/
+  919   2020-09-04  12:06:43 ls
+  920   2020-09-04  12:06:45 cd fop/
+  921   2020-09-04  12:06:46 ls
+
+
+
+
+[oracle@vlmgrcrmndb01p:rman] /u01/app/Apache_Tomcat/apache-tomcat-9.0.37/bin
+$ sh startup.sh
+Using CATALINA_BASE:   /u01/app/Apache_Tomcat/apache-tomcat-9.0.37
+Using CATALINA_HOME:   /u01/app/Apache_Tomcat/apache-tomcat-9.0.37
+Using CATALINA_TMPDIR: /u01/app/Apache_Tomcat/apache-tomcat-9.0.37/temp
+Using JRE_HOME:        /u01/app/oracle/product/19.3.0.0/dbhome_1/jdk
+Using CLASSPATH:       /u01/app/Apache_Tomcat/apache-tomcat-9.0.37/bin/bootstrap.jar:/u01/app/Apache_Tomcat/apache-tomcat-9.0.37/bin/tomcat-juli.jar
+Tomcat started.
+[oracle@vlmgrcrmndb01p:rman] /u01/app/Apache_Tomcat/apache-tomcat-9.0.37/bin
+$ hostname;date
+vlmgrcrmndb01p
+Mon Sep  5 15:58:16 PDT 2022
+[oracle@vlmgrcrmndb01p:rman] /u01/app/Apache_Tomcat/apache-tomcat-9.0.37/bin

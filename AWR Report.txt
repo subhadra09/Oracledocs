@@ -1,0 +1,41 @@
+Enter value for num_days: 1
+
+Listing the last day's Completed Snapshots
+
+                                                        Snap
+Instance     DB Name        Snap Id    Snap Started    Level
+------------ ------------ --------- ------------------ -----
+OFSLLDEV     OFSLLDEV          2585 27 Aug 2021 00:00      1
+
+
+
+Specify the Begin and End Snapshot Ids
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Enter value for begin_snap: 10
+Begin Snapshot Id specified: 10
+
+Enter value for end_snap: 12
+End   Snapshot Id specified: 12
+
+
+declare
+*
+ERROR at line 1:
+ORA-20200: Begin Snapshot Id 10 does not exist for this database/instance
+ORA-06512: at line 22
+
+
+Disconnected from Oracle Database 12c Enterprise Edition Release 12.1.0.2.0 - 64bit Production
+With the Partitioning, Automatic Storage Management, OLAP, Advanced Analytics
+and Real Application Testing options
+hdfs-365-ddb01:oradof1:OFSLLDEV:/us5001/app/oracle/product/12.1.0/dbhome_1/rdbms/admin>
+@$ORACLE_HOME/rdbms/admin/awrrpt.sql
+
+awrrpt_1_2547_2549.html
+
+ awrrpt_1_4593_4595.html
+ 
+ 
+support.oracle.com:
+user: cms-ind-dba@itconvergence.com
+Pwd: Winter@2020

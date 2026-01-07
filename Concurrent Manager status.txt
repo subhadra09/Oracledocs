@@ -1,0 +1,467 @@
+
+Concurrent Managers status:
+
+select decode(CONCURRENT_QUEUE_NAME,'FNDICM','Internal Manager','FNDCRM','Conflict Resolution Manager','AMSDMIN','Marketing Data Mining Manager','C_AQCT_SVC','C AQCART Service','FFTM','FastFormula Transaction Manager','FNDCPOPP','Output Post Processor','FNDSCH','Scheduler/Prereleaser Manager','FNDSM_AQHERP','Service Manager: AQHERP','FTE_TXN_MANAGER','Transportation Manager','IEU_SH_CS','Session History Cleanup','IEU_WL_CS','UWQ Worklist Items Release for Crashed session','INVMGR','Inventory Manager','INVTMRPM','INV Remote Procedure Manager','OAMCOLMGR','OAM Metrics Collection Manager','PASMGR','PA Streamline Manager','PODAMGR','PO Document Approval Manager','RCVOLTM','Receiving Transaction Manager','STANDARD','Standard Manager','WFALSNRSVC','Workflow Agent Listener Service','WFMLRSVC','Workflow Mailer Service','WFWSSVC','Workflow Document Web Services Service','WMSTAMGR','WMS Task Archiving Manager','XDP_APPL_SVC','SFM Application Monitoring Service','XDP_CTRL_SVC','SFM Controller Service','XDP_Q_EVENT_SVC','SFM Event Manager Queue Service','XDP_Q_FA_SVC','SFM Fulfillment Actions Queue Service','XDP_Q_FE_READY_SVC','SFM Fulfillment Element Ready Queue Service','XDP_Q_IN_MSG_SVC','SFM Inbound Messages Queue Service','XDP_Q_ORDER_SVC','SFM Order Queue Service','XDP_Q_TIMER_SVC','SFM Timer Queue Service','XDP_Q_WI_SVC','SFM Work Item Queue Service','XDP_SMIT_SVC','SFM SM Interface Test Service') as "Concurrent Manager's Name", max_processes as "TARGET Processes", running_processes as "ACTUAL Processes" from apps.fnd_concurrent_queues where CONCURRENT_QUEUE_NAME in ('FNDICM','FNDCRM','AMSDMIN','C_AQCT_SVC','FFTM','FNDCPOPP','FNDSCH','FNDSM_AQHERP','FTE_TXN_MANAGER','IEU_SH_CS','IEU_WL_CS','INVMGR','INVTMRPM','OAMCOLMGR','PASMGR','PODAMGR','RCVOLTM','STANDARD','WFALSNRSVC','WFMLRSVC','WFWSSVC','WMSTAMGR','XDP_APPL_SVC','XDP_CTRL_SVC','XDP_Q_EVENT_SVC','XDP_Q_FA_SVC','XDP_Q_FE_READY_SVC','XDP_Q_IN_MSG_SVC','XDP_Q_ORDER_SVC','XDP_Q_TIMER_SVC','XDP_Q_WI_SVC','XDP_SMIT_SVC');
+
+
+select fcqv.concurrent_queue_name,fcqv.user_concurrent_queue_name ,fcq.max_processes as "TARGET Processes" , fcq.running_processes as "ACTUAL Processes"
+from fnd_concurrent_queues_vl fcqv ,fnd_concurrent_queues fcq
+where concurrent_time_period_id=4 and fcqv.concurrent_queue_name=fcq.concurrent_queue_name ;
+
+
+To Check Workflow Components STATUS
+---------------------------------------
+set linesize 120
+set pagesize  50
+column COMPONENT_NAME format a45
+column STARTUP_MODE format a15
+column COMPONENT_STATUS format a25
+SELECT
+    fsc.component_name,
+    fsc.startup_mode,
+    fsc.component_status
+FROM
+    apps.fnd_concurrent_queues_vl    fcq,
+    apps.fnd_svc_components          fsc
+WHERE
+    fsc.concurrent_queue_id = fcq.concurrent_queue_id (+)
+ORDER BY
+    component_status,
+    startup_mode,
+    component_name;
+	
+select release_name from apps.fnd_product_groups;
+
+
+a) Concurrent Request Log:
+select logfile_name from apps.fnd_concurrent_requests where request_id ='&req_id';
+
+b) Concurrent Output file:
+select outfile_name from fnd_concurrent_requests where request_id ='&req_id';
+
+
+CTFG BOUNCE:
+https://docs.google.com/document/d/1fq74nk1P6F7s2tcuZGnPoGMFqMPiIe1q/edit # 
+
+To release jobs from hold:
+
+update fnd_concurrent_requests set hold_flag = 'N' where hold_flag = 'Y' and request_id not in (select request_id from jobs_already_on_hold);
+
+To put jobs on hold:
+
+update fnd_concurrent_requests set hold_flag = 'Y'  where phase_code ='P' and hold_flag ='N';
+
+
+TO see concurrent log file location:
+
+SELECT 'ICM_LOG_NAME=' || fcp.logfile_name
+FROM fnd_concurrent_processes fcp, fnd_concurrent_queues fcq
+WHERE fcp.concurrent_queue_id = fcq.concurrent_queue_id
+AND fcp.queue_application_id = fcq.application_id
+AND fcq.manager_type = '0'
+AND fcp.process_status_code = 'A';
+
+
+To see workflow log file location:
+
+SELECT fcp.logfile_name
+FROM fnd_concurrent_queues fcq, fnd_concurrent_processes fcp, fnd_lookups flkup
+WHERE concurrent_queue_name in ('WFMLRSVC')
+AND fcq.concurrent_queue_id = fcp.concurrent_queue_id
+AND fcq.application_id = fcp.queue_application_id
+AND flkup.lookup_code=fcp.process_status_code
+AND lookup_type ='CP_PROCESS_STATUS_CODE'
+AND meaning='Active';
+
+
+
+Work Flow deferred queue :
+
+
+select wfd.user_data.event_name EVENT_NAME,
+      decode(wfd.state, 
+                   0, '0 = Ready', 
+                   1, '1 = Delayed',
+                   2, '2 = Retained',
+                   3, '3 = Exception', 
+      to_char(substr(wfd.state,1,12))) State,
+      count(*) COUNT
+      from applsys.wf_deferred wfd
+      group by wfd.user_data.event_name, wfd.state
+      order by 3 desc, 1 asc;
+	  
+select substr(corr_id,1,40) corr_id, count(*) count from applsys.aq$wf_deferred where msg_state='READY' group by corr_id having count(*) >200;
+
+
+To check the cost manager status from back end
+
+SELECT x.process_type "Name",
+  DECODE(
+  (SELECT '1' FROM fnd_concurrent_requests cr,
+    fnd_concurrent_programs_vl cp,
+    fnd_application a WHERE cp.concurrent_program_id = cr.concurrent_program_id
+  AND cp.concurrent_program_name                     = x.process_name
+  AND cp.application_id                              = a.application_id
+  AND a.application_short_name                       = x.process_app_short_name
+  AND phase_code                                    != 'C'
+  ),'1','Active','Inactive') "Status",
+  x.worker_rows "Worker Rows",
+  x.timeout_hours "Timeout Hours",
+  x.timeout_minutes "Timeout Minutes",
+  x.process_hours "Process Interval Hours",
+  x.process_minutes "Process Interval Minutes",
+  x.process_seconds "Process Interval Seconds"
+FROM
+  (SELECT mipc.process_code ,
+    mipc.process_status ,
+    mipc.process_interval ,
+    mipc.manager_priority ,
+    mipc.worker_priority ,
+    mipc.worker_rows ,
+    mipc.processing_timeout ,
+    mipc.process_name ,
+    mipc.process_app_short_name ,
+    a.meaning process_type ,
+    FLOOR(mipc.process_interval    /3600) process_hours ,
+    FLOOR((mipc.process_interval   - (FLOOR(mipc.process_interval/3600) * 3600))/60) process_minutes ,
+    (mipc.process_interval         - (FLOOR(mipc.process_interval/3600) * 3600) - (FLOOR((mipc.process_interval - (FLOOR(mipc.process_interval/3600) * 3600))/60) * 60)) process_seconds ,
+    FLOOR(mipc.processing_timeout  /3600) timeout_hours ,
+    FLOOR((mipc.processing_timeout - FLOOR(mipc.processing_timeout/3600) * 3600)/60) timeout_minutes
+  FROM mtl_interface_proc_controls mipc,
+    mfg_lookups a
+  WHERE a.lookup_type = 'PROCESS_TYPE'
+  AND a.lookup_code   = mipc.process_code
+  ) x
+  WHERE x.PROCESS_TYPE = 'Cost Manager' -- uncomment this to display only the cost manager
+ORDER BY 1;
+
+
+admanagedsrvctl.sh stop oacore_server1
+
+
+ls -ltr FNDCPGSC*
+
+
+
+To find all responsibilities of a user:
+SELECT fu.user_name                "User Name",
+       frt.responsibility_name     "Responsibility Name",
+       furg.start_date             "Start Date",
+       furg.end_date               "End Date",      
+       fr.responsibility_key       "Responsibility Key",
+       fa.application_short_name   "Application Short Name"
+  FROM fnd_user_resp_groups_direct        furg,
+       applsys.fnd_user                   fu,
+       applsys.fnd_responsibility_tl      frt,
+       applsys.fnd_responsibility         fr,
+       applsys.fnd_application_tl         fat,
+       applsys.fnd_application            fa
+ WHERE furg.user_id             =  fu.user_id
+   AND furg.responsibility_id   =  frt.responsibility_id
+   AND fr.responsibility_id     =  frt.responsibility_id
+   AND fa.application_id        =  fat.application_id
+   AND fr.application_id        =  fat.application_id
+   AND frt.language             =  USERENV('LANG')
+   AND UPPER(fu.user_name)      =  UPPER('IEXADMIN')  
+ AND (furg.end_date IS NULL OR furg.end_date >= TRUNC(SYSDATE))
+ ORDER BY frt.responsibility_name;
+
+
+
+
+
+Concurrent Manager's Name                      TARGET Processes ACTUAL Processes
+---------------------------------------------- ---------------- ----------------
+Standard Manager                                             25               24
+Inventory Manager                                             5                2
+
+
+
+Service Status Detail
+PROD - Apps - Apps URL - http://oraappint1.amli.com:8000/OA_HTML/AppsLogin
+amli-nh-oraappint1
+Servicegroups: amli_nh_prod, amli_nh_db_checks
+View Current Status of Host ServicesView Service NotificationsView Service HistoryView Service Availability
+
+ Overview
+Ok
+HTTP OK: HTTP/1.1 200 OK - 3787 bytes in 0.082 second response time
+Status Details
+Service State:	 Ok
+Duration:	4m 30s
+Service Stability:	Unchanging (stable)
+Last Check:	2021-10-08 15:15:12
+Next Check:	2021-10-08 15:20:12
+
+
+
+
+ APID   Q_ID MANAGER                                            NODE              RUNNING  MAX  BUF D
+------ ------ -------------------------------------------------- ----------------- ------- ---- ---- ---
+     0      0 Standard Manager                                   TLC-365-TDB12          25   25    5 N
+     0      1 Internal Manager                                   TLC-365-TDB12           1    1      N
+     0      4 Conflict Resolution Manager                        TLC-365-TDB12           1    1      N
+     0      5 Scheduler/Prereleaser Manager                      TLC-365-TDB12           1    1      N
+     0   1063 OAM Metrics Collection Manager                     TLC-365-TDB12           1    1    1 N
+     0   1139 Workflow Agent Listener Service                    TLC-365-TDB12           1    1
+     0   1140 Workflow Mailer Service                            TLC-365-TDB12           1    1
+     0   1259 Workflow Document Web Services Service             TLC-365-TDB12           1    1
+     0  11304 Service Manager: TLC-365-TDB12                     TLC-365-TDB12           1    1
+   201     15 PO Document Approval Manager                       TLC-365-TDB12           1    1      N
+   201    222 Receiving Transaction Manager                      TLC-365-TDB12           1    1      N
+   275     40 PA Streamline Manager                              TLC-365-TDB12           1    1    5 N
+   401     10 Inventory Manager                                  TLC-365-TDB12           1    1    5 N
+   401     11 INV Remote Procedure Manager                       TLC-365-TDB12           1    1      N
+   696   1024 Session History Cleanup                            TLC-365-TDB12           1    1      N
+   696   1025 UWQ Worklist Items Release for Crashed session     TLC-365-TDB12           1    1      N
+   802   6268 FastFormula Transaction Manager                    TLC-365-TDB12           1    1      N
+
+17 rows selected.
+
+TASTL1>
+
+
+
+
+ 
+ 
+TO KNOW USER_ID:
+
+select user_id from fnd_user where user_name='FINASTRA';
+
+
+TO KNOW RESPONSIBILITY_ID:
+
+select responsibility_id from fnd_responsibility_vl
+where responsibility_name like 'Order Management Super User%Vision Operations%USA%';
+
+
+TO KNOW APPLICATION_ID:
+
+select * from fnd_responsibility_vl
+where responsibility_id=223;
+
+grep -i s_appltmp $CONTEXT_FILE
+
+SQL> desc fnd_responsibility_vl
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ROW_ID                                             ROWID
+ WEB_HOST_NAME                                      VARCHAR2(80)
+ WEB_AGENT_NAME                                     VARCHAR2(80)
+ APPLICATION_ID                            NOT NULL NUMBER(15)
+ RESPONSIBILITY_ID                         NOT NULL NUMBER(15)
+ RESPONSIBILITY_KEY                        NOT NULL VARCHAR2(30)
+ LAST_UPDATE_DATE                          NOT NULL DATE
+ LAST_UPDATED_BY                           NOT NULL NUMBER(15)
+ CREATION_DATE                             NOT NULL DATE
+ CREATED_BY                                NOT NULL NUMBER(15)
+ LAST_UPDATE_LOGIN                                  NUMBER(15)
+ DATA_GROUP_APPLICATION_ID                 NOT NULL NUMBER(15)
+ DATA_GROUP_ID                             NOT NULL NUMBER(15)
+ MENU_ID                                   NOT NULL NUMBER(15)
+ START_DATE                                NOT NULL DATE
+ END_DATE                                           DATE
+ GROUP_APPLICATION_ID                               NUMBER(15)
+ REQUEST_GROUP_ID                                   NUMBER(15)
+ VERSION                                            VARCHAR2(1)
+ RESPONSIBILITY_NAME                       NOT NULL VARCHAR2(100)
+ DESCRIPTION                                        VARCHAR2(240)
+
+SQL> desc fnd_user
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ USER_ID                                   NOT NULL NUMBER(15)
+ USER_NAME                                 NOT NULL VARCHAR2(100)
+ LAST_UPDATE_DATE                          NOT NULL DATE
+ LAST_UPDATED_BY                           NOT NULL NUMBER(15)
+ CREATION_DATE                             NOT NULL DATE
+ CREATED_BY                                NOT NULL NUMBER(15)
+ LAST_UPDATE_LOGIN                                  NUMBER(15)
+ ENCRYPTED_FOUNDATION_PASSWORD             NOT NULL VARCHAR2(100)
+ ENCRYPTED_USER_PASSWORD                   NOT NULL VARCHAR2(100)
+ SESSION_NUMBER                            NOT NULL NUMBER
+ START_DATE                                NOT NULL DATE
+ END_DATE                                           DATE
+ DESCRIPTION                                        VARCHAR2(240)
+ LAST_LOGON_DATE                                    DATE
+ PASSWORD_DATE                                      DATE
+ PASSWORD_ACCESSES_LEFT                             NUMBER(15)
+ PASSWORD_LIFESPAN_ACCESSES                         NUMBER(15)
+ PASSWORD_LIFESPAN_DAYS                             NUMBER(15)
+ EMPLOYEE_ID                                        NUMBER(15)
+ EMAIL_ADDRESS                                      VARCHAR2(240)
+ FAX                                                VARCHAR2(80)
+ CUSTOMER_ID                                        NUMBER(15)
+ SUPPLIER_ID                                        NUMBER(15)
+ WEB_PASSWORD                                       VARCHAR2(240)
+ USER_GUID                                          RAW(16)
+ GCN_CODE_COMBINATION_ID                            NUMBER(15)
+ PERSON_PARTY_ID                                    NUMBER
+
+SQL>
+
+
+To see clone date:
+grep -i s_sitename $CONTEXT_FILE
+
+To check IMAP status:
+telnet mtw-chi-mail01.mtw.itciss.com 143
+
+
+SQL> select node_name from apps.fnd_nodes;
+
+NODE_NAME
+--------------------------------------------------------------------------------
+AUTHENTICATION
+UGNX-CHI-PAP03
+UGNX-CHI-TAP01
+UGNX-CHI-TDB01
+
+ugnx-chi-tap01.ugnx.itciss.com:7011/console---EBSS CONSOLE
+
+SCTASK0083423
+
+
+
+
+EBSP_DATA11   
+EBSP_DATA12  
+
+
+XXGLO_COUPA_USER_IMPORT_PKG
+
+To decrypt the weblogic password:
+
+[applmeb1@ugnx-365-dap02 scripts]$ cd $EBS_DOMAIN_HOME
+[applmeb1@ugnx-365-dap02 EBS_domain]$ cd servers/AdminServer/
+[applmeb1@ugnx-365-dap02 AdminServer]$ ls -lrt
+total 36
+drwxr----- 7 applmeb1 dba 4096 Jan 20 12:21 upload
+drwxr----- 3 applmeb1 dba 4096 Jan 20 12:21 cache
+drwxr----- 3 applmeb1 dba 4096 Jan 20 12:21 sysman
+drwxr----- 2 applmeb1 dba 4096 Jan 20 12:28 security
+drwxr----- 6 applmeb1 dba 4096 Jan 20 21:03 data
+drwxr----- 5 applmeb1 dba 4096 Apr  7 23:20 adr
+drwxr----- 5 applmeb1 dba 8192 Apr 30 14:22 logs
+drwxr----- 5 applmeb1 dba 4096 May  3 23:45 tmp
+[applmeb1@ugnx-365-dap02 AdminServer]$ cd security/
+[applmeb1@ugnx-365-dap02 security]$ ll
+total 4
+-rw------- 1 applmeb1 dba 118 Jan 20 12:29 boot.properties
+[applmeb1@ugnx-365-dap02 security]$ cat boot.properties
+username={AES}MEuNGdSNYilG/ggVHtdHY+BIOUAvxO+UW8vomKXXEgI=
+password={AES}/AnI7ByI/gllIYiLwSjykLVzaqiEpS6i/hnQGjf3qlc=
+[applmeb1@ugnx-365-dap02 security]$ cd ../../
+[applmeb1@ugnx-365-dap02 servers]$ pwd
+/ua3001/fs2/FMW_Home/user_projects/domains/EBS_domain/servers
+[applmeb1@ugnx-365-dap02 servers]$ cd ../
+[applmeb1@ugnx-365-dap02 EBS_domain]$ ll
+total 5292
+-rw-r-----  1 applmeb1 dba   20075 Jan 20 12:20 aferror.log
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 autodeploy
+drwxr-x---  5 applmeb1 dba    4096 Feb  9 04:57 bin
+drwxr-x--- 11 applmeb1 dba   36864 Mar  3 05:42 config
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 console-ext
+-rw-r-----  1 applmeb1 dba      32 Feb 22 06:17 edit.lok
+-rw-r-----  1 applmeb1 dba     495 Mar  3 05:42 fileRealm.properties
+drwxr-x---  2 applmeb1 dba    4096 Mar  3 05:42 init-info
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 lib
+-rw-r-----  1 applmeb1 dba 5265198 Jan 20 12:20 NULL
+drwxr-x---  5 applmeb1 dba    4096 Feb  9 09:22 opmn
+drwxr-x---  2 applmeb1 dba    4096 Feb 22 06:17 pending
+drwxr-x---  2 applmeb1 dba    4096 Jan 20 12:20 security
+drwxr----- 16 applmeb1 dba    4096 Feb  9 09:15 servers
+-rw-r-----  1 applmeb1 dba     254 Jan 20 12:57 shutdown.py
+-rw-r--r--  1 applmeb1 dba     981 Mar  3 05:42 startManagedWebLogic_readme.txt
+-rwxr-x---  1 applmeb1 dba     269 Jan 20 12:21 startWebLogic.sh
+drwxr-x---  7 applmeb1 dba    4096 Jan 20 12:20 sysman
+drwxr-x---  2 applmeb1 dba    4096 Feb 22 06:17 tmp
+[applmeb1@ugnx-365-dap02 EBS_domain]$ cd security/
+[applmeb1@ugnx-365-dap02 security]$ ll
+total 36
+-rw-r----- 1 applmeb1 dba  3301 Jan 20 12:21 DefaultAuthenticatorInit.ldift
+-rw-r----- 1 applmeb1 dba  2398 Jan 20 12:20 DefaultRoleMapperInit.ldift
+-rw-r----- 1 applmeb1 dba    64 Jan 20 12:20 SerializedSystemIni.dat
+-rw-r----- 1 applmeb1 dba 22654 Jan 20 12:20 XACMLRoleMapperInit.ldift
+[applmeb1@ugnx-365-dap02 security]$ vi decrypt_password.py
+[applmeb1@ugnx-365-dap02 security]$ . $FMW_HOME/wlserver_10.3/server/bin/setWLSEnv.sh
+CLASSPATH=/ua3001/fs2/FMW_Home/patch_wls1036/profiles/default/sys_manifest_classpath/weblogic_patch.jar:/ua3001/fs2/EBSapps/comn/util/jdk64/lib/tools.jar:/ua3001/fs2/FMW_Home/wlserver_10.3/server/lib/weblogic_sp.jar:/ua3001/fs2/FMW_Home/wlserver_10.3/server/lib/weblogic.jar:/ua3001/fs2/FMW_Home/modules/features/weblogic.server.modules_10.3.6.0.jar:/ua3001/fs2/FMW_Home/wlserver_10.3/server/lib/webservices.jar:/ua3001/fs2/FMW_Home/modules/org.apache.ant_1.7.1/lib/ant-all.jar:/ua3001/fs2/FMW_Home/modules/net.sf.antcontrib_1.1.0.0_1-0b2/lib/ant-contrib.jar:/ua3001/fs2/EBSapps/comn/util/jdk32/lib/dt.jar:/ua3001/fs2/EBSapps/comn/util/jdk32/lib/tools.jar:/ua3001/fs2/EBSapps/comn/util/jdk32/jre/lib/rt.jar:/ua3001/fs2/EBSapps/comn/shared-libs/ebs-3rdparty/WEB-INF/lib/ebs3rdpartyManifest.jar:/ua3001/fs2/FMW_Home/Oracle_EBS-app1/shared-libs/ebs-fmw/WEB-INF/lib/ebsFMWManifest.jar:/ua3001/fs2/FMW_Home/Oracle_EBS-app1/shared-libs/ebs-appsborg/WEB-INF/lib/ebsAppsborgManifest.jar:/ua3001/fs2/FMW_Home/oracle_common/modules/oracle.uix_11.1.1/uix2.jar:/ua3001/fs2/EBSapps/comn/java/classes:/ua3001/fs2/EBSapps/10.1.2/forms/java:/ua3001/fs2/EBSapps/10.1.2/forms/java/frmall.jar:/ua3001/fs2/EBSapps/10.1.2/jlib/ewt3.jar:/ua3001/fs2/EBSapps/10.1.2/j2ee/OC4J_BI_Forms/applications/formsapp/formsweb/WEB-INF/lib/frmsrv.jar
+
+PATH=/ua3001/fs2/FMW_Home/wlserver_10.3/server/bin:/ua3001/fs2/FMW_Home/modules/org.apache.ant_1.7.1/bin:/ua3001/fs2/EBSapps/comn/util/jdk64/jre/bin:/ua3001/fs2/EBSapps/comn/util/jdk64/bin:/ua3001/fs_ne/EBSapps/appl/ad/bin:/ua3001/fs2/FMW_Home/modules/org.apache.ant_1.7.1/bin:/ua3002/fs2/inst/apps/EBSM_ugnx-365-dap02/admin/scripts:/ua3001/fs2/FMW_Home/webtier/perl/bin:/ua3001/fs2/EBSapps/10.1.2/bin:/ua3001/fs2/EBSapps/appl/fnd/12.0.0/bin:/ua3001/fs2/EBSapps/appl/ad/12.0.0/bin:/ua3001/fs2/EBSapps/comn/util/jdk32/jre/bin:/ua3001/fs2/EBSapps/comn/util/jdk32/bin::/ua3001/fs2/EBSapps/10.1.2/OPatch:/ua3001/fs2/EBSapps/10.1.2/bin:/usr/bin:/usr/sbin:/ua3001/fs2/EBSapps/comn/util/jdk32/jre/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/home/applmeb1/.local/bin:/home/applmeb1/bin
+
+Your environment has been set.
+[applmeb1@ugnx-365-dap02 security]$ java weblogic.WLST decrypt_password.py
+
+Initializing WebLogic Scripting Tool (WLST) ...
+
+Jython scans all the jar files it can find at first startup. Depending on the system, this process may take a few minutes to complete, and WLST may not return a prompt right away.
+
+Welcome to WebLogic Server Administration Scripting Shell
+
+Type help() for help on available commands
+
+Paste encrypted password ({AES}fk9EK...): {AES}/AnI7ByI/gllIYiLwSjykLVzaqiEpS6i/hnQGjf3qlc=
+Decrypted string is: welcome1
+[applmeb1@ugnx-365-dap02 security]$ 
+
+
+To see the weblogic password:
+
+vi decrypt_password.py
+=================================================================
+from weblogic.security.internal import *
+from weblogic.security.internal.encryption import *
+encryptionService = SerializedSystemIni.getEncryptionService(".")
+clearOrEncryptService = ClearOrEncryptedService(encryptionService)
+
+# Take encrypt password from user
+pwd = raw_input("Paste encrypted password ({AES}fk9EK...): ")
+
+# Delete unnecessary escape characters
+preppwd = pwd.replace("\\", "")
+
+# Display password
+print "Decrypted string is: " + clearOrEncryptService.decrypt(preppwd)
+=====================================================================
+
+. $FMW_HOME/wlserver_10.3/server/bin/setWLSEnv.sh
+
+java weblogic.WLST decrypt_password.py
+======================================================================
+
+
+
+
+
+
+      APID       Q_ID MANAGER                                  NODE                                        RUNNING        MAX        BUF D
+---------- ---------- ---------------------------------------- ---------------------------------------- ---------- ---------- ---------- -
+         0          4 Conflict Resolution Manager              UGNX-365-DAP02                                    1          1            N
+       401         11 INV Remote Procedure Manager             UGNX-365-DAP02                                    1          1            N
+         0          1 Internal Manager                         UGNX-365-DAP02                                    1          1            N
+         0      18310 Internal Monitor: UGNX-365-DAP02         UGNX-365-DAP02                                    1          1            N
+         0      19310 Internal Monitor: UGNX-365-DAP03         UGNX-365-DAP03                                    1          1            N
+         0      19313 Internal Monitor: UGNX-365-DAP04         UGNX-365-DAP04                                    1          1            N
+       401         10 Inventory Manager                        UGNX-365-DAP03                                    6          6          5 N
+         0      17297 Mobile Push Notification Service         UGNX-365-DAP02                                    1          1
+         0       1063 OAM Metrics Collection Manager           UGNX-365-DAP03                                    3          3          1 N
+         0       6269 Output Post Processor                    UGNX-365-DAP03                                    1          1            4
+         0      20309 Output Post Processor1                   UGNX-365-DAP02                                    1          1            4
+       275         40 PA Streamline Manager                    UGNX-365-DAP03                                    1          1          5 N
+       201         15 PO Document Approval Manager             UGNX-365-DAP02                                    1          1            N
+       201        222 Receiving Transaction Manager            UGNX-365-DAP02                                    1          1            N
+       535       1041 SFM Event Manager Queue Service          UGNX-365-DAP02                                    1          1            4
+         0          5 Scheduler/Prereleaser Manager            UGNX-365-DAP02                                    1          1            N
+         0      18309 Service Manager: UGNX-365-DAP02          UGNX-365-DAP02                                    1          1
+         0      19309 Service Manager: UGNX-365-DAP03          UGNX-365-DAP03                                    1          1
+       696       1024 Session History Cleanup                  UGNX-365-DAP02                                    1          1            N
+         0          0 Standard Manager                         UGNX-365-DAP02                                   20         20          5 N
+       716       1141 Transportation Manager                   UGNX-365-DAP03                                    1          1            N
+       696       1025 UWQ Worklist Items Release for Crashed s UGNX-365-DAP02                                    1          1            N
+                      ession
+
+         0       1139 Workflow Agent Listener Service          UGNX-365-DAP02                                    1          1
+         0       1259 Workflow Document Web Services Service   UGNX-365-DAP02                                    1          1
+         0       1140 Workflow Mailer Service                  UGNX-365-DAP02                                    1          1
+

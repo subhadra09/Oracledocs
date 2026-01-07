@@ -1,0 +1,178 @@
+1 sessions were found with 14987 as their unix process id.
+=====================================================================
+SID/Serial  : 6625,11223
+Foreground  : PID: 20949 - CUST_STND@evhc-chi-pap01.evhc.itciss.com (TNS V1
+Shadow      : PID: 14987 - oracle@evhc-chi-pdb01.evhc.itciss.com
+Terminal    : / UNKNOWN
+OS User     : applpeb1 on evhc-chi-pap01.evhc.itciss.com
+Ora User    : APPS
+Details     : PER/EMSC BENEFITS REPORTING - e:PER:cp:emscben/XXEVHC_BEN_TERM_P401K
+Status Flags: ACTIVE DEDICATED USER
+Tran Active : 00000012DB028BB8
+Login Time  : Thu 14:58:39
+Last Call   : Thu 14:58:39 -     48.1 min
+Lock/ Latch : NONE/ NONE
+Latch Spin  : NONE
+SQLID       : 00nzgaxhj2ur6
+Current SQL statement:
+        SELECT NULL FROM PAY_PRE_PAYMENTS PPY , PAY_ASSIGNMENT_ACTIONS A
+        SA , PAY_PAYROLL_ACTIONS PRA WHERE :B2 = PPY.PERSONAL_PAYMENT_ME
+        THOD_ID AND PPY.ASSIGNMENT_ACTION_ID = ASA.ASSIGNMENT_ACTION_ID
+        AND ASA.PAYROLL_ACTION_ID = PRA.PAYROLL_ACTION_ID AND PRA.EFFECT
+        IVE_DATE > :B1
+Previous SQL statement:
+        SELECT t1.effective_end_date effective_end_date FROM pay_element
+        _entries_f t1 WHERE t1.personal_payment_method_id = :p_parent_ke
+        y_value AND (t1.element_entry_id,t1.effective_start_date,t1.effe
+        ctive_end_date) IN (SELECT t2.element_entry_id,MAX(t2.effective_
+        start_date),MAX(t2.effective_end_date) FROM pay_element_entries_
+        f t2 WHERE t2.element_entry_id = t1.element_entry_id GROUP BY t2
+        .element_entry_id) FOR UPDATE NOWAIT /* dynamic SQL from dt_api.
+        lck_child for ORACLE 12.1 */
+Session Waits:
+        WAITING: db file sequential read
+Locks:
+        DML/DATA ENQ H: RS R: NONE -
+ HR_ALL_ORGANIZATION_UNITS
+        DML/DATA ENQ H: RS R: NONE -
+ PAY_ELEMENT_LINKS_F
+        DML/DATA ENQ H: RS R: NONE -
+ PAY_US_STATES
+        DML/DATA ENQ H: RX R: NONE -
+ PER_PAY_PROPOSALS
+        DML/DATA ENQ H: RX R: NONE -
+ PER_PAY_PROPOSAL_COMPONENTS
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_US_EMP_COUNTY_TAX_RULES_F
+        DML/DATA ENQ H: RS R: NONE -
+ PER_APPLICATIONS
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_US_EMP_STATE_TAX_RULES_F
+        PLS USR LOCK H: NULL R: NONE -
+ ID1=2147483647 ID2=0
+        DML/DATA ENQ H: RS R: NONE -
+ PER_PAY_BASES
+        DML/DATA ENQ H: RS R: NONE -
+ PER_JOBS
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_US_EMP_FED_TAX_RULES_F
+        DML/DATA ENQ H: RS R: NONE -
+ PER_EVENTS
+        DML/DATA ENQ H: RS R: NONE -
+ PER_COLLECTIVE_AGREEMENTS
+        DML/DATA ENQ H: RS R: NONE -
+ PER_ASSIGNMENT_STATUS_TYPES
+        DML/DATA ENQ H: RX R: NONE -
+ MLOG$_PER_ALL_ASSIGNMENTS_
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_ELEMENT_ENTRIES_F
+        TYPE=AE H: S R: NONE -
+ ID1=282942 ID2=0
+        DML/DATA ENQ H: RS R: NONE -
+ PER_CAGR_GRADES_DEF
+        DML/DATA ENQ H: RX R: NONE -
+ PER_PERIODS_OF_SERVICE
+        DML/DATA ENQ H: RX R: NONE -
+ PER_SECONDARY_ASS_STATUSES
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_ASSIGNMENT_LINK_USAGES_F
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_QUICKPAY_EXCLUSIONS
+        DML/DATA ENQ H: RS R: NONE -
+ PER_ALL_VACANCIES
+        DML/DATA ENQ H: RS R: NONE -
+ PAY_COST_ALLOCATION_KEYFLEX
+        DML/DATA ENQ H: RS R: NONE -
+ HR_SOFT_CODING_KEYFLEX
+        DML/DATA ENQ H: RS R: NONE -
+ PER_GRADES
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_QUICKPAY_INCLUSIONS
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_PERSONAL_PAYMENT_METHODS_F
+        DML/DATA ENQ H: RX R: NONE -
+ SSP_TEMP_AFFECTED_ROWS
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_US_EMP_CITY_TAX_RULES_F
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_ASSIGNMENT_ACTIONS
+        PLS USR LOCK H: X R: NONE -
+ ID1=1075014350 ID2=0
+        DML/DATA ENQ H: RS R: NONE -
+ HR_LOCATIONS_ALL
+        DML/DATA ENQ H: RX R: NONE -
+ PER_ALL_ASSIGNMENTS_F_PERF
+        DML/DATA ENQ H: RS R: NONE -
+ PER_RECRUITMENT_ACTIVITIES
+        DML/DATA ENQ H: RX R: NONE -
+ PER_ALL_ASSIGNMENTS_F
+        TRANSAC ENQ H: X R: NONE -
+ RS+SLOT#2359304 WRP#5076491
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_ELEMENT_ENTRY_VALUES_F
+        DML/DATA ENQ H: RS R: NONE -
+ PAY_PEOPLE_GROUPS
+        DML/DATA ENQ H: RX R: NONE -
+ PER_SPINAL_POINT_PLACEMENTS_F
+        DML/DATA ENQ H: RS R: NONE -
+ PAY_US_COUNTIES
+        DML/DATA ENQ H: RX R: NONE -
+ PER_ASSIGNMENT_BUDGET_VALUES_F
+        DML/DATA ENQ H: RS R: NONE -
+ PER_PERFORMANCE_REVIEWS
+        DML/DATA ENQ H: RS R: NONE -
+ PAY_US_CITY_GEOCODES
+        DML/DATA ENQ H: RX R: NONE -
+ PAY_COST_ALLOCATIONS_F
+        DML/DATA ENQ H: RS R: NONE -
+ PAY_EXTERNAL_ACCOUNTS
+        TYPE=TO H: RX R: NONE -
+ ID1=105603 ID2=1
+=====================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
++-----------------------------
+| Starting concurrent program execution...
++-----------------------------
+
+Arguments
+------------
+p_order_by='TRX_NUMBER'
+p_open_invoice='N'
+p_check_for_taxyn='N'
+p_choice='SEL'
+p_header_pages='1'
+p_debug_flag='N'
+p_message_level='10'
+P_CURR='BOTH'
+P_EMAIL_INVOICE='N'
+P_EMAIL_STATUS='All'
+------------
+
+Forcing NLS_NUMERIC_CHARACTERS to: '.,' for XDO processing
+
+ APPLLCSP Environment Variable set to :
+
+ Current NLS_LANG, NLS_NUMERIC_CHARACTERS and NLS_SORT Environment Variables are :
+AMERICAN_AMERICA.UTF8
+
+'.,'
+
+BINARY
+
+

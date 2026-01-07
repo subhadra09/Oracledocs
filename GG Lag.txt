@@ -1,0 +1,23 @@
+Golden Gate Interface
+
+> ggsci
+
+------------------------------------------
+To check the lag status 
+
+gg> info all
+------------------------------------------------
+
+To start REPLICANT
+
+gg> start replicat EXT_OFS2 (Provide the correct replicat name)
+
+
+-------------------------------------------------------
+
+HDFS Check status
+
+DB> select name,STATUS,OPT_DATE,COMMENTS from ggadmin.gg_switch;
+
+------------------------------------------------------------
+select name,STATUS,OPT_DATE,COMMENTS from ggadmin.gg_switch;

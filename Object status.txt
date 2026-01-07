@@ -1,0 +1,240 @@
+set lines 200
+col OWNER for a30;
+col OBJECT_NAME for a50;
+select OWNER,OBJECT_NAME,OBJECT_TYPE, STATUS,LAST_DDL_TIME from dba_objects where OBJECT_NAME='AJGALLAGHER_SECURITY';
+
+
+
+SQL> set lines 200
+col OWNER for a30;
+col OBJECT_NAME for a50;
+select OWNER,OBJECT_NAME,OBJECT_TYPE, STATUS,LAST_DDL_TIME from dba_objects where OBJECT_NAME like '%XXUGNX_EXCHANGE_RATES_PKG%';
+
+
+To check the status of the object with timestamp:
+set lines 200
+set pages 500
+col OWNER for a20
+col OBJECT_NAME format a40
+SELECT OWNER, OBJECT_NAME, OBJECT_TYPE, STATUS, TIMESTAMP FROM DBA_OBJECTS WHERE object_name in ('&A');
+
+
+
+xxglo_pl_payreceipt_pkg  xxpo_rcv_match_proc
+To compile the package:
+alter PACKAGE MWAC_DISCOVERER_FNS_PK  compile body;
+
+ALTER PACKAGE BOLINF.MWAC_DISCOVERER_FNS_PK COMPILE BODY;
+
+set pages 500;
+set lines 500;
+col owner for a10;
+col object_name for a40;
+col object_type for a40;
+select owner,object_name,object_type,created,last_ddl_time,status from dba_objects where object_name like upper ('%APPS_TS_TX_DATA%');
+
+
+for package:
+===========
+set verify off
+set feedback off
+set lines 132
+set pages 0
+set heading off
+set space 0
+set recsep off
+column text format a79
+column line noprint
+spool on
+spool XXUGNX_MAT_MANAGEMENT_UTIL_PKG.pks_bkp
+ 
+select DECODE(line,1,'create or replace ','')||text, line
+from dba_source
+where owner = upper('APPS')
+and type = upper('PACKAGE')
+and name = upper('XXUGNX_MAT_MANAGEMENT_UTIL_PKG')
+and line >= 1;
+ 
+spool off
+
+ 
+for package body:
+=================
+ 
+set verify off
+set feedback off
+set lines 132
+set pages 0
+set heading off
+set space 0
+set recsep off
+column text format a79
+column line noprint
+spool XXEVHC_PER_EQFX_NEW_HIRE_PKG.pkb_bkp
+ 
+select DECODE(line,1,'create or replace ','')||text, line
+from dba_source
+where owner = upper('APPS')
+and type = upper('PACKAGE BODY')
+and name = upper('XXEVHC_PER_EQFX_NEW_HIRE_PKG')
+and line >= 1;
+
+spool off
+
+mydreAm4w0rk
+
+
+To check DB link status:
+select OBJECT_NAME,OWNER,OBJECT_TYPE,LAST_DDL_TIME,STATUS from dba_objects where OBJECT_NAME='XXEXH_ECOMEX.EXTERRAN.COM';
+
+
+
+o   $EMSCPAY_TOP/admin/ADP_TAX_PKG.pks
+
+o   $EMSCPAY_TOP/admin/ADP_TAX_PKG.pkb
+
+
+Taking backup of existing Package
+========================================
+
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool XXUGNX_EXCHANGE_RATES_PKG_OCT10_pks.sql
+select text from dba_source where name='XXUGNX_EXCHANGE_RATES_PKG' and type='PACKAGE' and OWNER='APPS';
+spool off;
+
+=======================================================
+
+Taking backup of existing Package Body
+
+===========================================
+
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool XXUGNX_EXCHANGE_RATES_PKG_OCT10_pkb.sql
+select text from dba_source where name='XXUGNX_EXCHANGE_RATES_PKG' and type='PACKAGE BODY' and OWNER='APPS';
+spool off;
+
+
+For Views:
+============
+set long 9999
+set pages 999
+spool OEFG_ORDER_HEADERS_22JUNE.sql
+select dbms_metadata.get_ddl('VIEW','OEFG_ORDER_HEADERS','APPS') from dual;
+
+select dbms_metadata.get_ddl('&object_type','&object_name','&owner') from dual;
+
+
+For Synonyms:
+====================
+set heading off;
+set echo off;
+spool MWAC_OP_CUSTS_MV_10JUNE22.txt
+SELECT DBMS_METADATA.get_ddl ('SYNONYM','MWAC_OP_CUSTS_MV','APPS') FROM   dba_synonyms WHERE  owner = 'APPS' AND table_name='MWAC_OP_CUSTS_MV';
+spool off;
+
+
+
+
+
+
+
+To Take backup of existing Trigger:
+===================================
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool XXFA_UA_DESCRIPTION_TRG_APR06.sql
+select text from dba_source where name='XXFA_UA_DESCRIPTION_TRG' and type='TRIGGER' and OWNER='APPS';
+
+
+
+To Take backup of existing Function:
+===================================
+set pagesize 0
+set linesize 800
+set trimspool on
+set heading off
+set feedback off
+spool XXGLO_PO_CHARGE_ACCT_FUT2_APR20.sql
+select text from dba_source where name='XXGLO_PO_CHARGE_ACCT_FUT2' and type='FUNCTION' and OWNER='APPS';
+
+
+
+
+
+OWNER                          OBJECT_NAME                                        OBJECT_TYPE         STATUS  LAST_DDL_
+------------------------------ -------------------------------------------------- ------------------- ------- ---------
+APPS                           XXPMRY_CUST_DETAIL_FOR_OFS_V                       VIEW                VALID   04-MAY-22
+XXPMRY                         XXPMRY_CUST_DETAIL_FOR_OFS_V                       SYNONYM             VALID   04-MAY-22
+XXSIMS                         XXPMRY_CUST_DETAIL_FOR_OFS_V                       SYNONYM             VALID   04-MAY-22
+
+
+
+
+
+
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+OBJECT_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+SUBOBJECT_NAME                                                                                                                    OBJECT_ID DATA_OBJECT_ID OBJECT_TYPE                  CREATED
+-------------------------------------------------------------------------------------------------------------------------------- ---------- -------------- ----------------------- ---------------
+LAST_DDL_TIME   TIMESTAMP           STATUS  T G S  NAMESPACE EDITION_NAME
+--------------- ------------------- ------- - - - ---------- --------------------------------------------------------------------------------------------------------------------------------
+SHARING       E O
+------------- - -
+BOLINF
+MWAC_OP_CUSTS_MV
+                                                                                                                                    4020574                MATERIALIZED VIEW    07-DEC-21
+09-JUN-22       2021-12-07:05:34:15 INVALID N N N         19
+NONE            N
+
+BOLINF
+MWAC_OP_CUSTS_MV
+                                                                                                                                    4020575        4020575 TABLE                07-DEC-21
+07-DEC-21       2021-12-07:05:32:32 VALID   N N N          1
+NONE            N
+
+BOLINF
+MWAC_OP_CUSTS_MV#
+                                                                                                                                    3952928                VIEW                 24-NOV-21
+09-JUN-22       2021-11-24:13:47:27 VALID   N N N          1 ORA$BASE
+NONE          Y N
+
+
+
+GRANT SELECT ON XXUGNX_KINAXIS_PART_MASTER_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_BOM_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_PART_SOURCE_TRANSFER_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_PART_SOURCE_BUY_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_PART_SOURCE_MAKE_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_CUSTOMER_MASTER_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_SUPPLIER_MASTER_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_PARTUOMCONV_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_STANDARD_UOM_CONV_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_ITEM_ONHAND_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_LOT_NUMBERS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_INDPENDENT_DEMAND_SO_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_HISTORICAL_SO_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_HISTORICAL_SHIPMENT_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_OPEN_REQUISITIONS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_OPEN_PO_DETAILS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_HISTORICAL_PO_DETAILS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_OPEN_BATCH_INGRADIENTS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_OPEN_BATCH_PRODUCTS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_HISTORICAL_BATCH_INGRADIENTS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_HISTORICAL_BATCH_DETAILS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_OPEN_INT_TRANSFER_DETAILS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_OPEN_INT_INTRANSIT_DETAILS_V to XXINTUSER;
+GRANT SELECT ON XXUGNX_KINAXIS_HISTORICAL_INT_TRANSFER_DETAILS_V to XXINTUSER;

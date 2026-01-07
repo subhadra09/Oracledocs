@@ -1,0 +1,434 @@
+Blocking locks:
+
+To see holder;
+set pages 300 lines 300
+SELECT inst_id, DECODE(request,0,'Holder: ','Waiter: ')|| sid sess, id1, id2, lmode,request, type
+FROM GV$LOCK WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM GV$LOCK WHERE request>0)
+ORDER BY id1, request;
+
+
+select s1.username || '@' || s1.machine
+|| ' ( SID=' || s1.sid || ' )  is blocking '
+|| s2.username || '@' || s2.machine || ' ( SID=' || s2.sid || ' ) ' AS blocking_status
+from v$lock l1, v$session s1, v$lock l2, v$session s2
+where s1.sid=l1.sid and s2.sid=l2.sid
+and l1.BLOCK=1 and l2.request > 0
+and l1.id1 = l2.id1
+and l2.id2 = l2.id2 ;
+
+
+EXEC DBMS_IJOB.BROKEN(938010,TRUE);
+To kill session:
+alter system kill session 'SID,Serial'; 
+
+alter system kill session '2324,50128';
+@unix:wq!
+
+select process from v$session where SID=2324;
+
+
+To see Blocking user:
+
+set lines 200
+select B_USER_NAME,B_EMAIL,B_REQUEST_ID, BLOCKER_SID  from apps.XXAS_AUD_BLOCKING_SESSIONS_V;
+
+
+To see user details:
+select USER_NAME, EMAIL_ADDRESS from apps.FND_USER where user_name='URICHTER';
+
+To see Discovery sessions:
+
+select sid,serial#,status,username,machine,program,trunc(last_call_et/60,2) from v$session where module like '%Disco10%' and trunc(last_call_et/60,2) > 120 and status='ACTIVE';
+
+
+find . -name "cdmp*" -mmin +1400 -exec rm -rf {} \; &
+
+
+
+select  distinct substr(name, 1, instr(name, '/', -1)) || '  -- DATAfiles' from v$datafile union
+select distinct substr(name, 1, instr(name, '/', -1)) || '  -- TEMPfiles' from v$tempfile union
+select distinct substr(member, 1, instr(member, '/', -1)) || '  -- LOGfiles' from v$logfile union
+select distinct substr(name, 1, instr(name, '/', -1)) || '  -- Controlfiles' from v$controlfile;
+
+
+col FILE_NAME for a45;
+set lines 200;
+select 
+TABLESPACE_NAME,FILE_NAME,bytes/1024/1024/1024,maxbytes/1024/1024,STATUS,AUTOEXTENSIBLE 
+from dba_data_files where file_name like '%/ud2208%';
+
+Solutions for ora_onnn processes:
+
+The process: Onnn (ASM Connection Pool Process) : Maintains a connection to the ASM instance for metadata operations.
+Onnn slave processes are spawned on demand. These processes communicate with the ASM instance.
+
+since "o000" is an optional background process to connect to the ASM instance for metadata operations(it is spawned and terminated automatically)
+
+Generally, if its not too high and continuously reported, its harmless.
+If you think its too high and impacting Performance, then you may kill this process during the off peak hours and let it re-spawn.
+Killing this process will not affect the database operations.
+
+
+
+
+select resource_name, limit from dba_profiles WHERE profile = 'DEFAULT' AND resource_type = 'PASSWORD';
+
+
+
+
+
+
+
+
+BLOCKING_STATUS
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+APPS@nze1lerp01.sinopecarg.com.ar ( SID=1605 )  is blocking APPS@nze1lerp01.sinopecarg.com.ar ( SID=1078 )
+APPS@nze1leam02.sinopecarg.com.ar ( SID=1554 )  is blocking APPS@nze1leam02.sinopecarg.com.ar ( SID=132 )
+
+
+
+======================================================================
+    SID                         : 1605
+    Serial Number               : 11047
+    Oracle User Name            : APPS
+    Client OS user name         : srvebs20
+    Client Process ID           : 14439
+    Client machine Name         : nze1lerp01.sinopecarg.com.ar
+    Oracle PID                  : 143
+    OS Process ID(spid)         : 7370
+    Session's Status            : INACTIVE
+    Logon Time                  : 11/18 21:55pm
+    Program Name                : JDBC Thin Client
+========================================================================
+
+	
+========================================================================	
+	SID                         : 1554
+    Serial Number               : 1433
+    Oracle User Name            : APPS
+    Client OS user name         : srvwlg20
+    Client Process ID           : 1234
+    Client machine Name         : nze1leam02.sinopecarg.com.ar
+    Oracle PID                  : 115
+    OS Process ID(spid)         : 5080
+    Session's Status            : INACTIVE
+    Logon Time                  : 11/19 10:11am
+    Program Name                : JDBC Thin Client
+========================================================================
+
+
+=====================================================================
+SID/Serial  : 1554,1433
+Foreground  : PID: 1234 - JDBC Thin Client
+Shadow      : PID: 5080 - oracle@nze1lora01.sinopecarg.com.ar
+Terminal    : unknown/ UNKNOWN
+OS User     : srvwlg20 on nze1leam02.sinopecarg.com.ar
+Ora User    : APPS
+Details     :  - JDBC Thin Client
+Status Flags: INACTIVE DEDICATED USER
+Tran Active : 0000000348C2E418
+Login Time  : Fri 10:11:40
+Last Call   : Fri 14:16:38 -   1958.9 min
+Lock/ Latch : NONE/ NONE
+Latch Spin  : NONE
+Current SQL statement:
+Previous SQL statement:
+        SELECT   ppf.full_name  instance_name ,    NVL(ppf.employee_numb
+        er, ppf.npw_number) instance_number,         bdr.resource_id,
+               bdr.department_id,         bre.instance_id instance_id,
+         CASE                  WHEN ppf.employee_number IS NOT NULL THEN
+         'Employee'                  WHEN ppf.npw_number IS NOT NULL THE
+        N 'Contingent'          END AS TYPE,         to_char(null) as se
+        rial_number,         to_char(null) as item_name,         2 as re
+        source_type  FROM   PER_PEOPLE_F ppf,          BOM_RESOURCE_EMPL
+        OYEES bre,         BOM_DEPT_RES_INSTANCES bdri,         BOM_DEPA
+        RTMENT_RESOURCES bdr  WHERE   bdr.resource_id = bdri.resource_id
+          AND NVL(bdr.share_from_dept_id,bdr.department_id) = bdri.depar
+        tment_id  AND  ppf.person_id = bre.person_id   AND     ( (ppf.em
+        ployee_number IS NOT NULL) OR (ppf.npw_number IS NOT NULL) )   A
+        ND    trunc(SYSDATE) BETWEEN ppf.effective_start_date AND ppf.ef
+        fective_end_date  AND    bdri.instance_id = bre.instance_id   AN
+        D    ( (NVL(ppf.current_employee_flag,'N')='Y') OR (NVL(ppf.CURR
+        ENT_NPW_FLAG,'N')='Y') )  and bdr.resource_id = :p_resource_id
+        and bdr.department_id = :p_dept_id  UNION  SELECT decode(serial_
+        number,NULL,msik.concatenated_segments,serial_number) instance_n
+        ame,        to_char(NULL) AS instance_number,        bdr.resourc
+        e_id,        bdr.department_id,        bre.instance_id,        '
+        Equipment' AS Type,        bdri.serial_number,        msik.conca
+        tenated_segments as item_name,        1 as resource_type  FROM
+        BOM_DEPT_RES_INSTANCES bdri,               BOM_RESOURCE_EQUIPMEN
+        TS bre,        MTL_SYSTEM_ITEMS_KFV msik,        BOM_DEPARTMENT_
+        RESOURCES bdr  WHERE bdr.resource_id = bdri.resource_id  AND NVL
+        (bdr.share_from_dept_id,bdr.department_id) = bdri.department_id
+         AND  bdri.instance_id=bre.instance_id  AND bre.inventory_item_i
+        d = msik.inventory_item_id  AND bre.organization_id = msik.organ
+        ization_id  and bdr.resource_id = :p_resource_id  and bdr.depart
+        ment_id = :p_dept_id
+Session Waits:
+        WAITING: SQL*Net message from client
+Locks:
+        DML/DATA ENQ H: RX R: NONE - MLOG$_WIP_OPERATIONS
+        TYPE=AE H: S R: NONE - ID1=5577190 ID2=2615137256
+        TYPE=TO H: RX R: NONE - ID1=5221554 ID2=1
+        DML/DATA ENQ H: RX R: NONE - EAM_OP_COMPLETION_TXNS
+        DML/DATA ENQ H: RX R: NONE - WIP_OPERATIONS
+        TRANSAC ENQ H: X R: NONE - RS+SLOT#5373973 WRP#379680
+=====================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+select p.spid,s.username, s.sid,s.status,t.disk_reads, s.last_call_et/3600 last_call_et_Hrs,
+s.action,s.program,s.machine,s.process,lpad(t.sql_text,30) “Last SQL”
+from gv$session s, gv$sqlarea t,v$process p
+where s.sql_address =t.address and
+s.sql_hash_value =t.hash_value and
+p.addr=s.paddr and
+t.disk_reads > 5000
+and s.status=’INACTIVE’
+and s.process=’1234′
+order by S.PROGRAM;
+
+select p.spid,s.username, s.sid,s.status,t.disk_reads, s.last_call_et/3600 last_call_et_Hrs,
+s.action,s.program,s.machine cli_mach,s.process cli_process,lpad(t.sql_text,30)
+from gv$session s, gv$sqlarea t,v$process p
+where s.sql_address =t.address and
+s.sql_hash_value =t.hash_value and
+p.addr=s.paddr and
+t.disk_reads > 5000
+and s.status=’INACTIVE’
+and s.process=’1234′
+order by S.PROGRAM;
+
+
+
+PRDN> desc v$session_longops
+ Name                                                                                                              Null?    Type
+ ----------------------------------------------------------------------------------------------------------------- -------- ----------------------------------------------------------------------------
+ SID                                                                                                                        NUMBER
+ SERIAL#                                                                                                                    NUMBER
+ OPNAME                                                                                                                     VARCHAR2(64)
+ TARGET                                                                                                                     VARCHAR2(64)
+ TARGET_DESC                                                                                                                VARCHAR2(32)
+ SOFAR                                                                                                                      NUMBER
+ TOTALWORK                                                                                                                  NUMBER
+ UNITS                                                                                                                      VARCHAR2(32)
+ START_TIME                                                                                                                 DATE
+ LAST_UPDATE_TIME                                                                                                           DATE
+ TIMESTAMP                                                                                                                  DATE
+ TIME_REMAINING                                                                                                             NUMBER
+ ELAPSED_SECONDS                                                                                                            NUMBER
+ CONTEXT                                                                                                                    NUMBER
+ MESSAGE                                                                                                                    VARCHAR2(512)
+ USERNAME                                                                                                                   VARCHAR2(30)
+ SQL_ADDRESS                                                                                                                RAW(8)
+ SQL_HASH_VALUE                                                                                                             NUMBER
+ SQL_ID                                                                                                                     VARCHAR2(13)
+ SQL_PLAN_HASH_VALUE                                                                                                        NUMBER
+ SQL_EXEC_START                                                                                                             DATE
+ SQL_EXEC_ID                                                                                                                NUMBER
+ SQL_PLAN_LINE_ID                                                                                                           NUMBER
+ SQL_PLAN_OPERATION                                                                                                         VARCHAR2(30)
+ SQL_PLAN_OPTIONS                                                                                                           VARCHAR2(30)
+ QCSID                                                                                                                      NUMBER
+ CON_ID                                                                                                                     NUMBER
+
+
+
+
+
+
+SQL> select name,open_mode,database_role,startup_time from v$database,v$instance;
+
+NAME      OPEN_MODE            DATABASE_ROLE    STARTUP_T
+--------- -------------------- ---------------- ---------
+PROD      READ WRITE           PRIMARY          13-FEB-22
+
+SQL> select s1.username || '@' || s1.machine
+|| ' ( SID=' || s1.sid || ' )  is blocking '
+|| s2.username || '@' || s2.machine || ' ( SID=' || s2.sid || ' ) ' AS blocking_status
+from v$lock l1, v$session s1, v$lock l2, v$session s2
+  2  where s1.sid=l1.sid and s2.sid=l2.sid
+  3    4    5    6  and l1.BLOCK=1 and l2.request > 0
+  7  and l1.id1 = l2.id1
+  8  and l2.id2 = l2.id2 ;
+
+BLOCKING_STATUS
+--------------------------------------------------------------------------------
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=13 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=31 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=99 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=124 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=210 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=242 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=526 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=673 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=826 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=850 )
+APPS@uargrob044 ( SID=12 )  is blocking APPS@uargrob044 ( SID=909 )
+
+11 rows selected.
+
+SQL> select process from v$session where SID=12;
+
+PROCESS
+------------------------
+59572730
+
+SQL> @unix
+Enter Unix process id: 59572730
+=====================================================================
+4 sessions were found with 59572730 as their unix process id.
+=====================================================================
+SID/Serial  : 13,281
+Foreground  : PID: 59572730 -
+Shadow      : PID: 30474616 - oracle@uargrob044
+Terminal    : / UNKNOWN
+OS User     : applpr01 on uargrob044
+Ora User    : APPS
+Details     : FRM:DMITRIOR:DAN OPM Adm. Almace - ICQTYED
+Status Flags: ACTIVE DEDICATED USER
+Tran Active : 0700000407F8FD60
+Login Time  : Mon 10:56:34
+Last Call   : Mon 10:56:56 -     73.5 min
+Lock/ Latch : 070000040C5B4B98/ NONE
+Latch Spin  : NONE
+Current SQL statement:
+Previous SQL statement:
+        SELECT PROFILE_OPTION_VALUE FROM FND_PROFILE_OPTION_VALUES WHERE
+         PROFILE_OPTION_ID = :B4 AND APPLICATION_ID = :B3 AND LEVEL_ID =
+         :B2 AND LEVEL_VALUE = :B1 AND PROFILE_OPTION_VALUE IS NOT NULL
+Session Waits:
+        WAITING: enq: TX - row lock contention
+Locks:
+        TRANSAC ENQ H: NONE R: X - RS+SLOT#720905 WRP#22658825
+        TYPE=AE H: S R: NONE - ID1=9928874 ID2=0
+        DML/DATA ENQ H: RX R: NONE - SY_DOCS_SEQ
+=====================================================================
+SID/Serial  : 12,301
+Foreground  : PID: 59572730 -
+Shadow      : PID: 30474616 - oracle@uargrob044
+Terminal    : / UNKNOWN
+OS User     : applpr01 on uargrob044
+Ora User    : APPS
+Details     : FRM:DMITRIOR:DAN OPM Adm. Almace - XXOPMTMA_TRANS
+Status Flags: KILLED DEDICATED USER
+Tran Active : 070000040E025470
+Login Time  : Mon 10:47:11
+Last Call   : Mon 10:56:29 -     74.0 min
+Lock/ Latch : NONE/ NONE
+Latch Spin  : NONE
+Current SQL statement:
+Previous SQL statement:
+        select 'x' from dual where NVL( FND_PROFILE.Value('XX_ARG_OPM_PE
+        RMITIR_CAMBIO_LOTE'), 'Y' ) = 'N' and rownum=1
+Session Waits:
+        WAITED SHORT TIME: SQL*Net message from client
+Locks:
+        DML/DATA ENQ H: RX R: NONE - IC_LOTS_CPG
+        DML/DATA ENQ H: RX R: NONE - FND_DOC_SEQUENCE_USERS
+        DML/DATA ENQ H: RX R: NONE - SY_DOCS_MST
+        DML/DATA ENQ H: RX R: NONE - SY_ORGN_MST_B
+        DML/DATA ENQ H: RX R: NONE - FND_DOC_SEQUENCE_AUDIT
+        DML/DATA ENQ H: RX R: NONE - SY_DOCS_SEQ
+        DML/DATA ENQ H: RX R: NONE - IC_JRNL_MST
+        DML/DATA ENQ H: RX R: NONE - IC_TRAN_CMP
+        DML/DATA ENQ H: RX R: NONE - IC_ITEM_MST_B
+        DML/DATA ENQ H: RX R: NONE - IC_TEXT_HDR
+        DML/DATA ENQ H: RX R: NONE - XX_TRAN_DTL_ALL
+        DML/DATA ENQ H: RX R: NONE - SY_REAS_CDS_B
+        DML/DATA ENQ H: RX R: NONE - XX_OPM_NRO_REMITOS_ALL
+        DML/DATA ENQ H: RX R: NONE - IC_LOTS_MST
+        DML/DATA ENQ H: RX R: NONE - IC_LOTS_STS
+        DML/DATA ENQ H: RX R: NONE - XX_TRAN_HDR_ALL
+        TRANSAC ENQ H: X R: NONE - RS+SLOT#720905 WRP#22658825
+        DML/DATA ENQ H: RX R: NONE - IC_STAT_RPT
+        TYPE=AE H: S R: NONE - ID1=9928874 ID2=0
+        DML/DATA ENQ H: RX R: NONE - IC_LOCT_INV
+        DML/DATA ENQ H: RX R: NONE - IC_WHSE_MST
+        DML/DATA ENQ H: RX R: NONE - IC_ADJS_JNL
+=====================================================================
+SID/Serial  : 4,13707
+Foreground  : PID: 59572730 -
+Shadow      : PID: 30474616 - oracle@uargrob044
+Terminal    : / UNKNOWN
+OS User     : applpr01 on uargrob044
+Ora User    : APPS
+Details     : FRM:DMITRIOR:DAN OPM Adm. Almace - ICQTYVW2
+Status Flags: INACTIVE DEDICATED USER
+Tran Active : NONE
+Login Time  : Mon 10:49:16
+Last Call   : Mon 10:49:30 -     81.0 min
+Lock/ Latch : NONE/ NONE
+Latch Spin  : NONE
+Current SQL statement:
+Previous SQL statement:
+        begin fnd_signon.audit_form(:l,:r,:a,:f,:s,:e); end;
+Session Waits:
+        WAITED KNOWN TIME: SQL*Net message from client
+Locks:
+        TYPE=AE H: S R: NONE - ID1=9928874 ID2=0
+=====================================================================
+SID/Serial  : 2,4325
+Foreground  : PID: 59572730 -
+Shadow      : PID: 30474616 - oracle@uargrob044
+Terminal    : / UNKNOWN
+OS User     : applpr01 on uargrob044
+Ora User    : APPS
+Details     : DAN OPM Adm. Almacenes - FNDSCSGN
+Status Flags: INACTIVE DEDICATED USER
+Tran Active : NONE
+Login Time  : Mon 10:47:10
+Last Call   : Mon 10:56:34 -     73.9 min
+Lock/ Latch : NONE/ NONE
+Latch Spin  : NONE
+Current SQL statement:
+Previous SQL statement:
+        UPDATE ICX_SESSIONS SET LAST_CONNECT = SYSDATE WHERE SESSION_ID
+        = :B1
+Session Waits:
+        WAITED SHORT TIME: SQL*Net message from client
+Locks:
+        TYPE=AE H: S R: NONE - ID1=9928874 ID2=0
+=====================================================================
+4 sessions were found with 59572730 as their unix process id.
+Please scroll up to see details of all the sessions.
+=====================================================================
+SQL>
+SQL>
+SQL> alter system kill session '12,301' immediate;
+
+System altered.
+
+SQL>
+SQL>
+SQL>
+SQL> set pages 300 lines 300
+SELECT inst_id, DECODE(request,0,'Holder: ','Waiter: ')|| sid sess, id1, id2, lmode,request, type
+FROM GV$LOCK WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM GV$LOCK WHERE request>0)
+ORDER BY id1, request;SQL>   2    3
+
+no rows selected
+
+SQL> select name,open_mode,database_role,startup_time from v$database,v$instance;
+
+NAME      OPEN_MODE            DATABASE_ROLE    STARTUP_T
+--------- -------------------- ---------------- ---------
+PROD      READ WRITE           PRIMARY          13-FEB-22
+
+1 row selected.
+
+SQL> !hostname;date
+uargrob044
+Mon Feb 14 12:11:40 GRNLNDST 2022
+
+SQL>
+SQL>

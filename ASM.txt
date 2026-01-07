@@ -1,0 +1,186 @@
+ASM Disk Usage:
+
+To check space:
+ set pages 40000 lines 200
+col NAME for a20
+select GROUP_NUMBER DG#, name, ALLOCATION_UNIT_SIZE AU_SZ, STATE,
+TYPE, TOTAL_MB/1024 as TOTAL_GB,(TOTAL_MB-FREE_MB)/1024 as USED_GB, FREE_MB/1024 as FREE_GB, OFFLINE_DISKS from v$asm_diskgroup;
+
+
+To check whether disk is Mounted or not:
+select group_number||'; '||name||'; '||state||' , '||type||'; '||total_mb||'; '||free_mb from v$asm_diskgroup_stat;
+
+sho parameter fal
+
+
+To check whether disk is Member or not:
+col diskgroup for a20
+     col diskname for a25
+     col path for a35
+     select a.name DiskGroup,b.name DiskName, round(b.total_mb/1024), b.free_mb,b.path, b.header_status  from v$asm_disk b, v$asm_diskgroup a where a.group_number (+) =b.group_number order by b.group_number,b.name;
+
+
+
+To check the free size of the ASM disk tablespace :
+sql> SELECT name, total_mb, free_mb,total_mb-free_mb "used", state FROM v$asm_diskgroup WHERE name IN (SELECT substr(name,2,instr(name,'/',1)-2) FROM v$datafile);
+
+
+To see Disk space:
+select name, round(TOTAL_MB/1024) TOTAL_GB , round(FREE_MB/1024) FREE_GB, round((TOTAL_MB -FREE_MB)/1024) USED_GB , trunc(((TOTAL_MB -FREE_MB)/TOTAL_MB)*100) USED_PCT from v$asm_diskgroup;where name='DASTL1_DATA';
+
+ 
+delete force noprompt archivelog all backed up 1 times to device type sbt completed before 'sysdate-3/4';
+
+we need to add a new mount point to the data file systems to store the new database files.
+
+Recommendation is:
+
+Add new mount point (/ud1110) for 900G on Primary and DR server: evhc-chi-pdb01 and evhc-365-pdb01
+Please create a request for hosting and get the approval for this.
+Attached is the COF.
+
+Thanks,
+
+
+
+To add the Disk to the disk group:
+ALTER DISKGROUP PROD_DG ADD DISK '/dev/oracleasm/disks/DATA02';
+
+ALTER DISKGROUP PRODDATA ADD DISK '/dev/oracleasm/disks/PRODDATA14';
+
+
+To stop ASM Services :
+
+ps -ef|grep d.bin
+
+crsctl stop has 
+
+TO Start ASM Services :
+
+crsctl start has 
+
+
+
+$ oracleasm listdisks
+
+
+To Start Listener services Manually:
+alter session set container=EBSD;
+exec dbms_service.start_service('EBSD_ebs_patch');
+
+exec dbms_service.start_service('ebs_EBSD');
+
+
+
+
+
+NAME                             TOTAL_GB    FREE_GB    USED_GB   USED_PCT
+------------------------------ ---------- ---------- ---------- ----------
+DEV1DATA                             2800        194       2606         93
+
+SQL> select name from v$database;
+
+NAME
+---------
+DEV1EBS
+
+SQL> !hostname; date
+gblg-365-pdb01.gblg.itciss.com
+Fri Jun  4 01:39:42 CDT 2021
+
+SQL>
+
+
+
+
+
+
+RITM0026666
+
+
+
+select decode(backup_type,'L','ARCHIVELOG','D','FULL-BACKUP','I','INC-BACKUP') \"BCK-TYPE\", incremental_level \"INC-LEVEL\", controlfile_included \"CTL-INCLUDED\", to_char(min(start_time),'DD-MON-YYYY HH24:MI') \"START_TIME\", to_char(max(completion_time),'DD-MON-YYYY HH24:MI') \"COMPLETION_TIME\", trunc(sum(elapsed_seconds)/60,2) \"ELAP-MINS\" from v\$BACKUP_SET where trunc(completion_time) >= trunc(sysdate - 5) and backup_type in ('D', 'I') group by backup_type, incremental_level, controlfile_included, trunc(start_time) order by 4;
+
+
+
+
+
+
+
+
+
+PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM   SWAP     TIME+ COMMAND
+18037 orateb1   20   0 1346856  49044   7600 S   0.0  0.1 127784   2:05.32 gnome-software
+10557 orateb1   20   0 3272180  49116  17544 S   0.0  0.1  89672  56:45.38 gnome-shell
+17478 orateb1   20   0 3134624  51152  19340 S   0.0  0.1  82128  23:06.91 gnome-shell
+21997 orateb1   20   0   35.4g   5980   5804 S   0.0  0.0  62116   1:57.58 ora_mark_tebin1
+ 9492 orapeb1   20   0   20.4g   1328   1156 S   0.0  0.0  62108   4:45.51 ora_mark_pebin1
+ 8244 orateb1   20   0  238972   5392   4344 S   0.0  0.0  29056   1:26.99 Xvnc
+17226 orateb1   20   0  239688   5164   4360 S   0.0  0.0  28752   0:27.74 Xvnc
+11558 orateb1   20   0  557040   7004   3384 S   0.0  0.0  25504   0:02.89 tracker-store
+
+
+
+
+RITM0037652
+
+
+DISKGROUP            DISKNAME                    TOTAL_MB    FREE_MB PATH                                HEADER_STATU
+-------------------- ------------------------- ---------- ---------- ----------------------------------- ------------
+TSTDATA              PRODDATA_0000                 204799      16334 /dev/oracleasm/disks/TSTDATA01           MEMBER
+TSTDATA              PRODDATA_0001                 204799      16333 /dev/oracleasm/disks/TSTDATA02           MEMBER
+TSTDATA              PRODDATA_0002                 204799      16337 /dev/oracleasm/disks/TSTDATA03           MEMBER
+TSTDATA              PRODDATA_0003                 204799      16346 /dev/oracleasm/disks/TSTDATA04           MEMBER
+TSTDATA              PRODDATA_0004                 204799      16337 /dev/oracleasm/disks/TSTDATA05           MEMBER
+TSTDATA              PRODDATA_0005                 204799      16339 /dev/oracleasm/disks/TSTDATA06           MEMBER
+TSTDATA              PRODDATA_0006                 204799      16334 /dev/oracleasm/disks/TSTDATA07           MEMBER
+TSTDATA              PRODDATA_0007                 204799      16339 /dev/oracleasm/disks/TSTDATA08           MEMBER
+TSTDATA              PRODDATA_0008                 204799      16342 /dev/oracleasm/disks/TSTDATA09           MEMBER
+TSTDATA              PRODDATA_0009                 204799      16338 /dev/oracleasm/disks/TSTDATA10           MEMBER
+TSTDATA              PRODDATA_0010                 204799      16337 /dev/oracleasm/disks/TSTDATA11           MEMBER
+TSTDATA              PRODDATA_0011                 204797      16338 /dev/oracleasm/disks/TSTDATA12           MEMBER
+TSTDATA              PRODDATA_0012                 204797      16336 /dev/oracleasm/disks/TSTDATA13           MEMBER
+TSTDATA              PRODDATA_0013                 204797      16325 /dev/oracleasm/disks/TSTDATA14           MEMBER
+TSTDATA              PRODDATA_0014                 204797      16697 /dev/oracleasm/disks/TSTDATA15           MEMBER
+TSTFRA               PRODFRA_0000                  204799      86982 /dev/oracleasm/disks/TSTFRA01            MEMBER
+TSTFRA               PRODFRA_0001                  204797      86977 /dev/oracleasm/disks/TSTFRA02            MEMBER
+TSTFRA               PRODFRA_0002                  204797      86973 /dev/oracleasm/disks/TSTFRA03            MEMBER
+TSTREDO              PRODRECO_0000                 102399      86896 /dev/oracleasm/disks/TSTREDO01           MEMBER
+
+
+
+
+
+
+DISKGROUP            DISKNAME                    TOTAL_MB    FREE_MB PATH                                HEADER_STATU
+-------------------- ------------------------- ---------- ---------- ----------------------------------- ------------
+DATA                 DATA_0000                      20473      20411 /dev/oracleasm/disks/ASM_OCR        MEMBER
+PRODDATA             PRODDATA_0000                 204799      16482 /dev/oracleasm/disks/PRODDATA01     MEMBER
+PRODDATA             PRODDATA_0001                 204799      16479 /dev/oracleasm/disks/PRODDATA02     MEMBER
+PRODDATA             PRODDATA_0002                 204799      16482 /dev/oracleasm/disks/PRODDATA03     MEMBER
+PRODDATA             PRODDATA_0003                 204799      16484 /dev/oracleasm/disks/PRODDATA04     MEMBER
+PRODDATA             PRODDATA_0004                 204799      16483 /dev/oracleasm/disks/PRODDATA05     MEMBER
+PRODDATA             PRODDATA_0005                 204799      16479 /dev/oracleasm/disks/PRODDATA06     MEMBER
+PRODDATA             PRODDATA_0006                 204799      16483 /dev/oracleasm/disks/PRODDATA07     MEMBER
+PRODDATA             PRODDATA_0007                 204799      16482 /dev/oracleasm/disks/PRODDATA08     MEMBER
+PRODDATA             PRODDATA_0008                 204799      16481 /dev/oracleasm/disks/PRODDATA09     MEMBER
+PRODDATA             PRODDATA_0009                 204799      16481 /dev/oracleasm/disks/PRODDATA10     MEMBER
+PRODDATA             PRODDATA_0010                 204799      16484 /dev/oracleasm/disks/PRODDATA11     MEMBER
+PRODDATA             PRODDATA_0011                 204797      16479 /dev/oracleasm/disks/PRODDATA12     MEMBER
+PRODDATA             PRODDATA_0012                 204797      16481 /dev/oracleasm/disks/PRODDATA13     MEMBER
+PRODDATA             PRODDATA_0013                 204797      16485 /dev/oracleasm/disks/PRODDATA14     MEMBER
+PRODDATA             PRODDATA_0014                 204797      16479 /dev/oracleasm/disks/PRODDATA15     MEMBER
+PRODDATA             PRODDATA_0015                 204797      16892 /dev/oracleasm/disks/PRODDATA16     MEMBER
+PRODFRA              PRODFRA_0000                  204799      89981 /dev/oracleasm/disks/PRODFRA01      MEMBER
+PRODFRA              PRODFRA_0001                  204797      89965 /dev/oracleasm/disks/PRODFRA02      MEMBER
+PRODFRA              PRODFRA_0002                  204797      89972 /dev/oracleasm/disks/PRODFRA03      MEMBER
+PRODRECO             PRODRECO_0000                 102399      86896 /dev/oracleasm/disks/PRODREDO01     MEMBER
+
+
+
+
+
+
+
+
+

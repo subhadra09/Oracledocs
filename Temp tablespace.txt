@@ -1,0 +1,112 @@
+Check size of Temp Table:
+
+set pages 300 lines 300
+col TABLESPACE_NAME for a20	
+SELECT a.tablespace_name,ROUND((c.total_blocks*b.block_size)/1024/1024/1024,2)
+"Total Size [GB]",ROUND((a.used_blocks*b.block_size)/1024/1024/1024,2) "Used_size[GB]",
+ROUND(((c.total_blocks-a.used_blocks)*b.block_size)/1024/1024/1024,2) "Free_size[GB]",
+ROUND((a.max_blocks*b.block_size)/1024/1024/1024,2) "Max_Size_Ever_Used[GB]",
+ROUND((a.max_used_blocks*b.block_size)/1024/1024/1024,2) "MaxSize_ever_Used_by_Sorts[GB]" ,
+ROUND((a.used_blocks/c.total_blocks)*100,2) "Used Percentage"
+FROM V$sort_segment a,dba_tablespaces b,(SELECT tablespace_name,SUM(blocks)
+total_blocks FROM dba_temp_files GROUP by tablespace_name) c
+WHERE a.tablespace_name=b.tablespace_name AND a.tablespace_name=c.tablespace_name;
+
+
+To see temp files:
+
+col FILE_NAME for a60
+col TABLESPACE_NAME for a15
+select FILE_NAME,TABLESPACE_NAME,bytes/1024/1024/1024,AUTOEXTENSIBLE from dba_temp_files where TABLESPACE_NAME like '%TEMP%';
+
+To see details of session which is consuming more.
+
+col USERNAME for a10
+set lines 200
+col LASTCALLET for a20
+col TABLESPACE for a10
+cursor bigtemp_sids is
+select * from (
+select s.sid,
+s.status,
+s.sql_hash_value sesshash,
+u.SQLHASH sorthash,
+s.username,
+u.tablespace,
+sum(u.blocks*p.value/1024/1024) mbused ,
+sum(u.extents) noexts,
+nvl(s.module,s.program) proginfo,
+floor(last_call_et/3600)||':'||
+floor(mod(last_call_et,3600)/60)||':'||
+mod(mod(last_call_et,3600),60) lastcallet
+from v$sort_usage u,
+v$session s,
+v$parameter p
+where u.session_addr = s.saddr
+and p.name = 'db_block_size'
+group by s.sid,s.status,s.sql_hash_value,u.sqlhash,s.username,u.tablespace,
+nvl(s.module,s.program),
+floor(last_call_et/3600)||':'||
+floor(mod(last_call_et,3600)/60)||':'||
+mod(mod(last_call_et,3600),60)
+order by 7 desc,3)
+where rownum < 11;
+
+To see temp segments:
+
+select
+   srt.tablespace,
+   srt.segfile#,
+   srt.segblk#,
+   srt.blocks,
+   a.sid,
+   a.serial#,
+   a.username,
+   a.osuser,
+   a.status
+from
+   v$session    a,
+   v$sort_usage srt
+where
+   a.saddr = srt.session_addr
+order by
+   srt.tablespace, srt.segfile#, srt.segblk#,
+   srt.blocks;
+
+
+select USER_NAME,EMAIL_ADDRESS from apps.fnd_user where USER_NAME='HANUSER';
+
+
+
+
+
+
+
+
+alter database tempfile '/ut4102/DEBCL1/oradata/temp12.dbf' autoextend off;
+
+
+To create tempfile:
+
+alter database tempfile '/ut2001/DEV2/oradata/temp02.dbf' resize 1G;
+
+alter database tempfile '/SID/oradata/data02/temp12.dbf' autoextend on maxsize 1800M;
+
+alter tablespace TEMP add tempfile '/SID/oradata/data02/temp05.dbf' size 1800m reuse;
+
+ALTER TABLESPACE TEMP_tablespacename ADD TEMPFILE '+DISK_GROUP' SIZE 20G AUTOEXTEND ON NEXT 1G MAXSIZE 32G;
+
+
+ALTER TABLESPACE example DROP DATAFILE '+DGROUP1/example_df3.f';
+
+To drop the tempfile:
+
+ALTER TABLESPACE lmtemp DROP TEMPFILE '/u02/oracle/data/lmtemp02.dbf';
+
+To see temp usage in RAC:
+select sum(free_blocks) from gv$sort_segment where tablespace_name = '<TEMP TABLESPACE NAME>';
+
+
+
+
+

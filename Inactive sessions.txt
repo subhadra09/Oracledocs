@@ -1,0 +1,59 @@
+INACTIVE FRM WEB SESSIONS:
+select count(*) from v$session where status='INACTIVE' and last_call_et>3600*4 and EVENT='SQL*Net message from client' and PROGRAM like 'frmweb%' and SQL_HASH_VALUE=0;
+
+
+To clear frmweb which is older than 4 hrs
+set pages 200 
+select 'alter system kill session ' || '''' || sid || ',' || serial# || '''' || ' immediate;' from  v$session where status='INACTIVE' and last_call_et>3600*4 and EVENT='SQL*Net message from client' and PROGRAM like 'frmweb%'; 
+
+
+
+
+col resource_name for a25
+
+To kill VNC session:
+vncserver -kill :1
+
+INACTIVE JDBC SESSIONS:
+select count(*) from v$session where status='INACTIVE'
+and last_call_et>3600*10 and EVENT='SQL*Net message from client' and PROGRAM like 'JDBC%';
+
+
+select * from v$session where program like '%rman%';
+
+To see session usage:
+select resource_name, current_utilization, max_utilization, limit_value 
+    from v$resource_limit 
+    where resource_name in ('processes','sessions');
+	
+	
+select machine,count(*)  from v$session where status='INACTIVE' group by machine;
+
+select count(*)  from v$session where status='ACTIVE';
+
+select sid,serial#,sql_id,process from v$session where machine='ctfg-chi-pdb01.ctfg.itciss.com';
+	
+	
+select count(*) from v$session where status='INACTIVE' and machine='vloutmebsap01p' and process='14958';
+
+
+
+
+select decode(backup_type,'L','ARCHIVELOG','D','FULL-BACKUP','I','INC-BACKUP') "BCK-TYPE", incremental_level "INC-LEVEL", controlfile_included "CTL-INCLUDED", to_char(min(start_time),'DD-MON-YYYY HH24:MI') "START_TIME", to_char(max(completion_time),'DD-MON-YYYY HH24:MI') "COMPLETION_TIME", trunc(sum(elapsed_seconds)/60,2) "ELAP-MINS" from v$BACKUP_SET where trunc(completion_time) >= trunc(sysdate - 5) and backup_type in ('D', 'I') group by backup_type, incremental_level, controlfile_included, trunc(start_time) order by 4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

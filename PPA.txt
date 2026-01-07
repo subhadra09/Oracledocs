@@ -1,0 +1,245 @@
+Patch Analysis :
+==============
+select name,user,created from v$database;
+select release_name from apps.fnd_product_groups;
+col NODE_NAME for a35
+select NODE_NAME,SUPPORT_CP,SUPPORT_FORMS,SUPPORT_WEB,SUPPORT_ADMIN,support_db,STATUS from apps.fnd_nodes;
+select nls_language, language_code, installed_flag from apps.fnd_languages where installed_flag in ('I','B');
+select bug_number,creation_date,language from ad_bugs where bug_number = '&a';
+----
+select distinct APPLTOP_ID from AD_ADOP_SESSIONS;
+select ad_patch.is_patch_applied('R12',195,&a)from dual;
+
+
+Code level installed ::
+=======================
+col ABBREVIATION for a15
+col CODELEVEL for a15
+col BASELINE for a15
+col name for a30
+set linesize 100
+select ABBREVIATION,NAME,CODELEVEL,BASELINE from apps.ad_trackable_entities where lower(ABBREVIATION)='&product';
+
+SQL> SELECT ABBREVIATION, CODELEVEL FROM AD_TRACKABLE_ENTITIES WHERE ABBREVIATION IN ('ad', 'txk', 'fnd','atg_pf','gsm');
+
+
+wget --http-user=cms-ind-dba@itconvergence.com  --http-password=Winter@2020 "https://updates.oracle.com/Orion/Services/download/p17537119_R12_GENERIC.zip?aru=16868591&patch_file=p17537119_R12_GENERIC.zip" -O ./p17537119_R12_GENERIC.zip --no-check-certificate
+
+
+Patch apply in 12.2 downtime
+============================
+adop phase=apply apply_mode=downtime patches=34164667 patchtop=/ua2004/app/fs_ne/EBSapps/patch/
+
+
+adop phase=cutover mtrestart=no
+
+adop phase=finalize
+
+
+For language patches :
+adop phase=apply apply_mode=downtime workers=32 patches=34164667_ESA:u34164667.drv,34164667_HR:u34164667.drv,34164667_PL:u34164667.drv,34164667_SK:u34164667.drv,34164667_RU:u34164667.drv,34164667_D:u34164667.drv merge=yes wait_on_failed_job=yes prompt=yes  patchtop=/ua3001n/app/fs_ne/EBSapps/patch
+
+adop phase=apply patches=34268647,34268647_D:u34268647.drv,34268647_F:u34268647.drv,34268647_I:u34268647.drv,34268647_E:u34268647.drv,34268647_ESA:u34268647.drv,34268647_ZHS:u34268647.drv,34164667,34164667_D:u34164667.drv,34164667_F:u34164667.drv,34164667_I:u34164667.drv,34164667_E:u34164667.drv,34164667_ESA:u34164667.drv,34164667_ZHS:u34164667.drv,34197714 apply_mode=downtime
+
+
+To get the list of the log files along with snippet of the error message corresponding to each log file:
+adopscanlog -latest=yes
+
+select BUG_NUMBER,BUG_ID,CREATION_DATE,LANGUAGE,CREATED_BY from ad_bugs where BUG_NUMBER='29297112';
+
+Patch details:
+https://docs.oracle.com/cd/E26401_01/doc.122/e22954/T202991T531065.htm
+https://doyensys.com/blogs/r12-2-online-patching-adop-parameters-commands/
+
+
+export PATH=$ORACLE_HOME/OPatch:$PATH
+
+To apply DB patches:
+cd /interface/psu_cpu/Apr_2022/EBS_Patches/Database/29213893 ; opatch apply
+
+
+
+To install DB patches:
+cd $ORACLE_HOME/OPatch
+./datapatch -verbose
+
+
+To reapply a patch:
+options=forceapply 
+
+To resume the patch:
+abandon=yes restart=no
+
+Paching in hang state:
+oradebug hanganalyze 3;
+
+
+Use a find command to locate the file:
+
+find . -name US_<filename>_ldt.log
+
+or
+
+find . -name NLS_<filename>_ldt.log
+
+
+
+To check weblogic patches applied or not:
+
+$FMW_HOME/wlserver_10.3/server/bin/setWLSEnv.sh
+cd $FMW_HOME/utils/bsu
+./bsu.sh -view -status=applied -prod_dir=$FMW_HOME/wlserver_10.3
+
+
+
+======================================================================================================
+
+weblogic patches applied or not 
+========================
+$FMW_HOME/wlserver_10.3/server/bin/setWLSEnv.sh
+cd $FMW_HOME/utils/bsu
+./bsu.sh -view -status=applied -prod_dir=$FMW_HOME/wlserver_10.3
+
+
+Remove
+===
+export WLS_HOME=$FMW_HOME/wlserver_10.3
+export PATCH_DIR=/interface/psu_cpu/oct_2021/wls_10.3.6
+echo $WLS_HOME
+cd $FMW_HOME/utils/bsu
+
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=QFQ3 -verbose -remove
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=UEYM -verbose -remove
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=3NVW -verbose -remove
+
+Apply 
+===
+cp $PATCH_DIR/p33172858_1036_Generic.zip $FMW_HOME/utils/bsu/cache_dir/
+cd $FMW_HOME/utils/bsu/cache_dir/
+unzip -o p33172858_1036_Generic.zip
+echo $FILE_EDITION
+export WLS_HOME=$FMW_HOME/wlserver_10.3
+echo $WLS_HOME
+cd $FMW_HOME/utils/bsu
+time bsu.sh -prod_dir=$FMW_HOME/wlserver_10.3 -patchlist=TTGM -verbose -install
+./bsu.sh -install -patch_download_dir=$FMW_HOME/utils/bsu/cache_dir -patchlist=3NVW -prod_dir=$FMW_HOME/wlserver_10.3
+===================================================================================================
+
+Webtier
+========	 
+export ORACLE_HOME=$FMW_HOME/webtier
+echo $FILE_EDITION
+echo $TWO_TASK
+export PATH=$ORACLE_HOME/OPatch:$PATH
+cd /interface/DEBCU1/APR2022CPU/33963904
+opatch apply
+========================================================================================
+
+
+
+
+
+
+unzip p33518662_R12.AP.C_R12_d.zip
+unzip p33518662_R12.AP.C_R12_esa.zip
+unzip p33518662_R12.AP.C_R12_e.zip
+unzip p33518662_R12.AP.C_R12_f.zip
+unzip p33518662_R12.AP.C_R12_GENERIC.zip
+unzip p33518662_R12.AP.C_R12_i.zip
+unzip p33518662_R12.AP.C_R12_zhs.zip
+
+
+unzip p27400794_R12.XLA.C_R12_GENERIC.zip
+
+unzip p31162287_R12.XLA.C_R12_GENERIC.zip
+
+unzip p19276929_R12.AP.C_R12_GENERIC.zip
+
+
+
+
+ice-365-pap02.ice.itciss.com   -- DR app 
+
+ice-365-pdb01.ice.itciss.com   -- DR DB
+
+ice-365-pap01.ice.itciss.com  -- Test app 
+
+ice-365-pdb01.ice.itciss.com  -- Test DB
+
+
+
+ice-chi-pdb01.ice.itciss.com  -- Prod DB
+ice-chi-pap01.ice.itciss.com  -- Prod app
+ice-chi-pap02.ice.itciss.com  -- Prod app(primary)
+ice-chi-pap03.ice.itciss.com  -- Prod app
+ice-chi-pap04.ice.itciss.com  -- Prod Discovrer
+
+select BUG_NUMBER,BUG_ID,CREATION_DATE,LANGUAGE,CREATED_BY from ad_bugs where BUG_NUMBER in(34127951,34196316,34212478,34164667);
+
+
+ERROR: PATCH file system Oracle_Home /ua4001/fs2/FMW_Home/oracle_common is registered in inventory with reference Oracle_Home /ua4001/fs2/FMW_Home/webtier, but Oracle_Home /ua4001/fs2/FMW_Home/webtier is not registered in the inventory.
+Corrective Action: Resolve the dependency between Oracle_Home /ua4001/fs2/FMW_Home/webtier and /ua4001/fs2/FMW_Home/oracle_common in the inventory
+
+
+[appldeb1@ugnx-365-dap02 ContentsXML]$ cd /ua3001/oraInventory/ContentsXML
+[appldeb1@ugnx-365-dap02 ContentsXML]$
+[appldeb1@ugnx-365-dap02 ContentsXML]$ ls -ltr
+total 16
+-rw-rw---- 1 applmeb1 dba  311 Sep 21 10:23 comps.xml
+-rw-rw---- 1 applmeb1 dba  274 Sep 21 10:23 libs.xml
+-rw-r----- 1 appldeb1 dba 2586 Sep 21 10:50 inventory.xml_bkp_21sep22
+-rw-rw---- 1 applmeb1 dba 2316 Sep 21 11:23 inventory.xml
+[appldeb1@ugnx-365-dap02 ContentsXML]$
+[appldeb1@ugnx-365-dap02 ContentsXML]$
+[appldeb1@ugnx-365-dap02 ContentsXML]$ vi inventory.xml
+[appldeb1@ugnx-365-dap02 ContentsXML]$
+[appldeb1@ugnx-365-dap02 ContentsXML]$
+[appldeb1@ugnx-365-dap02 ContentsXML]$ diff inventory.xml_bkp_21sep22 inventory.xml
+48,58d47
+< <HOME NAME="OH985812579" LOC="/ua4001/fs2/FMW_Home/oracle_common" TYPE="O" IDX="13">
+<    <REFHOMELIST>
+<       <REFHOME LOC="/ua4001/fs2/FMW_Home/webtier"/>
+<    </REFHOMELIST>
+< </HOME>
+< <HOME NAME="OH1950657081" LOC="/ua4001/fs2/FMW_Home/webtier" TYPE="O" IDX="14">
+<    <DEPHOMELIST>
+<       <DEPHOME LOC="/ua4001/fs2/FMW_Home/oracle_common"/>
+<    </DEPHOMELIST>
+< </HOME>
+< <HOME NAME="OH2006671015" LOC="/ua4001/fs2/FMW_Home/Oracle_EBS-app1" TYPE="O" IDX="15"/>
+[appldeb1@ugnx-365-dap02 ContentsXML]$
+[appldeb1@ugnx-365-dap02 ContentsXML]$
+
+
+
+
+dba_directories
+================
+col DIRECTORY_NAME for a35
+col DIRECTORY_PATH for a115
+set lines 300 pages 100
+select DIRECTORY_NAME,DIRECTORY_PATH from dba_directories;
+
+DB links
+=======
+set lines 200
+set pages 20000
+col DB_LINK for a50
+col USERNAME for a20
+col HOST for a50
+select * from dba_db_links;
+
+
+utl
+====
+select name,value from v$parameter where name ='utl_file_dir';
+
+select value from v$parameter2 where name='utl_file_dir';
+
+select value from APPS.v$parameter where name='utl_file_dir';
+
+
+
+cd $ORACLE_HOME/appsutil/bin
+perl $ORACLE_HOME/appsutil/bin/txkCfgUtlfileDir.pl -contextfile=$CONTEXT_FILE -oraclehome=$ORACLE_HOME -outdir=$ORACLE_HOME/appsutil/log -mode=setUtlFileDir
+

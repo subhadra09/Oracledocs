@@ -1,0 +1,280 @@
+Invalid objects:
+
+select count(*) From dba_objects where status='INVALID';
+
+backup table 
+---------------
+create table invalids_RITM0047086 as (select owner,object_name,object_type from dba_objects where status='INVALID');
+
+create table xxsigny_invoice_tbl_DEC16 as (select * from xxsigny_invoice_tbl);
+
+Invalids Compare:
+=================
+select 'alter '|| OBJECT_TYPE||' '|| OWNER || '.' || OBJECT_NAME || ' compile;' from dba_objects where status like 'INVALID' and OBJECT_NAME  not in (select OBJECT_NAME from  invalids_RITM0047086);
+
+
+To see invalid objects count:
+SQL> select count(*) from dba_objects where status='INVALID';
+
+http://oraappintdev1.amli.com:8005/OA_HTML/AppsLogin
+
+To complile the objects in non-prod:
+SQL> exec utl_recomp.recomp_parallel(10);
+
+To see invalid objects:
+select object_name,owner,object_type from dba_objects where status='INVALID';
+
+
+
+create table invalids_27JAN2022 tablespace BKPD as (select owner,object_name,object_type from dba_objects where status='INVALID');
+
+For PROD:
+
+we need to take the backup of invaild and compile them.
+
+SQL>create table invalidsSCTASK0075385 as
+(select owner,object_name,object_type from dba_objects where status='INVALID');
+
+
+SQL> exec sys.utl_recomp.recomp_parallel(4);
+
+
+
+Column owner for a20;
+Column object_name for a25;
+Column object_type for a25;
+select owner,object_name,object_type,status from dba_objects where  status='INVALID' 
+and object_name not in (select object_name from  SYS.GETTY_INVALIDS);
+
+
+select
+   'ALTER ' || OBJECT_TYPE || ' ' ||
+   OWNER || '.' || OBJECT_NAME || ' COMPILE;'
+from
+   dba_objects
+where
+   status = 'INVALID' 
+   and object_name not in (select object_name from  SYS.GETTY_INVALIDS)
+   and object_type in ('SYNONYM','VIEW','PACKAGE','FUNCTION','PROCEDURE','MATERIALIZED VIEW');
+
+
+
+To check patch details:
+col LOG_ID for a30
+
+col OWNER for a10
+col JOB_NAME for a20
+col STATUS for a10
+col ERRORS for a20
+col OUTPUT for a20
+select LOG_ID,OWNER,JOB_NAME, STATUS,ERROR#, SESSION_ID, ACTUAL_START_DATE from dba_scheduler_job_run_details where JOB_NAME='SYNC_FFVALUES_JOB' ORDER BY ACTUAL_START_DATE;
+
+
+select log_id,log_date, owner, job_name, status, ADDITIONAL_INFO 
+from ALL_SCHEDULER_JOB_LOG where log_id=1593683;
+
+Check applied patches is db :
+
+SQL> select PATCH_ID, STATUS, ACTION_TIME, DESCRIPTION from dba_registry_sqlpatch where PATCH_ID='31424070';
+
+
+
+select dbms_java.get_jdk_version from dual;
+
+SQL>select BUG_ID,BUG_NUMBER,CREATION_DATE,LAST_UPDATE_DATE,LANGUAGE from apps.ad_bugs where bug_number in ('32306057','30709402');
+
+
+
+SQL>
+
+[EBSDE61 oracle@wwyaexa02np-sasxk1 OPatch]$ opatch lsinventory|grep -i 27301652
+     28435941, 27301652, 31302525, 31749725, 32162885, 32494568, 32918215
+
+[oracle@wwyaebsde6app01 bin]$ javac -version
+javac 1.7.0_301
+[oracle@wwyaebsde6app01 bin]$ java -version
+java version "1.7.0_301"
+Java(TM) SE Runtime Environment (build 1.7.0_301-b09)
+Java HotSpot(TM) Server VM (build 24.301-b09, mixed mode)
+[oracle@wwyaebsde6app01 bin]$
+
+
+$ORACLE_HOME/OPatch/opatch lspatches|grep 28101147
+
+
+
+select object_name,object_type,owner,LAST_DDL_TIME,status from dba_objects where status='INVALID' and object_name||owner not in (select object_name||owner from invalidsSCTASK0059939);
+CHG0045072
+
+
+
+
+create table invalidsRITM0038188 TABLESPACE BKPD as (select owner,object_name,object_type from dba_objects where status='INVALID');
+
+
+
+
+
+
+Request for code promotion to PEBUE1(production) instance. Please migrate the code referring to the instruction document attached with this request
+
+
+
+
+
+
+
+
+set lines 200
+set pages 500
+col OWNER for a20
+col OBJECT_NAME format a40
+
+SELECT OWNER, OBJECT_NAME, OBJECT_TYPE, STATUS, TIMESTAMP FROM DBA_OBJECTS WHERE object_name in ('&A');
+
+
+
+
+r11release -i qual -r 112999
+
+
+
+FNDLOAD apps/ugx1ATitc 0 Y UPLOAD $FND_TOP/patch/115/import/afcpprog.lct XXUGNXDETAILSUBLEDGERREP.ldt - WARNING=YES UPLOAD_MODE=REPLACE CUSTOM_MODE=FORCE
+
+
+FNDLOAD apps/ugx1ATitc 0 Y UPLOAD $FND_TOP/patch/115/import/afcpprog.lct XXUGNXDETAILSUBLEDGERREP.ldt - WARNING=YES UPLOAD_MODE=REPLACE CUSTOM_MODE=FORCE
+
+
+[MFSGPROD|applprod@mtw-chi-pap51 scripts]$ perl adpreclone.pl appsTier
+
+                     Copyright (c) 2011, 2014 Oracle Corporation
+                        Redwood Shores, California, USA
+
+                        Oracle E-Business Suite Rapid Clone
+
+                                 Version 12.2
+
+                      adpreclone Version 120.31.12020000.25
+
+Enter the APPS User Password:
+Enter the Weblogic AdminServer password :
+
+ Checking the status of the Oracle WebLogic Administration Server....
+
+ Running perl /ua1001/oracle/MFSGPROD/fs1/EBSapps/appl/ad/12.0.0/patch/115/bin/adProvisionEBS.pl ebs-get-serverstatus -contextfile=/ua1002/oracle/MFSGPROD/fs1/inst/apps/MFSGPROD_mtw-chi-pap51/appl/admin/MFSGPROD_mtw-chi-pap51.xml -servername=AdminServer -promptmsg=hide
+
+The Oracle WebLogic Administration Server is up.
+
+wlsDomainName: EBS_domain_MFSGPROD
+WLS Domain Name is VALID.
+
+Running:
+perl /ua1001/oracle/MFSGPROD/fs1/EBSapps/appl/ad/12.0.0/bin/adclone.pl java=/ua1001/oracle/MFSGPROD/fs1/EBSapps/comn/util/jdk64 mode=stage stage=/ua1001/oracle/MFSGPROD/fs1/EBSapps/comn/clone component=appsTier method= appctx=/ua1002/oracle/MFSGPROD/fs1/inst/apps/MFSGPROD_mtw-chi-pap51/appl/admin/MFSGPROD_mtw-chi-pap51.xml showProgress
+
+
+
+ Setting the wls environment
+
+Beginning application tier Stage - Tue May  3 21:07:59 2022
+
+/ua1001/oracle/MFSGPROD/fs1/EBSapps/comn/util/jdk64/bin/java -Xmx600M -Doracle.jdbc.autoCommitSpecCompliant=false -DCONTEXT_VALIDATED=false -Doracle.installer.oui_loc=/oui -classpath /ua1001/oracle/MFSGPROD/fs1/FMW_Home/webtier/lib/xmlparserv2.jar:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/webtier/jdbc/lib/ojdbc6.jar:/ua1001/oracle/MFSGPROD/fs1/EBSapps/comn/java/classes:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/webtier/oui/jlib/OraInstaller.jar:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/webtier/oui/jlib/ewt3.jar:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/webtier/oui/jlib/share.jar:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/webtier/../Oracle_EBS-app1/oui/jlib/srvm.jar:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/webtier/jlib/ojmisc.jar:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/wlserver_10.3/server/lib/weblogic.jar:/ua1001/oracle/MFSGPROD/fs1/FMW_Home/oracle_common/jlib/obfuscatepassword.jar  oracle.apps.ad.clone.StageAppsTier -e /ua1002/oracle/MFSGPROD/fs1/inst/apps/MFSGPROD_mtw-chi-pap51/appl/admin/MFSGPROD_mtw-chi-pap51.xml -stage /ua1001/oracle/MFSGPROD/fs1/EBSapps/comn/clone -tmp /tmp -method CUSTOM   -showProgress -nopromptmsg
+
+Log file located at /ua1002/oracle/MFSGPROD/fs1/inst/apps/MFSGPROD_mtw-chi-pap51/admin/log/clone/StageAppsTier_05032108.log
+
+  -     20% completed
+
+Completed Stage...
+Tue May  3 21:35:51 2022
+You have new mail in /var/spool/mail/applprod
+[MFSGPROD|applprod@mtw-chi-pap51 scripts]$
+
+
+
+
+The Node Manager is already shutdown
+
+NodeManager log is located at /ua4001/app/fs2/FMW_Home/wlserver_10.3/common/nodemanager/nmHome1
+
+adnodemgrctl.sh: exiting with status 2
+
+adnodemgrctl.sh: check the logfile /ua4002/app/fs2/inst/apps/DEV1EBS_extn-365-dap21/logs/appl/admin/log/adnodemgrctl.txt for more information ...  
+
+
+Summary report for current adop session: 
+    Node extn-365-dap21: 
+       - Fs_clone status:   Completed successfully
+    Node extn-365-dap22: 
+       - Fs_clone status:   Completed successfully
+    Node extn-365-dap26: 
+       - Fs_clone status:   Completed successfully
+    For more details, run the command: adop -status -detail
+
+adop exiting with status = 0 (Success)
+You have mail in /var/spool/mail/appldeb1
+[appldeb1@extn-365-dap21 ~]$ 
+
+
+
+
+ /us1006
+ /ud1005 148G
+ /ud1006 148G
+ /ud1007 148G
+ /ud1008 148G
+ /ud1009 148G
+ /ud1010 148G
+ /ud1011 148G
+ /ud1012 148G
+ /ud1013 148G
+ /ud1014 148G
+ /ud1015 148G
+ /ud1016 148G
+ /un1006  30G
+ /un1007  30G
+ /ut1006  69G
+ /ut1007  99G
+ /ud1017 148G
+ /ud1018 148G
+ /ud1019 148G
+ /ud1020 148G
+ /ud1021 148G
+ /ud1022 148G
+ /ud1023 148G
+ /ud1024 148G
+ /ud1025 148G
+ /ud1026 148G
+ /ud1027 148G
+ /ud1028 146G
+ /ud1029 148G
+ /ud1030 148G
+ /ud1031 148G
+ /ud1032 148G
+ /ud1033 148G
+ /ud1034 148G
+ /ud1035 148G
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
