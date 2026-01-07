@@ -1,0 +1,279 @@
+Listener services:
+==================
+
+SQL> select name from v$active_services;
+
+exec DBMS_SERVICE.CREATE_SERVICE(SERVICE_NAME=>'ebs_DEV2', NETWORK_NAME=>'ebs_DEV2');
+exec dbms_service.START_SERVICE('ebs_DEV2');
+exec DBMS_SERVICE.CREATE_SERVICE(SERVICE_NAME=>'DEV2_ebs_patch', NETWORK_NAME=>'DEV2_ebs_patch');
+exec dbms_service.START_SERVICE('DEV2_ebs_patch');
+6:37
+BEGIN DBMS_SERVICE.start_service(service_name => '&a');
+END;
+/
+
+BEGIN DBMS_SERVICE.stop_service(service_name => '&a');
+END;
+/
+
+BEGIN DBMS_SERVICE.delete_service(service_name => '&a');
+END;
+/
+
+BEGIN
+  DBMS_SERVICE.create_service(service_name => '&a',network_name => '&a');
+END;
+/
+
+
+SQL> exec DBMS_SERVICE.START_SERVICE('ebs_PRVRBI');
+
+PL/SQL procedure successfully completed.
+
+
+
+
+
+UGNX rsync:
+===========
+nohup /usr/bin/time /usr/bin/rsync -atlrzvuop --progress --exclude='.snapshot' /ua1001/fs2/EBSapps/ applpeb1@ugnx-365-pap01.ugnx.itciss.com:/ua1001/fs2/EBSapps/ 2> /tmp/ua1001.err 1> /tmp/ua1001.log &
+
+
+
+nohup /usr/bin/rsync -avlrtp -e 'ssh -p 873' --stats --rsync-path=/usr/bin/rsync --rsh=ssh /ua1001/fs2/EBSapps/ applmeb1@ugnx-365-dap01:/ua3001/fs2/EBSapps/ > /tmp/rsync_EBSapps_27Jul25.log &
+
+
+
+Convert the physical standby database to snapshot standby database:
+====================================================================
+
+SQL> set pages 200;
+SQL> set line 200;
+SQL> select status,instance_name,database_role,open_mode,host_name from v$database,v$Instance;
+
+STATUS       INSTANCE_NAME    DATABASE_ROLE    OPEN_MODE            HOST_NAME
+------------ ---------------- ---------------- -------------------- ----------------------------------------------------------------
+MOUNTED      CEBSPRD          PHYSICAL STANDBY MOUNTED              vlcurvebsdb01dr.curvoci.com
+
+SQL>  recover managed standby database cancel;
+Media recovery complete.
+SQL> alter database convert to SNAPSHOT STANDBY;
+
+Database altered.
+
+SQL> alter database open;
+
+Database altered.
+
+SQL> select status,instance_name,database_role,open_mode,host_name from v$database,v$Instance;
+
+STATUS       INSTANCE_NAME    DATABASE_ROLE    OPEN_MODE            HOST_NAME
+------------ ---------------- ---------------- -------------------- ----------------------------------------------------------------
+OPEN         CEBSPRD          SNAPSHOT STANDBY READ WRITE           vlcurvebsdb01dr.curvoci.com
+
+SQL>
+
+
+
+
+Convert the Source snapshot standby database to a physical standby database:
+===========================================================================
+
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 EBSP                           READ WRITE NO
+
+SQL>
+SQL>  Shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL>
+SQL>
+SQL> Disconnected from Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.27.0.0.0
+[EBSPCDB orapeb1@ugnx-365-pdb02 ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Fri Jul 25 03:59:03 2025
+Version 19.27.0.0.0
+
+Copyright (c) 1982, 2024, Oracle.  All rights reserved.
+
+Connected to an idle instance.
+
+SQL> startup mount;
+ORA-32004: obsolete or deprecated parameter(s) specified for RDBMS instance
+ORACLE instance started.
+
+Total System Global Area 6442446984 bytes
+Fixed Size                  9195656 bytes
+Variable Size            3523215360 bytes
+Database Buffers         2902458368 bytes
+Redo Buffers                7577600 bytes
+Database mounted.
+SQL>
+SQL>
+SQL> set pages 200; line 200;
+select status,instance_name,database_role,open_mode,host_name from v$database,v$Instance;
+SP2-0268: pagesize option not a valid number
+SQL>
+STATUS       INSTANCE_NAME    DATABASE_ROLE    OPEN_MODE
+------------ ---------------- ---------------- --------------------
+HOST_NAME
+----------------------------------------------------------------
+MOUNTED      EBSPCDB          SNAPSHOT STANDBY MOUNTED
+ugnx-365-pdb02.ugnx.itciss.com
+
+
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       MOUNTED
+         3 EBSP                           MOUNTED
+SQL>
+SQL>
+SQL>
+SQL> alter database convert to PHYSICAL STANDBY;
+
+Database altered.
+
+SQL> select status,instance_name,database_role,open_mode,host_name from v$database,v$Instance;
+
+STATUS       INSTANCE_NAME    DATABASE_ROLE    OPEN_MODE
+------------ ---------------- ---------------- --------------------
+HOST_NAME
+----------------------------------------------------------------
+MOUNTED      EBSPCDB          PHYSICAL STANDBY MOUNTED
+ugnx-365-pdb02.ugnx.itciss.com
+
+
+SQL>
+SQL>
+SQL>
+SQL>
+SQL>
+SQL> Shutdown immediate
+ORA-01109: database not open
+
+
+Database dismounted.
+ORACLE instance shut down.
+SQL>
+SQL>
+SQL> Startup mount
+ORA-32004: obsolete or deprecated parameter(s) specified for RDBMS instance
+ORACLE instance started.
+
+Total System Global Area 6442446984 bytes
+Fixed Size                  9195656 bytes
+Variable Size            3523215360 bytes
+Database Buffers         2902458368 bytes
+Redo Buffers                7577600 bytes
+Database mounted.
+SQL>
+SQL>
+SQL> !ps -ef|grep mrp
+orapeb1  26243 23468  0 04:04 pts/5    00:00:00 /bin/bash -c ps -ef|grep mrp
+orapeb1  26245 26243  0 04:04 pts/5    00:00:00 grep mrp
+
+SQL> alter database recover managed standby database disconnect from session;
+
+Database altered.
+
+SQL> !ps -ef|grep mrp
+orapeb1  26265     1  0 04:04 ?        00:00:00 ora_mrp0_EBSPCDB
+orapeb1  27162 23468  0 04:06 pts/5    00:00:00 /bin/bash -c ps -ef|grep mrp
+orapeb1  27164 27162  0 04:06 pts/5    00:00:00 grep mrp
+
+SQL>
+
+
+
+
+Adcfgclone step for UUGNX_EBSM:
+===============================
+cd /ua3001/fs2/EBSapps/comn/clone/bin
+
+export T2P_JAVA_OPTIONS="-Dt2p.temporary.port.range=5001-5050"
+perl adcfgclone.pl appsTier /home/applmeb1/refresh_files_run_20250724.195158/inst/EBSM_ugnx-365-dap01.xml dualfs
+
+
+To update profile values:
+=========================
+
+select PROFILE_OPTION_VALUE from fnd_profile_option_values where PROFILE_OPTION_VALUE like '%&Value%';
+update fnd_profile_option_values set PROFILE_OPTION_VALUE=replace(PROFILE_OPTION_VALUE, '&fromto','&setto') where profile_option_value like '%&fromto%';
+
+
+To check site_name:
+===================
+select profile_option_value from fnd_profile_option_values where profile_option_id = 125;
+
+UPDATE fnd_profile_option_values SET profile_option_value = 'DEBCU1 (cloned 22/04/2023)' WHERE  profile_option_id = 125;
+
+
+To check soft links:
+====================
+
+find . -type l | (while read FN ; do test -e "$FN" || ls -ld "$FN"; done)
+
+
+
+
+Set override address to test:
+==============================
+select fscpv.parameter_value
+    from fnd_svc_comp_params_tl fscpt
+    ,fnd_svc_comp_param_vals fscpv
+    where fscpt.display_name = 'Test Address'
+    and fscpt.parameter_id = fscpv.parameter_id;
+	
+update fnd_svc_comp_param_vals
+set    parameter_value = 'test@curvature.com'
+where  parameter_id =
+( select parameter_id
+ from   fnd_svc_comp_params_tl
+ where  display_name = 'Test Address');
+ 
+ 
+ 
+ 
+ 
+dba_directories
+================
+col DIRECTORY_NAME for a35
+col DIRECTORY_PATH for a115
+set lines 300 pages 100
+select DIRECTORY_NAME,DIRECTORY_PATH from dba_directories;
+
+select DIRECTORY_NAME,DIRECTORY_PATH from dba_directories where DIRECTORY_PATH like '%BLACKLINE%';
+
+DB links
+=======
+set lines 200
+set pages 20000
+col DB_LINK for a50
+col USERNAME for a20
+col HOST for a50
+select * from dba_db_links;
+
+
+utl
+====
+select name,value from v$parameter where name ='utl_file_dir';
+
+select value from v$parameter2 where name='utl_file_dir';
+
+select value from APPS.v$parameter where name='utl_file_dir';
+
+
+
+
+To reconfigure ords.war using the below command:
+================================================
+java -jar ords.war setup
+

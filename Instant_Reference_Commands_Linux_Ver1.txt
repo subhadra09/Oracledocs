@@ -1,0 +1,77 @@
+------------------------------------------------------
+Look at which process is EATING the CPUs:
+------------------------------------------------------
+# ps -eo pcpu,pid,user,args | sort -k 1 -r | head -10
+
+-------------------------------------------------------
+Look at the START time of a process
+-------------------------------------------------------
+# ps -eo pid,lstart,cmd
+
+-------------------------------------------------------
+Total Process COUNT:
+-------------------------------------------------------
+# ps -ef | wc -l
+
+-------------------------------------------------------
+Process count by USER sorted:
+-------------------------------------------------------
+# ps -eo user=|sort|uniq -c | sort -n -r
+
+-------------------------------------------------------
+Look at the number of user processes(threads) 
+-------------------------------------------------------
+# ps -u testuser -L | wc -l
+
+------------------------------------------------------
+Empty LINUX Cache (ROOT command)
+------------------------------------------------------
+# free -m && sync && echo 3 > /proc/sys/vm/drop_caches && free -m
+
+--------------------------------------------------------
+To find processes in 'D' state:
+--------------------------------------------------------
+# ps auwx | awk '$8 ~ "D"'
+
+-----------------------------------------------------------------
+Memory and SWAP Usage Investigation:
+-----------------------------------------------------------------
+# ps -o pid,user,%mem,command ax | sort -b -k3 -r
+
+------------------------------------------------------------------
+SWAP usage by process (Sorted):
+------------------------------------------------------------------
+# for file in /proc/*/status ; do awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' $file; done | sort -k 2 -n -r
+
+ps -eo user=|sort|uniq -c | sort -n -r
+
+
+$ ps auwx | awk '$8 ~ "D"'  		### Shows processes in ‘D’ state
+$ ps auwx | awk '$8 ~ "D"' | wc -l	### This value usually equals load value of the server
+
+ps -eo pmem,pid,user,args | sort -k 1 -r | head
+
+To see I/O Wait on disk:
+iostat -x 2 5 | grep xvdb1
+
+To see print jobs:
+lpstat -t | grep -i TRN_MUSUPS -A1
+
+sar -d 5 | grep "sda2"
+
+iostat -x 5 5|grep  sdc 
+
+iostat -x
+
+To see os version:
+
+lsb_release -a
+
+cat /etc/os-release
+
+hostnamectl
+
+CHG0057097
+
+
+nohup /backupfs/scripts/APPS_backup.sh ugnx-chi-pap01 APPS > /backupfs/APPS_BACKUP/ugnx-chi-pap01/logs/APPS_backup.out 2>&1 &
