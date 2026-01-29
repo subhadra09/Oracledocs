@@ -1,5 +1,7 @@
-system password : Butterfly@143
-ppk password : Butterfly@143
+
+https://ibegin.tcsapps.com/candidate/login
+https://nareshnadhans.weebly.com/scripts
+
 
 UGNX dashboard :
 
@@ -2746,5 +2748,6 @@ Oracle support :
 https://support.oracle.com/signin?page=shell&shell=main&main=main-signin-no-tenancy
 
 dba team leave request :
+
 
 https://docs.google.com/spreadsheets/d/1HoLepdNTS8HEdkPYhajk-VmHyS3TN0KRfw4ZbgMThbA/edit?pli=1&gid=0#gid=0
